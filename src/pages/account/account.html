@@ -1,0 +1,22 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Account</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content *ngIf='userReady'>
+
+  <div padding-top text-center>
+    <img [src]="user.picture" alt="avatar">
+    <h2>{{user.name}}</h2>
+
+    <ion-list inset>
+      <button ion-item (click)="updatePicture()">Update Picture</button>
+      <button ion-item (click)="updatePhone()">Update Phone number</button>
+      <button ion-item (click)="changeUsername()">Change Username</button>
+      <button ion-item (click)="changePassword()">Change Password</button>
+      <button ion-item (click)="support()">Support</button>
+      <button ion-item (click)="doFbLogout()">Logout</button>
+    </ion-list>
+  </div>
+</ion-content>

@@ -1,0 +1,40 @@
+.settings-header {
+  background-color: #434954;
+  padding: 16px;
+  width: 100%;
+  min-height: 150px;
+  text-align: center;
+}
+
+.settings-header img {
+  max-width: 200px;
+  min-height: 115px;
+  margin-left: -15px;
+  padding: 25px 0 20px 0;
+}
+
+.settings-info p {
+  color: #697072;
+  text-align: left;
+}
+
+.settings-info ion-icon {
+  color: color($colors, primary);
+  width: 20px;
+}
+
+.md,
+.wp {
+  .settings-info [text-right] {
+    margin-right: 0;
+  }
+}
+
+.ios .settings-info {
+  text-align: center;
+}
+
+.ios .settings-info ion-icon {
+  width: auto;
+  margin-right: 10px;
+}

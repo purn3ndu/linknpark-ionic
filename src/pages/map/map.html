@@ -1,0 +1,14 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Map</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
+  <div id="map">
+  
+  <button ion-button id="show" (click)="showpostIssueMarker()" >Post</button>
+  <label id="center-label" [hidden]="postHide" (click)="postIssueMarker()"><b><i><font size="4">Post</font></i></b></label>
+  <ion-icon name="pin" [hidden]="postHide" class="image-center"></ion-icon>
+  </div>
+</ion-content>

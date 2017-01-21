@@ -1,0 +1,35 @@
+ion-app._gmaps_cdv_ .nav-decor{
+  background-color: transparent !important;
+}
+ 
+map-page {
+ 
+    #map {
+        height: 100%;
+    }
+	
+	#show{
+	 position:relative;
+	 top:2%;
+	 left :50%;
+	 transform :translateX( -50% );
+	}
+	
+	.image-center {
+	  position:absolute;
+	  left: 46%;
+	  top :46%;
+	  transform :translateX( -50% );
+	  transform :translateY( -50% );
+	  font-size:48px;
+	  color:red;
+	}
+	#center-label{
+	  position : absolute;
+	  top :37%;
+	  left : 50%;
+	  transform :translateX( -50% );
+	  background-color : #fff;
+	}
+ 
+}
