@@ -460,7 +460,7 @@ export class MapPage {
 	  let markerOptions : GoogleMapsMarkerOptions = {
 	   position : loc,
 	   title : this.data[i].fields.title,
-	   icon : '#009' 
+	   icon : '#009'
 	  };
 	  this.map.addMarker(markerOptions).then((marker: GoogleMapsMarker) =>{
 	    
@@ -472,7 +472,10 @@ export class MapPage {
 			   if(marker == this.markers[i])
 			   {
 			     console.log('PK='+this.data[i].pk);
+			     alert(this.data[i].pk+", "+this.data[i].desc);
+
 				 this.markers[i].getPosition().then((pos) => {
+				 	alert(pos.lat+", "+pos.lng);
 				  console.log('Location ='+pos.lat+","+pos.lng);
 				 });
 			   }

@@ -1,0 +1,46 @@
+
+<ion-header>
+    <ion-navbar>
+        <ion-title>
+            {{postData.title}}
+        </ion-title>
+    </ion-navbar>
+</ion-header>
+
+<ion-content>
+<ion-grid>
+  <!-- Header -->
+  <ion-row>
+    <img class="postPic" src="{{img}}" />
+  </ion-row>
+  
+  <!-- Body -->
+  <ion-row>
+    <ion-col>
+      CATEGORY :
+    </ion-col>
+    <ion-col>
+      {{postData.category}}
+    </ion-col>
+  </ion-row>
+  <ion-row>
+    <ion-col>
+      DESCRIPTION :
+    </ion-col>
+    <ion-col>
+      {{postData.desc}}
+    </ion-col>
+  </ion-row>
+  <ion-row>
+    <ion-col>
+      REPORTED BY :
+    </ion-col>
+    <ion-col>
+      {{postData.email}}
+    </ion-col>
+  </ion-row>
+  
+
+</ion-grid>
+</ion-content>
+

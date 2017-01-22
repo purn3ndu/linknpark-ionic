@@ -30,7 +30,7 @@
 			<ion-input [(ngModel)]="title" name="title" type="text" spellcheck="false"></ion-input>
 		</ion-item>
 		<ion-item>
-		  <ion-label>Please choose a category</ion-label>
+		  <ion-label>Category</ion-label>
 		  <ion-select [(ngModel)]="category">
 		    <ion-option>Trash</ion-option>
 		    <ion-option>Street Light</ion-option>
@@ -40,6 +40,10 @@
 		    <ion-option>Other</ion-option>
 		  </ion-select>
 		</ion-item>
+
+			<p padding-left>
+			{{tags}}	
+			</p>
 		<ion-item>
 			<ion-label stacked color="primary">Description</ion-label>
 			<ion-textarea [(ngModel)]="desc" rows="6" placeholder="Enter your Description here"></ion-textarea>

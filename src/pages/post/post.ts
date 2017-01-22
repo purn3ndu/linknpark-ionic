@@ -57,7 +57,7 @@ export class IssuePostPage {
   public base64Image: string;
     public imageTags: string;
     public app: any;
-
+    public tags: string = "Tags: ";
     public lat : any;
     public lon : any;
     public title = 'test';
@@ -85,6 +85,15 @@ export class IssuePostPage {
   }
 
   public takePicture(typ: string) {
+        var category = [];
+        var categoryNames = ['Trash', 'Street Light', 'Broken Road', 'Traffic Problems', 'Homeless'];
+        category.push(["garbage", "trash", "waste", "litter", "recycle", "disposal"]);
+        category.push(["streetlight", "lamp", "lantern", "post", "dark"]);
+        category.push(["road", "street", "pavement", "asphalt", "pothole"]);
+        category.push(["traffic", "road", "car", "highway", "vehicle", "light"]);
+        category.push(["people", "adult", "animal", "mammal", "fatigue", "poor"]);
+        var finalCategoryCount = [0,0,0,0,0];
+
         var self = this;
         var options = typ === "camera" ? cameraOptions : folderOptions;
         Camera.getPicture(options).then(imageData => {
@@ -95,11 +104,30 @@ export class IssuePostPage {
                 //alert(response);
                 console.log(response);
                 if(response.data.status.code == 10000){
+                    self.tags = "";
                     response.data.outputs[0].data.concepts.forEach(function(concept) {
                         self.imageTags += concept.name + " : " + concept.value + "\n";
+                        self.tags += concept.name + "    ";
+
+                        category.forEach(function(valu, index) {
+                            valu.forEach(function(val) {
+                                if(concept.name.toLowerCase() == val){
+                                    finalCategoryCount[index] += concept.value;
+                                }
+                            });
+                        });
                     });
+                    var maxValue = 0;
+                    var maxIndex = 0;
+                    finalCategoryCount.forEach((val, index) => {
+                        if(val > maxValue){
+                            maxValue = val;
+                            maxIndex = index;
+                        }
+                    });
+                    self.category = categoryNames[maxIndex];
                     console.log(self.imageTags);
-                    alert(self.imageTags)
+                    //alert(self.imageTags)
                 }
               },
               function(err) {
