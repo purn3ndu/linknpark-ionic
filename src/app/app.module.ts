@@ -18,6 +18,9 @@ import { SupportPage } from '../pages/support/support';
 import { IssuePostPage } from '../pages/post/post';
 
 
+import { PostDetailPage } from '../pages/postdetail/postdetail';
+
+
 
 @NgModule({
   declarations: [
@@ -31,7 +34,8 @@ import { IssuePostPage } from '../pages/post/post';
     TabsPage,
     TutorialPage,
     SupportPage,
-    IssuePostPage
+    IssuePostPage,
+    PostDetailPage
   ],
   imports: [
     IonicModule.forRoot(CitysavApp)
@@ -48,7 +52,8 @@ import { IssuePostPage } from '../pages/post/post';
     TabsPage,
     TutorialPage,
     SupportPage,
-    IssuePostPage
+    IssuePostPage,
+    PostDetailPage
   ],
   providers: [ Storage]
 })

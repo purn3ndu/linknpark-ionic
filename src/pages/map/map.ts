@@ -8,6 +8,11 @@ import 'rxjs/add/operator/map';
 
 import { IssuePostPage } from '../post/post';
 
+import { PostDetailPage } from '../postdetail/postdetail';
+
+
+
+
 
  
 @Component({
@@ -472,10 +477,14 @@ export class MapPage {
 			   if(marker == this.markers[i])
 			   {
 			     console.log('PK='+this.data[i].pk);
-			     alert(this.data[i].pk+", "+this.data[i].desc);
+			     //alert(this.data[i].pk+", "+this.data[i].desc);
+
+			     	this.app.getRootNav().setRoot(this);
+			      //this.nav.push(AccountPage, {}, {animate: true, direction: 'forward'});
+			      this.app.getRootNav().push(PostDetailPage, {id : this.data[i].pk}, {animate: true, direction: 'forward'});
 
 				 this.markers[i].getPosition().then((pos) => {
-				 	alert(pos.lat+", "+pos.lng);
+				 	//alert(pos.lat+", "+pos.lng);
 				  console.log('Location ='+pos.lat+","+pos.lng);
 				 });
 			   }
