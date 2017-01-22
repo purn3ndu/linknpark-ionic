@@ -1,0 +1,57 @@
+<ion-header>
+	<ion-navbar>
+		<ion-title>
+			Tell us about the issue.
+		</ion-title>
+	</ion-navbar>
+</ion-header>
+
+<ion-content padding *ngIf='userReady'>
+	<ion-label>Logged in as: {{user.name}}</ion-label>
+
+
+	<ion-list no-lines>
+		<ion-item>
+
+            <button (click)="takePicture('camera')">
+                <ion-icon name="camera"></ion-icon>
+            </button>
+
+            <button (click)="takePicture('gallery')">
+                <ion-icon name="folder"></ion-icon>
+            </button>
+
+
+
+        </ion-item>
+
+		<ion-item>
+			<ion-label stacked color="primary">Post Title</ion-label>
+			<ion-input [(ngModel)]="title" name="title" type="text" spellcheck="false"></ion-input>
+		</ion-item>
+		<ion-item>
+		  <ion-label>Please choose a category</ion-label>
+		  <ion-select [(ngModel)]="category">
+		    <ion-option>Trash</ion-option>
+		    <ion-option>Street Light</ion-option>
+		    <ion-option>Broken Road</ion-option>
+		    <ion-option>Traffic Problems</ion-option>
+		    <ion-option>Homeless</ion-option>
+		    <ion-option>Other</ion-option>
+		  </ion-select>
+		</ion-item>
+		<ion-item>
+			<ion-label stacked color="primary">Description</ion-label>
+			<ion-textarea [(ngModel)]="desc" rows="6" placeholder="Enter your Description here"></ion-textarea>
+		</ion-item>
+		<ion-item padding>
+    		<img src="{{ base64Image }}" />
+		</ion-item>
+		<ion-row responsive-sm>
+			<ion-col>
+				<button ion-button (click)="onPostSubmit()" color="light" block>Submit Post</button>
+			</ion-col>
+		</ion-row>
+	</ion-list>
+
+</ion-content>

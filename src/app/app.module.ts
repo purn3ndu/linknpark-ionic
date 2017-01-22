@@ -15,6 +15,7 @@ import { RankPage } from '../pages/rank/rank';
 import { TabsPage } from '../pages/tabs/tabs';
 import { TutorialPage } from '../pages/tutorial/tutorial';
 import { SupportPage } from '../pages/support/support';
+import { IssuePostPage } from '../pages/post/post';
 
 
 
@@ -29,7 +30,8 @@ import { SupportPage } from '../pages/support/support';
     RankPage,
     TabsPage,
     TutorialPage,
-    SupportPage
+    SupportPage,
+    IssuePostPage
   ],
   imports: [
     IonicModule.forRoot(CitysavApp)
@@ -45,7 +47,8 @@ import { SupportPage } from '../pages/support/support';
     RankPage,
     TabsPage,
     TutorialPage,
-    SupportPage
+    SupportPage,
+    IssuePostPage
   ],
   providers: [ Storage]
 })

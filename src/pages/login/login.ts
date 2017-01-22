@@ -41,7 +41,8 @@ export class LoginPage {
         {
           name: user.name,
           gender: user.gender,
-          picture: user.picture
+          picture: user.picture,
+          email: user.email
         })
         .then(function(){
           nav.setRoot(TabsPage);

@@ -1,11 +1,45 @@
 <ion-header>
-  <ion-navbar>
-    <ion-title>
-      Your Stats
-    </ion-title>
-  </ion-navbar>
+    <ion-navbar>
+        <ion-title>
+            Top Contributors
+        </ion-title>
+    </ion-navbar>
 </ion-header>
 
-<ion-content padding>
-Coming Soon
+<ion-content>
+<ion-grid>
+  <!-- Header -->
+  <ion-row>
+    <ion-col>
+      <strong>Rank</strong>
+    </ion-col>
+    <ion-col>
+      <strong>Image</strong>
+    </ion-col>
+    <ion-col>
+      <strong>Name</strong>
+    </ion-col>
+    <ion-col>
+      <strong>Verified Submissions</strong>
+    </ion-col>
+  </ion-row>
+  
+  <!-- Body -->
+  <ion-row *ngFor="let record of userData" class="color{{record.rank%4}}">
+    <ion-col>
+      {{record.rank}}
+    </ion-col>
+    <ion-col>
+      <img class="smPic" src="{{record.pic}}" />
+    </ion-col>
+    <ion-col>
+      {{record.name}}
+    </ion-col>
+    <ion-col>
+      {{record.verifiedSubmissions}}
+    </ion-col>
+  </ion-row>
+  
+
+</ion-grid>
 </ion-content>
