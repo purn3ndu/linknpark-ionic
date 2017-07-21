@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 
-import { NavParams } from 'ionic-angular';
+import { NavParams,Platform } from 'ionic-angular';
 
-import { SettingsPage } from '../settings/settings';
 import { MapPage } from '../map/map';
 import { MypostsPage } from '../myposts/myposts';
 import { RankPage } from '../rank/rank';
+import {AccountPage} from '../account/account';
+import {Params} from '../../providers/params';
 
 
 @Component({
@@ -16,11 +17,28 @@ export class TabsPage {
   tab1Root: any = RankPage;
   tab2Root: any = MypostsPage;
   tab3Root: any = MapPage;
-  tab4Root: any = SettingsPage;
+  tab4Root: any = AccountPage;
   mySelectedIndex: number;
-
-  constructor(navParams: NavParams) {
+  mapParams: any;
+  
+  constructor(navParams: NavParams,
+  public platform: Platform,
+  public params: Params) {
     this.mySelectedIndex = navParams.data.tabIndex || 0;
+	this.mapParams = navParams.data;
+	
+	// set app open to default (ie normal open) for next time open when going into background.
+      this.platform.pause.subscribe(() => {
+            
+        });
+		
+	 //TO DO
+        //check if app is opening from push or from normal open by user.
+        // if opening from push (for new post) set this.mySelectedIndex to 0 to show map page with new post - for the case that the app is open in background and a tab other than map is opened.
+        this.platform.resume.subscribe(() => {
+            
+            this.mapParams = navParams.data;
+        });	
   }
 
 }

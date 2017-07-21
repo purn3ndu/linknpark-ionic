@@ -1,45 +1,78 @@
 <ion-header>
-    <ion-navbar>
-        <ion-title>
-            Top Contributors
-        </ion-title>
-    </ion-navbar>
+  <ion-navbar>
+    <ion-title>
+      Leaderboard
+    </ion-title>
+  </ion-navbar>
 </ion-header>
 
-<ion-content>
-<ion-grid>
-  <!-- Header -->
-  <ion-row>
-    <ion-col>
-      <strong>Rank</strong>
-    </ion-col>
-    <ion-col>
-      <strong>Image</strong>
-    </ion-col>
-    <ion-col>
-      <strong>Name</strong>
-    </ion-col>
-    <ion-col>
-      <strong>Verified Submissions</strong>
-    </ion-col>
-  </ion-row>
-  
-  <!-- Body -->
-  <ion-row *ngFor="let record of userData" class="color{{record.rank%4}}">
-    <ion-col>
-      {{record.rank}}
-    </ion-col>
-    <ion-col>
-      <img class="smPic" src="{{record.pic}}" />
-    </ion-col>
-    <ion-col>
-      {{record.name}}
-    </ion-col>
-    <ion-col>
-      {{record.verifiedSubmissions}}
-    </ion-col>
-  </ion-row>
-  
+<ion-content padding >
 
-</ion-grid>
+
+<ion-list no-lines [hidden]="!userReady">
+
+<ion-card>
+<ion-item>
+<ion-row>
+<ion-col width-33 >
+<button ion-item class="firstMember" text-center no-padding (click)="showUserProfile(thirdMember,true)">
+<ion-thumbnail>
+<img src="{{thirdMember.picture}}">
+</ion-thumbnail>
+<h4 text-center><b>{{thirdMember.name}}</b></h4>
+<h4 text-center><font color="green">{{thirdMember.karma_points}}</font></h4>
+<p text-center ><ion-icon name="medal" class="karmaClass"></ion-icon><ion-badge>{{thirdMember.rank}}</ion-badge></p>
+</button>
+</ion-col>
+<ion-col width-34>
+<button ion-item text-center no-padding (click)="showUserProfile(firstMember,true)">
+<ion-thumbnail>
+<img src="{{firstMember.picture}}">
+</ion-thumbnail>
+<h4 text-center><b>{{firstMember.name}}</b></h4>
+<h4 text-center><font color="green">{{firstMember.karma_points}}</font></h4>
+<p text-center><ion-icon name="medal" class="karmaClass"></ion-icon><ion-badge>{{firstMember.rank}}</ion-badge></p>
+</button>
+</ion-col>
+<ion-col width-33>
+<button ion-item class="firstMember" text-center no-padding (click)="showUserProfile(secondMember,true)">
+<ion-thumbnail>
+<img src="{{secondMember.picture}}">
+</ion-thumbnail>
+<h4 text-center><b>{{secondMember.name}}</b></h4>
+<h4 text-center><font color="green">{{secondMember.karma_points}}</font></h4>
+<p text-center><ion-icon name="medal" class="karmaClass"></ion-icon><ion-badge>{{secondMember.rank}}</ion-badge></p>
+</button>
+</ion-col>
+</ion-row>
+</ion-item>
+</ion-card>
+<ion-card *ngFor="let member of members" (click)="showUserProfile(member,true)">
+<ion-item>
+<ion-thumbnail item-left>
+<img src="{{member.picture}}">
+</ion-thumbnail>
+<h2>{{member.name}}</h2>
+<h3><font color="green">{{member.karma_points}}</font></h3>
+<p><ion-icon name="medal" class="karmaClass"></ion-icon><ion-badge>{{member.rank}}</ion-badge></p>
+</ion-item>
+</ion-card>
+<ion-card [hidden]="isUserPresent" (click)="showUserProfile(user,false)">
+<ion-item>
+<ion-thumbnail item-left>
+<img src="{{userPicture}}">
+</ion-thumbnail>
+<h2>Me</h2>
+<h3><font color="green">{{userKarma}}</font></h3>
+<p><ion-icon name="medal" class="karmaClass"></ion-icon><ion-badge>{{userRank}}</ion-badge></p>
+</ion-item>
+</ion-card>
+</ion-list>
+
+<ion-row text-center [hidden]="spinnerHidden">
+  <ion-col>
+  <ion-spinner></ion-spinner>
+  </ion-col>
+</ion-row>
+
 </ion-content>

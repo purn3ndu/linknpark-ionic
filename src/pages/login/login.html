@@ -5,9 +5,24 @@
       <p class="label-description">Solve all the problems you see around when you step out.</p>
     </ion-col>
   </ion-row>
-  <ion-row class="bottom-row">
+  <ion-row class="bottom-row" [hidden]="isHidden">
     <ion-col class="login-button">
       <button ion-button block (click)="doFbLogin()">Continue with Facebook</button>
     </ion-col>
+  </ion-row>
+  <ion-row [hidden]="isHidden">
+  <ion-col class="or-text">
+   OR
+  </ion-col>
+  </ion-row>
+  <ion-row class="bottom-row" [hidden]="isHidden">
+  <ion-col>
+      <button ion-button block (click)="doGoogleLogin()" color="danger">Continue with Google+</button>
+    </ion-col>
+  </ion-row>
+  <ion-row text-center [hidden]="!isHidden">
+  <ion-col>
+  <ion-spinner name='dots'></ion-spinner>
+  </ion-col>
   </ion-row>
 </ion-content>

@@ -1,17 +1,17 @@
 import { Component} from '@angular/core';
 
-import { NavController, Platform, NavParams, LoadingController, App } from 'ionic-angular';
-import { GoogleMap, GoogleMapsEvent, Geolocation, GoogleMapsLatLng, GoogleMapsMarkerOptions, GoogleMapsMarker } from 'ionic-native';
+import { NavController, Platform, NavParams, App, Events,AlertController } from 'ionic-angular';
+import { GoogleMap, GoogleMapsEvent, Geolocation, GoogleMapsLatLng, GoogleMapsMarkerOptions, GoogleMapsMarker,GoogleMapsAnimation, NativeStorage,Diagnostic, LocationAccuracy,Toast } from 'ionic-native';
 
 import { Http, Headers, RequestOptions } from '@angular/http';
-import 'rxjs/add/operator/map';
+import { PostdetailPage } from '../postdetail/postdetail';
 
-import { IssuePostPage } from '../post/post';
+import { Storage } from '@ionic/storage';
 
-import { PostDetailPage } from '../postdetail/postdetail';
+import {Params} from '../../providers/params';
+import {Camera, File} from 'ionic-native';
 
-
-
+import { IssuePost1Page } from '../issue-post1/issue-post1';
 
 
  
@@ -23,6 +23,7 @@ export class MapPage {
     
     postHide:boolean =true;	
     data : any = [];
+	sorted_index : any =[];
 	markers =[] ;
     map: GoogleMap;
     postMarker : GoogleMapsMarker;
@@ -30,33 +31,138 @@ export class MapPage {
     lastLocation : GoogleMapsLatLng = null;
     lastZoom : number = null;	
 	loading : any;
-	public lat : any;
-	public lng : any;
+	autocomplete : any;
+	myInput : string ='';
+	pinColor: string ='danger';
+	user:any;
+	reg_id:string;
+	isHidden : boolean = false;
+	
+	newMarker: any;
+
+	checkPermissionCalled : boolean ;
+	
+	cameraDisabled : boolean = false;
 	
     constructor(public navCtrl: NavController, 
 	public platform: Platform, 
-	private navParams: NavParams, private app: App,
+	public navParams: NavParams,
 	private http : Http,
-	public loadingCtrl: LoadingController) {
-        platform.ready().then(() => {
-           // this.loadMap();
-		 //  this.checkPermission();
-		 this.loadMap();
-        });
-	this.loading = this.loadingCtrl.create({
-      content : 'Fetching location'
-	 });	
+	public alertCtrl: AlertController,
+	private app: App,
+	public events: Events,
+	public storage: Storage,
+	public params: Params) {
+     
+	 platform.ready().then(() => {
+		 
+		this.newMarker= navParams.get('params'); 
+			
+		this.platform.resume.subscribe(() => {
+			
+			this.resumeCalled();
+			
+		});	
+	 
+	 NativeStorage.getItem('user')
+	.then((data) => {
+      this.user = {
+        name: data.name,
+        picture: data.picture,
+		email: data.email,
+		phone : data.phone,
+		karma_points : data.karma_points,
+		login : data.login
+      };
+	 this.storage.get('Registration_key')
+		.then((reg_id)=>{
+			this.reg_id = reg_id;
+			this.loadMap();
+		});	
+	}).catch((error) =>{
+
+    });
+	
+	  
+	 
+	});
+
+	 events.subscribe('issue-posted',(message) =>{
+	   
+	   this.pinColor = 'danger';
+	   this.postHide = true;
+	
+	   this.map.animateCamera({
+
+		'target': this.currLocation,
+        'zoom': this.lastZoom,
+        'duration' : 100,
+		'tilt':40,
+        'bearing': 50
+       }).then(() => {
+	    this.getVisibleRegion();
+		});
+	 });
+   	 
     }
+	
+	onInput(event)
+	{
+	 
+	  if(this.myInput == '')
+	   {
+	     this.map.setClickable(true);
+	   }
+	   else
+	   {
+	   this.map.setClickable(false);
+	   }
+	}
+	
+	onBlur(event)
+	{
+	 
+	 this.map.setClickable(true);
+	 
+	}
+	
+	
+	onClear(event)
+	{
+		this.myInput = '';
+		this.onInput(event);	
+	}
 	
  
     loadMap(){
 	
-    this.map = new GoogleMap('map', {
+	let from_device=null;
+	
+	if(this.platform.is('android'))
+	{
+		from_device='android';
+	}
+	else if(this.platform.is('ios'))
+	{
+		from_device = 'ios';
+	}
+	
+	let url='https://citysavior.pythonanywhere.com/posts/api/checkOrCreateFCMDevice/';
+	let body = JSON.stringify({'email':this.user.email,'reg_id':this.reg_id,'device':from_device});
+	let headers = new Headers({'Content-Type': 'application/json'});
+	let options = new RequestOptions({ headers:headers});
+	this.http.post(url,body,options).subscribe(result=>{
+	
+	},error=>{
+	
+	});
+	
+	this.map = new GoogleMap('map', {
       'backgroundColor': 'white',
       'controls': {
-        'compass': true,
-        'myLocationButton': true,
-        'indoorPicker': true,
+	    'compass' : true,
+        'myLocationButton' : true,
+		'indoorPicker': true,
         'zoom': true
       },
       'gestures': {
@@ -66,178 +172,327 @@ export class MapPage {
         'zoom': true
       }
     });
+
+    this.map.on(GoogleMapsEvent.MY_LOCATION_BUTTON_CLICK).subscribe(() => {
+	  this.getMyLocation();
+	});
 	
 
-    this.map.on(GoogleMapsEvent.MAP_READY).subscribe(() => {
-      console.log('Map is ready!');
-      this.loading.present();
-	  this.map.setClickable(false);
-	  this.getUserLocation();
+	let elem = <HTMLInputElement>document.getElementsByClassName('searchbar-input')[0];
+	this.autocomplete = new google.maps.places.Autocomplete(elem);
+	
+	this.autocomplete.addListener('place_changed',() =>{
+	   this.map.setClickable(true);
+	   var place = this.autocomplete.getPlace();
+	   if(!place.geometry)
+	   {
+	
+		 return;
+	   }
+	   if(place.geometry)
+	   { 
+	    let userLocation = new GoogleMapsLatLng(place.geometry.location.lat(),place.geometry.location.lng());
+		
+		
+		this.map.animateCamera({
+		'target': userLocation,
+        'zoom': 17,
+		'duration' : 2000,
+		'tilt':40,
+		'bearing': 50
+       });
+	
+	   }
+	  });
+	
+    
+     this.map.one(GoogleMapsEvent.MAP_READY).then(() => {
+	  
+	  Diagnostic.isLocationAuthorized().then(locAuth =>{
+		  		  
+		  if(this.newMarker!= undefined && this.newMarker.userEnter=='push'){
+			  
+				this.checkPermissionCalled = true;
+					
+				let url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.newMarker.post_id+'/';
+				this.http.get(url).subscribe( result => {
+					if(result.status == 200)
+						{
+							let resultData = result.json();
+							let newLatStr = resultData.lat;
+					        let newLngStr = resultData.lon;
+							let newLat  = Number(newLatStr);
+					        let newLng = Number(newLngStr);
+							this.lastLocation = new GoogleMapsLatLng(newLat,newLng);
+
+							let loc = new GoogleMapsLatLng(newLat,newLng);
+							this.map.animateCamera({
+
+								'target': loc,
+						        'duration' : 1000,
+								'tilt':40,
+						        'zoom': 17
+					       }).then(() => {
+							    this.getVisibleRegion();
+						   });
+						   
+						}
+				}, error=>{
+						
+					});
+		  }else{		
+		  
+		  if(locAuth)
+		  {
+
+		  	console.log('in here 1');
+			
+			this.checkPermission('loadMap');
+		  
+		  }else{
+
+		  		// For first time enter. Should also be extended to detect later changes in location permission by user.
+		  		Diagnostic.registerLocationStateChangeHandler((state) =>{
+
+		  			console.log("Location state changed to : " + state);
+
+				    let from_device=null;
+
+		  			if(this.platform.is('android'))
+					{
+						from_device='Android';
+					}
+					else if(this.platform.is('ios'))
+					{
+						from_device = 'iOS';
+					}
+
+				    if((from_device === "Android" && state !== Diagnostic.locationMode.LOCATION_OFF)
+				        || (from_device === "iOS") && ( state === 'authorized_when_in_use'
+				            || state === Diagnostic.permissionStatus.GRANTED_WHEN_IN_USE
+				    )){
+				        console.log("Location is available now!");
+				    	console.log('Calling user location method');
+				    	this.checkPermission('loadMap');
+				    }else{
+				    	console.log("Location is still not available now!");
+				    }
+		  			
+			});
+
+			  this.checkPermissionCalled = true;
+			  
+		  this.map.getCameraPosition().then((position) => {
+			let locStr = position.target.toString();
+			let latStr = locStr.substring(0,locStr.indexOf(','));
+			let lngStr = locStr.substring(locStr.indexOf(',') + 1);
+			let postlat  = Number(latStr);
+			let postlng = Number(lngStr);
+			let loc = new GoogleMapsLatLng(postlat,postlng);
+			this.currLocation = loc;
+			this.lastLocation = loc;
+			this.lastZoom = 1;
+			
+			let url = 'https://citysavior.pythonanywhere.com/posts/api/getArea/'+this.user.email+'/';
+			this.http.get(url).subscribe( result => {
+			if(result.status == 200)
+			{
+				
+				let resultData = result.json();
+				if(resultData.length == 0 )
+				{
+					
+					let url = 'https://citysavior.pythonanywhere.com/posts/api/createOrUpdateArea/';
+					let body = JSON.stringify({'email':this.user.email,'cen_lat':loc.lat,'cen_lon':loc.lng,'radius':2,'user_set':false});
+					let headers = new Headers({'Content-Type': 'application/json'});
+					let options = new RequestOptions({ headers:headers});
+					this.http.post(url,body,options).subscribe(result=>{
+			
+					},error=>{
+			
+					});	
+						
+				}
+			}
+			}, error=>{
+			
+			});
+			
+			
+			this.getVisibleRegion();
+
+		}).catch((error) => {
+
+		});
+	  }
+		  }
+	  }).catch((error) => {
+
+	  	console.log('Something went wrong with location authorization request');
+
+		});
+	  
 	});
 	
 	this.map.on(GoogleMapsEvent.CAMERA_CHANGE).subscribe(() =>{
 	 
-	 console.log('Camera change event fired');
 	 
 	 this.cameraLocationChange();
 	});
 	
-	this.map.on(GoogleMapsEvent.MY_LOCATION_BUTTON_CLICK).subscribe(() => {
-	  this.loading = this.loadingCtrl.create({
-           content : 'Fetching posts'
-	      });
-	  this.loading.present();
-	  this.map.setClickable(false);
-	  this.getUserLocation();
+	this.map.on(GoogleMapsEvent.MAP_CLICK).subscribe(() => {
+		let activeElement = <HTMLElement>document.activeElement;
+		activeElement && activeElement.blur && activeElement.blur();
+	
 	});
 	
 
   }
   
-  getUserLocation() {
+  getMyLocation(){
+   
+	  this.checkPermission('myLocationBtn');	
+  }
+  
+  getUserLocation(called:string) {
+
+  	console.log("enters here 2");
+
+  	// this.map.getMyLocation();
    
      
-     let GeolocOptions = {
-	  'maximumAge': 900000
-	 }; 
+	//  let GeolocOptions = {
+	//   'maximumAge': 900000
+	//  };
 	 
-     Geolocation.getCurrentPosition(GeolocOptions).then((res) => {
+	 
+	 
+ //     Geolocation.getCurrentPosition(GeolocOptions).then((res) => {
        
-	     let userLocation = new GoogleMapsLatLng(res.coords.latitude,res.coords.longitude);
+	//      let userLocation = new GoogleMapsLatLng(res.coords.latitude,res.coords.longitude);
 	    
-	
-     this.currLocation = userLocation;	
-	 this.lastLocation = userLocation;
-	 this.lastZoom = 17;
-	 
-      
-      this.map.animateCamera({
-        //'target' : userLocation.latLng
-		'target': userLocation,
-        'zoom': 17,
-        'duration' : 2000,
-        'tilt': 30,
-        'bearing': 50
-      }).then(() => {
-	  this.map.getVisibleRegion().then((visibleRegion) => {
-	     
-	     let neStr = visibleRegion.northeast.toUrlValue();
-		 let neLat = Number(neStr.substring(0,neStr.indexOf(',')));
-		 let neLng = Number(neStr.substring(neStr.indexOf(',') + 1));
-		 let swStr = visibleRegion.southwest.toUrlValue();
-		 let swLat = Number(swStr.substring(0,swStr.indexOf(',')));
-		 let swLng = Number(swStr.substring(swStr.indexOf(',') + 1));
-		 
-		 
-		 let lat_diff = Math.abs(neLat-swLat);
-		 let lng_diff = Math.abs(neLng-swLng);
-		 
-		 let lat_max = 0;
-		 let lat_min =0;
-		 let lng_max = 0;
-		 let lng_min = 0;
-		 
-		 if(neLat > swLat)
-		 {
-		  lat_max = neLat + (lat_diff/4);
-		  lat_min = swLat - (lat_diff/4);
-		 }
-		 else
-		 {
-		  lat_max = swLat + (lat_diff/4);
-		  lat_min = neLat - (lat_diff/4);
-		 }
-		 if(neLng > swLng)
-		 {
-		  lng_max = neLng + (lng_diff/4);
-		  lng_min = swLng - (lng_diff/4);
-		 }
-		 else
-		 {
-		   lng_max = swLng + (lng_diff/4);
-		   lng_min = neLng - (lng_diff/4);
-		 }
-	         			
-  		this.searchNearby(lat_min,lat_max,lng_min,lng_max);
-		});
-	  });
+	// }).catch((error) => {	
+		
+ 
+ //    });
 
-	  
-	  
-    }).catch((error) => {
-      console.log(error);
+
+	// let userLocation = this.map.getMyLocation();
+
+
+	this.map.getMyLocation().then((position) => {
+	        let newLat  = Number(position.latLng.lat.toString());
+	        let newLng = Number(position.latLng.lng.toString());
+			this.lastLocation = new GoogleMapsLatLng(newLat,newLng);
+			this.currLocation = new GoogleMapsLatLng(newLat,newLng);	
+
+
+			console.log('The user lat lng is: ',newLat,'  ',newLng );
+			console.log('The user location is: '+JSON.stringify(position));
+
+
+
+		if(this.lastZoom == null)
+		 {
+		 this.lastZoom = 17;
+		 }
+	      
+	      this.map.animateCamera({
+	     
+			'target': this.currLocation,
+	        'zoom': 17,
+	        'duration' : 2000,
+			'tilt':40,
+	        'bearing': 50
+	      }).then(() => {
+			  
+			  
+		  if(called == 'cameraBtn')
+		  {
+			  this.checkPermissionCalled = false;
+			  
+			  this.startCamera(this.currLocation);
+			  
+		  }else{
+		  
+		  let url = 'https://citysavior.pythonanywhere.com/posts/api/getArea/'+this.user.email+'/';
+			this.http.get(url).subscribe( result => {
+				if(result.status == 200)
+				{
+					
+					let resultData = result.json();
+					if(!(resultData[0].fields.user_set))
+					{
+						
+						let url = 'https://citysavior.pythonanywhere.com/posts/api/createOrUpdateArea/';
+						let body = JSON.stringify({'email':this.user.email,'cen_lat':this.currLocation.lat,'cen_lon':this.currLocation.lng,'radius':2,'user_set':false});
+						let headers = new Headers({'Content-Type': 'application/json'});
+						let options = new RequestOptions({ headers:headers});
+						this.http.post(url,body,options).subscribe(result=>{
+				
+						},error=>{
+				
+						});	
+							
+					}
+				}
+			}, error=>{
+				
+			});
+		  
+		  this.getVisibleRegion();
+		  }
+		  });
+
+
+	}).catch((error) => {	
+		console.log("enters here 4a");
+ 
     });
+
+
+	console.log("enters here 4b");
+     
+	 
+	 
+	 
+
+    
   }
   
   cameraLocationChange()
   {
+	let activeElement = <HTMLElement>document.activeElement;
+	activeElement && activeElement.blur && activeElement.blur();
+	if(this.lastLocation !=null || this.lastZoom !=null)
+	{		
+	
     this.map.getCameraPosition().then((position) => {
 	 let locStr = position.target.toString();
 	 let latStr = locStr.substring(0,locStr.indexOf(','));
 	  let lngStr = locStr.substring(locStr.indexOf(',') + 1);
 	  let lat  = Number(latStr);
 	  let lng = Number(lngStr);
-	  let location = new GoogleMapsLatLng(lat,lng);
-	  console.log('Curr location='+location.lat+','+location.lng);
-	  console.log('Last location='+this.lastLocation.lat+','+this.lastLocation.lng);
+	  let loc = new GoogleMapsLatLng(lat,lng);
+
+
 	  let currZoom = position.zoom;
 	  if(Math.abs(currZoom - this.lastZoom) > 0)
 	  {
 	    if(Math.abs(currZoom - this.lastZoom) > 2)
 		{
-		  this.loading = this.loadingCtrl.create({
-           content : 'Fetching posts'
-	      });
-		  this.map.setClickable(false);
-		  this.loading.present();
+		  
+		  this.isHidden = true;
 		  this.lastZoom = currZoom;
 		  this.map.getCameraPosition().then((position) => {
-		   console.log('fetch issues due to zoom');
+
 		   let newLocStr = position.target.toString();
 			let newLatStr = newLocStr.substring(0,newLocStr.indexOf(','));
 	        let newLngStr = newLocStr.substring(newLocStr.indexOf(',') + 1);
 	        let newLat  = Number(newLatStr);
 	        let newLng = Number(newLngStr);
 			this.lastLocation = new GoogleMapsLatLng(newLat,newLng);
-			this.map.getVisibleRegion().then((visibleRegion) => {
-			 let neStr = visibleRegion.northeast.toUrlValue();
-		     let neLat = Number(neStr.substring(0,neStr.indexOf(',')));
-		     let neLng = Number(neStr.substring(neStr.indexOf(',') + 1));
-		     let swStr = visibleRegion.southwest.toUrlValue();
-		     let swLat = Number(swStr.substring(0,swStr.indexOf(',')));
-		     let swLng = Number(swStr.substring(swStr.indexOf(',') + 1));
-			 
-			 let lat_diff = Math.abs(neLat-swLat);
-		     let lng_diff = Math.abs(neLng-swLng);
-			 
-			 let lat_max = 0;
-		     let lat_min =0;
-		     let lng_max = 0;
-		     let lng_min = 0;
-			 
-			 if(neLat > swLat)
-		      {
-		        lat_max = neLat + (lat_diff/4);
-		        lat_min = swLat - (lat_diff/4);
-		      }
-		     else
-		      {
-				lat_max = swLat + (lat_diff/4);
-				lat_min = neLat - (lat_diff/4);
-			  }
-			 if(neLng > swLng)
-			  {
-				lng_max = neLng + (lng_diff/4);
-				lng_min = swLng - (lng_diff/4);
-			  }
-			 else
-			  {
-				lng_max = swLng + (lng_diff/4);
-				lng_min = neLng - (lng_diff/4);
-			  }
-			  
-			  this.searchNearby(lat_min,lat_max,lng_min,lng_max);
-			});
+			this.getVisibleRegion();
 		  });
 		}
 	  }
@@ -254,20 +509,13 @@ export class MapPage {
 		  let lat_diff = Math.abs(neLat-swLat);
 		  let lng_diff = Math.abs(neLng-swLng);
 		  
-		  if(Math.abs(this.lastLocation.lat - location.lat) > lat_diff/2 || Math.abs(this.lastLocation.lng - location.lng ) > lng_diff/2)
+		  if(Math.abs(this.lastLocation.lat - loc.lat) > lat_diff/3 || Math.abs(this.lastLocation.lng - loc.lng ) > lng_diff/3)
 		  {
 		      
-			  console.log('Fetching issues due to move');
-		      console.log('Curr location='+location.lat+','+location.lng);
-	          console.log('Last location='+this.lastLocation.lat+','+this.lastLocation.lng);
-			  console.log('loc lat diff='+Math.abs(this.lastLocation.lat-location.lat)+'loc lng diff='+Math.abs(this.lastLocation.lng-location.lng));
-			  console.log('Lat diff='+lat_diff+'Lng Diff='+lng_diff);
-			  this.lastLocation = location;
-			  this.loading = this.loadingCtrl.create({
-               content : 'Fetching posts'
-	          });
-		      this.loading.present();
-			  this.map.setClickable(false);
+
+			  this.lastLocation = loc;
+			  this.isHidden = true;
+			
 			  let lat_max = 0;
 		      let lat_min =0;
 		      let lng_max = 0;
@@ -300,72 +548,29 @@ export class MapPage {
 	});
   }
  
+ } 
+ 
   ionViewDidEnter()
   {
-   console.log('ionViewDidEnter called');
+
+
    GoogleMap.isAvailable().then((available) => {
     if(available)
     {
      if(this.currLocation != null)
 	 {
-	   this.map.setClickable(false);
+		
+	   
 	   this.map.animateCamera({
-        //'target' : userLocation.latLng
+
 		'target': this.currLocation,
         'zoom': this.lastZoom,
         'duration' : 2000,
-        'tilt': 30,
+		'tilt':40,
         'bearing': 50
        }).then(() => {
-	    this.map.getVisibleRegion().then((visibleRegion) => {
-		 let neStr = visibleRegion.northeast.toUrlValue();
-		 let neLat = Number(neStr.substring(0,neStr.indexOf(',')));
-		 let neLng = Number(neStr.substring(neStr.indexOf(',') + 1));
-		 let swStr = visibleRegion.southwest.toUrlValue();
-		 let swLat = Number(swStr.substring(0,swStr.indexOf(',')));
-		 let swLng = Number(swStr.substring(swStr.indexOf(',') + 1));
-		 
-		 //console.log('NE Lat='+neLat+'neLng='+neLng+'swLat='+swLat+'swLng='+swLng);
-		 console.log('curr loc='+this.currLocation);
-		 let lat_diff = Math.abs(neLat-swLat);
-		 let lng_diff = Math.abs(neLng-swLng);
-		 
-		 let lat_max = 0;
-		 let lat_min =0;
-		 let lng_max = 0;
-		 let lng_min = 0;
-		 
-		 if(neLat > swLat)
-		 {
-		  lat_max = neLat + (lat_diff/4);
-		  lat_min = swLat - (lat_diff/4);
-		 }
-		 else
-		 {
-		  lat_max = swLat + (lat_diff/4);
-		  lat_min = neLat - (lat_diff/4);
-		 }
-		 if(neLng > swLng)
-		 {
-		  lng_max = neLng + (lng_diff/4);
-		  lng_min = swLng - (lng_diff/4);
-		 }
-		 else
-		 {
-		   lng_max = swLng + (lng_diff/4);
-		   lng_min = neLng - (lng_diff/4);
-		 }
-	    this.loading = this.loadingCtrl.create({
-               content : 'Fetching posts'
-	          });
-        this.loading.present();			  
-  		this.searchNearby(lat_min,lat_max,lng_min,lng_max);
-		}); 
+	    this.getVisibleRegion(); 
 	});
-	 }
-	 else
-	 {
-	   console.log('Fetching location');
 	 }
 	}
    });
@@ -373,31 +578,38 @@ export class MapPage {
   
   ionViewWillLeave()
   {
-    this.map.getCameraPosition().then((position) => {
+	
+	
+	
+	this.map.getCameraPosition().then((position) => {
 	  let locStr = position.target.toString();
 	  let latStr = locStr.substring(0,locStr.indexOf(','));
 	  let lngStr = locStr.substring(locStr.indexOf(',') + 1);
 	  let lat  = Number(latStr);
 	  let lng = Number(lngStr);
-	  let location = new GoogleMapsLatLng(lat,lng);
-	  console.log('Last known location ='+lat+','+lng);
-	  this.currLocation = location;
-	  this.lastLocation = location;
-	});
+	  let loc = new GoogleMapsLatLng(lat,lng);
+
+	  this.currLocation = loc;
+	  this.lastLocation = loc;
+	  this.postHide = true;
+	  this.pinColor = 'danger';
+
+	}).catch((error) => {
+
+   });
   }
   
   showpostIssueMarker()
   {
-    var el = document.getElementById("show");
-	if(el.textContent == "Post")
+	if(!this.postHide)
 	{
-	 el.textContent = "Hide Post";
-	 this.postHide = false;
+	  this.pinColor= 'danger';
+	  this.postHide = true;
 	}
 	else
 	{
-	 el.textContent = "Post";
-	 this.postHide = true;
+	  this.pinColor= 'black';
+	  this.postHide = false;
 	}
    }
    postIssueMarker()
@@ -406,100 +618,550 @@ export class MapPage {
 	 let locStr = position.target.toString();
 	 let latStr = locStr.substring(0,locStr.indexOf(','));
 	  let lngStr = locStr.substring(locStr.indexOf(',') + 1);
-	  this.lat  = Number(latStr);
-	  this.lng = Number(lngStr);
-	  let location = new GoogleMapsLatLng(this.lat,this.lng);
-	  
-	  /*
-	  let markerOptions : GoogleMapsMarkerOptions = {
-	  position: location,
-      title: 'Post',
-      icon : '#900' 
-	  };
-	  this.map.addMarker(markerOptions).then((marker: GoogleMapsMarker) => {
-	  marker.showInfoWindow();
-		this.postMarker = marker;
-      });
+	  let postlat  = Number(latStr);
+	  let postlng = Number(lngStr);
+	  let loc = new GoogleMapsLatLng(postlat,postlng);
+	  this.currLocation = loc;
+	  this.lastLocation = loc;
 
-      */
-
-
+	  this.app.getRootNav().push(IssuePost1Page, {lat:postlat,lon:postlng,inputImage:null}, {animate: true, direction: 'forward'});
 	}).catch((error) => {
-    console.log(error);
-   });
-   this.map.getVisibleRegion().then((visibleRegion) => {
-	     console.log('North East'+ visibleRegion.northeast.toUrlValue());
-		 console.log('SouthWest' + visibleRegion.southwest.toUrlValue());
-	  });
 
-   //alert(this.lat);
-   //this.nav.push(AccountPage);
-      this.app.getRootNav().setRoot(this);
-      //this.nav.push(AccountPage, {}, {animate: true, direction: 'forward'});
-      this.app.getRootNav().push(IssuePostPage, {lat : this.lat, lon : this.lng}, {animate: true, direction: 'forward'});
+   });
   }
   
   searchNearby(lat_min : number, lat_max : number, lng_min : number, lng_max : number)
   { 
-    let url = 'http://citysavior.pythonanywhere.com/posts/api/post_search_nearby/';
+    let url = 'https://citysavior.pythonanywhere.com/posts/api/post_search_nearby/';
 	let body = JSON.stringify({'min_lat': lat_min, 'min_lon': lng_min, 'max_lat': lat_max, 'max_lon': lng_max});
 	
 	let headers = new Headers({'Content-Type': 'application/json'});
 	let options = new RequestOptions({ headers:headers});
 	this.http.post(url,body,options).subscribe( result => {
-	console.log('Result:'+result.status);
-	console.log('Data ='+this.data.length);
-	console.log('Markers ='+this.markers.length);
-	if(this.data.length > 0){
-	 this.data.length =0;
-	 this.markers.length =0;
-	 this.map.clear();
-	 }
-	this.data = result.json();
-     //console.log(JSON.stringify(this.data));
+
 	
-	for(var i=0;i < this.data.length;i++)
+	let i_previous = this.data.length;
+	
+	
+	if(this.data.length == 0)
 	{
-	  console.log('PK:'+this.data[i].pk);
+		this.data = result.json();
+		for(var index=0;index<this.data.length;index++)
+		{
+			this.sorted_index.push(index);
+		}
+	}
+	else
+	{
+		let resultData = result.json();
+		
+		
+		for(var n1=0;n1<resultData.length;n1++)
+		{
+			
+			let low : number = 0;
+			let high : number = this.data.length - 1;
+			let mid : number = 0;
+			while (low <= high)
+			{	
+				
+				mid = Math.trunc((low + high)/2);
+				
+				if (this.data[this.sorted_index[mid]].pk == resultData[n1].pk)
+				{
+					low = high = mid;
+					if(this.newMarker!= undefined && this.newMarker.userEnter=='push' && this.data[this.sorted_index[mid]].pk == this.newMarker.post_id){
+						this.markers[this.sorted_index[mid]].setAnimation(GoogleMapsAnimation.DROP);
+						this.markers[this.sorted_index[mid]].setIcon('green');
+						let normalJSON = {userEnter:'normal'};
+						this.params.params=normalJSON;	  
+					}
+					break;
+				}
+				else if(resultData[n1].pk > this.data[this.sorted_index[mid]].pk )
+				{
+				
+					low = mid + 1;
+				}
+				else 
+				{
+				
+					high = mid -1;
+				}
+				
+				
+			
+			}
+			if(low > high)
+			{
+				var new_length = this.data.push(resultData[n1]);
+				if(resultData[n1].pk > this.data[this.sorted_index[mid]].pk)
+				{
+					this.sorted_index.splice(mid+1,0,new_length-1);
+			    }
+				else 
+				{
+					this.sorted_index.splice(mid,0,new_length-1);
+				}
+		
+			}				
+		}
+		
+	}
+	
+	
+	for(var i=i_previous;i < this.data.length;i++)
+	{
+
 	  let loc = new GoogleMapsLatLng(this.data[i].fields.lat,this.data[i].fields.lon);
+	  
+	  let i1 = i;
+	  
+	  if(this.newMarker!= undefined && this.newMarker.userEnter=='push' && this.data[i].pk == this.newMarker.post_id){
+		let markerOptions : GoogleMapsMarkerOptions = {
+			   position : loc,
+			   title : this.data[i].fields.title,
+			   icon: 'green',
+			   animation:GoogleMapsAnimation.BOUNCE
+			   
+			  };
+		let normalJSON = {userEnter:'normal'};
+        this.params.params=normalJSON;	  
+		
+		
+		
+		this.map.addMarker(markerOptions).then((marker: GoogleMapsMarker) =>{
+	    
+			this.markers[i1]= marker;
+			
+			
+			
+			marker.getTitle();	
+			marker.addEventListener(GoogleMapsEvent.INFO_CLICK).subscribe(() => {
+				
+				
+				let postID=this.data[i1].pk;
+				
+				this.app.getRootNav().push(PostdetailPage, {postID:postID}, {animate: true, direction: 'forward'});
+				
+			});
+			this.map.animateCamera({
+
+				'target': loc,
+		        'zoom': 17,
+		        'duration' : 1000,
+				'tilt':40,
+		        'bearing': 50
+		       });	
+
+			marker.showInfoWindow();	
+		});
+	  }else{
+	  
 	  let markerOptions : GoogleMapsMarkerOptions = {
 	   position : loc,
 	   title : this.data[i].fields.title,
-	   icon : '#009'
+	   icon : '#008ae6' 
 	  };
 	  this.map.addMarker(markerOptions).then((marker: GoogleMapsMarker) =>{
 	    
-		this.markers.push(marker);
+		this.markers[i1]= marker;
+		
+		
 		marker.getTitle();
 	    	marker.addEventListener(GoogleMapsEvent.INFO_CLICK).subscribe(() => {
-		     for(var i=0;i<this.markers.length;i++)
-			  {
-			   if(marker == this.markers[i])
-			   {
-			     console.log('PK='+this.data[i].pk);
-			     //alert(this.data[i].pk+", "+this.data[i].desc);
-
-			     	this.app.getRootNav().setRoot(this);
-			      //this.nav.push(AccountPage, {}, {animate: true, direction: 'forward'});
-			      this.app.getRootNav().push(PostDetailPage, {id : this.data[i].pk}, {animate: true, direction: 'forward'});
-
-				 this.markers[i].getPosition().then((pos) => {
-				 	//alert(pos.lat+", "+pos.lng);
-				  console.log('Location ='+pos.lat+","+pos.lng);
-				 });
-			   }
-			  }			 
+				
+				let postID=this.data[i1].pk;
+				
+				this.app.getRootNav().push(PostdetailPage, {postID:postID}, {animate: true, direction: 'forward'});
+				
 		});
 	  });
+	 }
 	  
 	}
-	this.loading.dismiss();
-	console.log('Data ='+this.data.length);
-	console.log('Markers ='+this.markers.length);
-	this.map.setClickable(true);
+	
+		this.isHidden = false;
+		this.checkPermissionCalled = false;
+	
+	}, err =>
+	{
+
+		let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+		this.http.get(url).subscribe( result =>{
+	
+				this.isHidden = false;
+				this.checkPermissionCalled = false;
+	
+				Toast.show('Cannot connect to server. Please try again.','4000','center').subscribe(toast=>{
+						
+				}, error=>{
+				
+				});
+			
+		}, error=>{
+	
+				this.isHidden = false;
+				this.checkPermissionCalled = false;
+	
+				Toast.show('Please check your Internet connection','4000','center').subscribe(toast=>{
+						
+				}, error=>{
+				
+				});
+		});	
 	});
   }
+ 
+checkPermission(called : string)
+{
+	this.checkPermissionCalled = true; 
+	
+		if(called == 'loadMap')  // this will be called only when location authorization has been given when map is loaded
+		{
+				LocationAccuracy.request(LocationAccuracy.REQUEST_PRIORITY_HIGH_ACCURACY).then(
+					() => { // called when gps is on
+				
+		
+						this.isHidden = true;
+						
+						Toast.show('Fetching location','2000','bottom').subscribe(toast=>{
+						
+						}, error=>{
+						
+						});
+						console.log("enters here 1");
+						this.getUserLocation(called);
+
+					}).catch((error) => {  // called when gps id off and user denies the request to turn gps on
+					
+					
+					this.map.getCameraPosition().then((position) => {
+						let locStr = position.target.toString();
+						let latStr = locStr.substring(0,locStr.indexOf(','));
+						let lngStr = locStr.substring(locStr.indexOf(',') + 1);
+						let postlat  = Number(latStr);
+						let postlng = Number(lngStr);
+						let loc = new GoogleMapsLatLng(postlat,postlng);
+						this.currLocation = loc;
+						this.lastLocation = loc;
+						this.lastZoom = 1;
+					
+						let url = 'https://citysavior.pythonanywhere.com/posts/api/getArea/'+this.user.email+'/';
+						this.http.get(url).subscribe( result => {
+						if(result.status == 200)
+						{
+						
+								let resultData = result.json();
+								if(resultData.length == 0 )
+								{
+							
+									let url = 'https://citysavior.pythonanywhere.com/posts/api/createOrUpdateArea/';
+									let body = JSON.stringify({'email':this.user.email,'cen_lat':loc.lat,'cen_lon':loc.lng,'radius':2,'user_set':false});
+									let headers = new Headers({'Content-Type': 'application/json'});
+									let options = new RequestOptions({ headers:headers});
+									this.http.post(url,body,options).subscribe(result=>{
+					
+									},error=>{
+					
+									});	
+								
+								}
+						}
+						}, error=>{
+				
+						});
+				
+							this.getVisibleRegion();
+
+						}).catch((error) => {
+							
+							this.checkPermissionCalled = false;
+
+						});
+					});	
+				
+			}else // called when location button is clicked
+			{	
+			Diagnostic.isLocationAuthorized().then(locAuth =>{ // called when user clicks my Location button and checks if authorization status for location permission
+				if(locAuth)   // called when app is authorized for location permission
+				{
+					LocationAccuracy.request(LocationAccuracy.REQUEST_PRIORITY_HIGH_ACCURACY).then(
+						  () => { // called when gps is on
+						   
+								  if(called == 'myLocationBtn')
+								  {
+								  
+									  this.isHidden = true;
+									  
+									  Toast.show('Fetching location','2000','bottom').subscribe(toast=>{
+							
+									}, error=>{
+							
+									});
+									this.getUserLocation(called);
+								  }
+								  else
+								  {
+									  this.checkStoragePermission();
+								  }
+						   
+						   }).catch((error) => {
+							   
+							   if(called == 'cameraBtn')
+								{
+									
+									
+									Toast.show('Location Permission is required to use this feature','2000','center').subscribe(toast=>{
+						
+									}, error=>{
+						
+									});
+								}
+							   
+						   });
+					
+				}else
+				{ // app requests for location authorization if location permission not given before
+					Diagnostic.getLocationAuthorizationStatus().then((result) => {
+		
+					   switch(result){
+						   
+						 case "authorized_when_in_use": console.log("Permission granted previously IOS");
+						
+						 LocationAccuracy.request(LocationAccuracy.REQUEST_PRIORITY_HIGH_ACCURACY).then(
+						  () => {
+									if(called == 'myLocationBtn')
+									{
+									  this.isHidden = true;
+									  
+										Toast.show('Fetching location','2000','bottom').subscribe(toast=>{
+							
+										}, error=>{
+							
+										});
+									  
+										this.getUserLocation(called);
+									}
+									else
+									{
+										this.checkStoragePermission();
+									}
+						   
+						   }).catch((error) => {
+								
+								if(called == 'cameraBtn')
+								{
+									
+									
+									Toast.show('Location Permission is required to use this feature','2000','center').subscribe(toast=>{
+						
+									}, error=>{
+						
+									});
+								}
+								this.checkPermissionCalled = false;
+						   });
+						   break;
+		  
+							case Diagnostic.permissionStatus.DENIED: 
+								
+								if(called == 'cameraBtn')
+								{
+									
+									
+									Toast.show('Location Permission is required to use this feature','2000','center').subscribe(toast=>{
+						
+									}, error=>{
+						
+									});
+								}
+								this.checkPermissionCalled = false;
+								break;
+
+							case Diagnostic.permissionStatus.NOT_REQUESTED : 
+								this.checkPermissionCalled = false;
+								break;
+
+							case "denied": console.log("Prompting user to grant location permission IOS");
+								let locAlert = this.alertCtrl.create({
+									title : 'Location Permission',
+									subTitle : 'Location permission has been denied. Enable the Location permission manually from the Settings to access location',
+									buttons: [{
+										text: 'Ok',
+										role: 'cancel',
+										handler: () => {
+											this.map.setClickable(true);
+											this.checkPermissionCalled = false;
+										}
+									}]
+								});
+								this.map.setClickable(false);
+								locAlert.present();
+								break; 			
+						}	
+					}).catch(error=>{
+							this.checkPermissionCalled = false;
+						
+					});		
+				}
+			});
+			}
+		
+		
+	
+}
+
   
+  resumeCalled()
+  {
+	  
+	  
+	  
+  setTimeout(()=>{
+  				
+  				
+  				this.newMarker= this.params.params;
+				
+				
+				if(this.newMarker.userEnter=='push'){
+					
+				let url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.newMarker.post_id+'/';
+				this.http.get(url).subscribe( result => {
+					if(result.status == 200)
+						{
+							let resultData = result.json();
+							let newLatStr = resultData.lat;
+					        let newLngStr = resultData.lon;
+							let newLat  = Number(newLatStr);
+					        let newLng = Number(newLngStr);
+							this.lastLocation = new GoogleMapsLatLng(newLat,newLng);
+
+							let loc = new GoogleMapsLatLng(newLat,newLng);
+							this.map.animateCamera({
+
+								'target': loc,
+						        'zoom': 17,
+						        'duration' : 1000,
+								'tilt':40,
+						        'bearing': 50
+					       }).then(() => {
+							    this.getVisibleRegion();
+						   });
+						   
+						}
+				}, error=>{
+						
+					});
+				
+					
+				}else{
+					if(!this.checkPermissionCalled)
+					{
+						this.getVisibleRegion();
+					}
+				}					
+			},600);
+  }
+  
+  getVisibleRegion()  // function to get the current visible region of map and then call search nearby function
+  {
+	  this.map.getVisibleRegion().then((visibleRegion) => {
+				let neStr = visibleRegion.northeast.toUrlValue();
+				let neLat = Number(neStr.substring(0,neStr.indexOf(',')));
+				let neLng = Number(neStr.substring(neStr.indexOf(',') + 1));
+				let swStr = visibleRegion.southwest.toUrlValue();
+				let swLat = Number(swStr.substring(0,swStr.indexOf(',')));
+				let swLng = Number(swStr.substring(swStr.indexOf(',') + 1));
+		 
+				let lat_diff = Math.abs(neLat-swLat);
+				let lng_diff = Math.abs(neLng-swLng);
+		 
+				let lat_max = 0;
+				let lat_min =0;
+				let lng_max = 0;
+				let lng_min = 0;
+		 
+				if(neLat > swLat)
+				{
+					lat_max = neLat + (lat_diff/4);
+					lat_min = swLat - (lat_diff/4);
+				}
+				else
+				{
+					lat_max = swLat + (lat_diff/4);
+					lat_min = neLat - (lat_diff/4);
+				}
+				if(neLng > swLng)
+				{
+					lng_max = neLng + (lng_diff/4);
+					lng_min = swLng - (lng_diff/4);
+				}
+				else
+				{
+					lng_max = swLng + (lng_diff/4);
+					lng_min = neLng - (lng_diff/4);
+				}
+	   
+				this.isHidden = true;	
+				this.searchNearby(lat_min,lat_max,lng_min,lng_max);
+		});
+  }
+  
+  
+  cameraClick()
+  {
+	 
+	this.checkPermission('cameraBtn');		
+  }
+  
+  checkStoragePermission()
+  {
+  	//No need ter check storage in IOS
+  	this.cameraDisabled = true;
+  	this.isHidden = true;
+  	this.getUserLocation('cameraBtn');
+  }
+  
+  
+  startCamera(userLocation : any)
+  {
+	 this.isHidden = false;
+	 this.cameraDisabled = false;
+	 let cameraOptions= {
+		quality : 30,
+		sourceType : Camera.PictureSourceType.CAMERA,
+		encodingType : Camera.EncodingType.JPEG,
+		saveToPhotoAlbum : false,
+		correctOrientation : true
+	};
+	
+	
+	
+	Camera.getPicture(cameraOptions).then((imagePath) =>{
+    File.resolveLocalFilesystemUrl(imagePath).then((entry)=>{
+	 entry.getMetadata(metaData=>{
+	
+		if((metaData.size/(1024*1024)) > 10)
+		{
+			Toast.show('Image size greater than 10 MB not allowed. Please try again','3000','center').subscribe(toast=>{
+						
+			}, error=>{
+						
+			});
+		}
+		else
+		{
+			this.app.getRootNav().push(IssuePost1Page, {lat:userLocation.lat,lon:userLocation.lng,inputImage:imagePath}, {animate: true, direction: 'forward'});
+		}
+	 },error=>{
+		
+	 });
+	});
+	},err=>{
+     
+	});	
+  }
   
 }
 

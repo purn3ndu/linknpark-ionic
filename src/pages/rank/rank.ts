@@ -1,44 +1,254 @@
-
 import { Component } from '@angular/core';
-import {NavController} from 'ionic-angular';
-import {Http, Headers, RequestOptions } from '@angular/http';
+import { NativeStorage, Toast } from 'ionic-native';
+import { Http, Headers, RequestOptions} from '@angular/http';
+import { NavController,App } from 'ionic-angular';
+
+import {UserProfilePage} from '../user-profile/user-profile';
+import {AccountPage} from '../account/account';
 
 @Component({
   selector: 'page-rank',
   templateUrl: 'rank.html'
 })
-
 export class RankPage {
+   user :any;
+   userReady : boolean = false;
+   members : any = [];
+   firstMember : any= {'rank':null,'name':null,'karma_points':null,'picture':null};
+   secondMember :any={'rank':null,'name':null,'karma_points':null,'picture':null};
+   thirdMember : any={'rank':null,'name':null,'karma_points':null,'picture':null};
+   userRank : any;
+   userKarma : any;
+   isUserRank : boolean = false;
+   isLeaderboard : boolean = false;
+   isUserPresent : boolean = false;
+   userPicture : string = null;
+   spinnerHidden :boolean = false;
+   
+  constructor(public navCtrl: NavController,
+  private http: Http,
+  private app: App) {
 
-    private http: Http;
+	
+  }
+  
+  
+  ionViewWillEnter()
+  {
+   let env = this;
+	NativeStorage.getItem('user')
+    .then((data) => {
+      env.user = {
+        name: data.name,
+        picture: data.picture,
+		email: data.email,
+		phone : data.phone,
+		karma_points : data.karma_points,
+		login : data.login
+      };
+	
+	  this.userKarma = this.user.karma_points;
+	  this.userPicture = this.user.picture;
+	   
+	  this.getLeaderboard();
+	  
+	}).catch((error) =>{
+    
+      Toast.show('Error in loading leaderboard. Please try again later','3000','center').subscribe(toast=>{
+						
+		}, error=>{
+						
+		});
+    });
+	
+  }
+  
+  getLeaderboard()
+  {
+	this.spinnerHidden = false;
+	this.isUserRank =false;
+	this.isLeaderboard = false;
+	this.isUserPresent=false;
+	let url ='https://citysavior.pythonanywhere.com/posts/api/updateKarma/';
+	let body = JSON.stringify({'email':this.user.email,'karma_points':this.user.karma_points});
+	let headers = new Headers({'Content-Type': 'application/json'});
+	let options = new RequestOptions({ headers:headers});
+	
+	this.http.post(url,body,options).subscribe(result =>{
+		
+		url = 'https://citysavior.pythonanywhere.com/posts/api/getMyRank/';
+		body = JSON.stringify({'karma_points':this.user.karma_points});
+		this.http.post(url,body,options).subscribe(result =>{
+		
+		  this.userRank = result.json().rank + 1;
+		  this.isUserRank = true;
+		  if(this.userPicture.trim().length == 0 )
+		  {
+			this.userPicture = 'assets/img/leaderboard_img.jpg';
+		  }
+		  
+		  if(this.isUserRank && this.isLeaderboard)
+			{
+				let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+				let body = JSON.stringify({'email':this.user.email,'activity_done':'Viewed Leaderboard'});
+		
+				this.http.post(url,body,options).subscribe(result =>{
+		
+				}, error=>{
+					
+				});
+			  this.userReady = true;
+			  this.spinnerHidden = true;
+			  
+			}
+		},error=>{
+			let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+			this.http.get(url).subscribe( result =>{
+				
+				this.spinnerHidden = true;
+				
+				Toast.show('Cannot connect to the server. Please try agin later','3000','center').subscribe(toast=>{
+						
+					}, error=>{
+						
+					});
+			}, error =>{
+				
+				this.spinnerHidden = true;
+				
+				Toast.show('Please check your Internet connection','3000','center').subscribe(toast=>{
+						
+					}, error=>{
+						
+					});
+				
+			});
+			
+		});
+		
+		url ='https://citysavior.pythonanywhere.com/posts/api/getLeaderBoard/';
+		this.http.get(url).subscribe(result=>{
+		
+		let memberData = result.json();
+		let memberRank=1;
+		for(var i=0;i<memberData.length;i++)
+			{
+				if(i>0)
+				{
+				  if(memberData[i].fields.karma_points != memberData[i-1].fields.karma_points)
+					{
+					  memberRank = i+1;
+					}
+				}
+				let memberItem = {'rank':memberRank,'name':memberData[i].fields.name,'karma_points':memberData[i].fields.karma_points,'picture':memberData[i].fields.profile_picture};
+				if(memberItem.picture.trim().length == 0)
+				{
+				  memberItem.picture='assets/img/leaderboard_img.jpg';
+				}
+				if(memberData[i].pk == this.user.email)
+				{
+				  memberItem.name = 'Me';
+				  this.isUserPresent = true;	
+				}
+				if(i <= 2)
+				{
+				 switch(i){
+				  case 0: this.firstMember = memberItem;
+							break;
+				  case 1: this.secondMember = memberItem;
+							break;
+				  case 2: this.thirdMember = memberItem;
+							break;				
+				 }
+				 
+				}
+				else{
+				this.members[i-3]= memberItem;
+				}
+			}
+		this.isLeaderboard = true;
+		if(this.isUserRank && this.isLeaderboard)
+			{
+				let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+				body = JSON.stringify({'email':this.user.email,'activity_done':'Viewed Leaderboard'});
+		
+				this.http.post(url,body,options).subscribe(result =>{
+					
+				}, error=>{
+					
+				});
+				this.userReady = true;
+				this.spinnerHidden = true;
+				
+			}
+		
+	}, error=>{
+		let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+			this.http.get(url).subscribe( result =>{
+				
+				this.spinnerHidden = true;
+				Toast.show('Cannot connect to the server. Please try agin later','3000','center').subscribe(toast=>{
+						
+					}, error=>{
+						
+					});
+				
+			}, error =>{
+				
+				this.spinnerHidden  = true;
+				
+				Toast.show('Please check your Internet connection','3000','center').subscribe(toast=>{
+						
+					}, error=>{
+						
+					});
+			});
+	});
+	
+	}, error =>{
+	  let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+	  this.http.get(url).subscribe( result =>{
+			
+				this.spinnerHidden = true;
+				
+				Toast.show('Cannot connect to the server. Please try agin later','3000','center').subscribe(toast=>{
+						
+					}, error=>{
+						
+					});
+				
+			}, error =>{
+			
+				this.spinnerHidden = true;
+				Toast.show('Please check your Internet connection','3000','center').subscribe(toast=>{
+						
+				}, error=>{
+						
+				});
+				
+			});
+	
+	});
+	
+	
+  }
+  
+  //function to open clicked user's profile page
+  showUserProfile(member: any , showUser : boolean)
+  {
+	if(showUser)
+	{
+		if(member.name !='Me')
+		{
+			this.app.getRootNav().push(UserProfilePage, {name:member.name,picture:member.picture,karma_points:member.karma_points,rank:member.rank}, {animate: true, direction: 'forward'});
+		}else
+		{
+			this.app.getRootNav().push(AccountPage,{animate: true, direction: 'forward'});  
+		}
+	}else
+	{
+		this.app.getRootNav().push(AccountPage,{animate: true, direction: 'forward'});  
+	}		
+  }
 
-    public img = "data:image/jpeg;base64,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";
-
-    public userData = [];
-
-    constructor(private navController: NavController, http: Http) {
-        this.http = http;
-        console.log("haha");
-        this.getData();
-    }
-
-    private getData(){
-        var url = "http://citysavior.pythonanywhere.com/posts/api/member/?format=json";
-        var userData = this.userData;
-        var pix = this.img;
-        var verifiedSub = 105;
-        this.http.get(url).subscribe( result => {
-            var data = result.json();
-            data.forEach((value, index) => {
-                verifiedSub = verifiedSub - Math.floor(Math.random() * 10);
-                userData.push({
-                    pic: pix,
-                    name: value.name,
-                    rank: index+1,
-                    verifiedSubmissions: verifiedSub 
-                });
-            });
-        });
-    }
 }
-

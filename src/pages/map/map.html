@@ -1,14 +1,25 @@
-<ion-header>
-  <ion-navbar>
-    <ion-title>Map</ion-title>
-  </ion-navbar>
-</ion-header>
 
-<ion-content>
+<ion-content no-lines>
   <div id="map">
+  <ion-searchbar [(ngModel)]="myInput"   (ionBlur)="onBlur($event)" (ionInput)="onInput($event)"  (ionClear)="onClear($event)" id="searchLocation"></ion-searchbar>
+  <ion-row text-center [hidden]="!isHidden" class ="loadClass">
+  <ion-col>
+  <ion-spinner name='dots'></ion-spinner>
+  </ion-col>
+  </ion-row>
+  <button ion-item id="show" (click)="showpostIssueMarker()" (press)="showpostIssueMarker()" text-center no-padding>
+  <p id="postTitle"><i><b><font color="black">Post</font></b></i></p>
+  <ion-icon name="pin" [color]="pinColor" class="pinImage"></ion-icon>
+  <p><i><b><font color="black">Issue</font></b></i></p>
+  </button>
+  <!-- <button ion-button class="myLocation" (click)="getMyLocation()" (press)="getMyLocation()">
+  <ion-icon name="locate" class="myLocImage"></ion-icon>
+  </button> -->
   
-  <button ion-button id="show" (click)="showpostIssueMarker()" >Post</button>
-  <label id="center-label" [hidden]="postHide" (click)="postIssueMarker()"><b><i><font size="4">Post</font></i></b></label>
-  <ion-icon name="pin" [hidden]="postHide" class="image-center"></ion-icon>
+  <ion-icon name="pin" [hidden]="postHide" class="image-center" (click)="postIssueMarker()" (press)="postIssueMarker()"></ion-icon>
+  
+  <button ion-button text-center [hidden]="postHide" class="postClass" (click)="postIssueMarker()" (press)="postIssueMarker()">Post</button>
+  <button ion-button text-center [hidden]="postHide" class="cancelClass" (click)="showpostIssueMarker()" (press)="showpostIssueMarker()">Cancel</button>
+  <ion-icon name="radio-button-off" [hidden]="!postHide" class="cameraShort" (click)="cameraClick()" [hidden]="cameraDisabled"></ion-icon>	
   </div>
 </ion-content>

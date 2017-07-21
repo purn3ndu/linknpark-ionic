@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
-import { NavController, AlertController, ToastController } from 'ionic-angular';
+import { NavController, AlertController } from 'ionic-angular';
+import { NativeStorage, Toast } from 'ionic-native';
+import { Http, Headers, RequestOptions } from '@angular/http';
 
 
 @Component({
@@ -10,36 +12,77 @@ export class SupportPage {
 
   submitted: boolean = false;
   supportMessage: string;
+  user:any;
 
   constructor(
     public navCtrl: NavController,
     public alertCtrl: AlertController,
-    public toastCtrl: ToastController
+	public http:Http
   ) {
 
-  }
-
-  ionViewDidEnter() {
-    let toast = this.toastCtrl.create({
-      message: 'This does not actually send a support request.',
-      duration: 3000
-    });
-    toast.present();
   }
 
   submit(form) {
     this.submitted = true;
 
     if (form.valid) {
-      this.supportMessage = '';
-      this.submitted = false;
+	
+		let url ='https://citysavior.pythonanywhere.com/posts/api/sendSupportMessage/';
+		let body = JSON.stringify({'email':this.user.email,'message':this.supportMessage});
+		let headers = new Headers({'Content-Type': 'application/json'});
+		let options = new RequestOptions({ headers:headers});
+		this.http.post(url,body,options).subscribe((result)=>{
+				if(result.status == 201)
+				{
+					Toast.show('Thank you for your feedback','3000','center').subscribe(toast=>{
+						
+					}, error=>{
+						
+					});
 
-      let toast = this.toastCtrl.create({
-        message: 'Your support request has been sent.',
-        duration: 3000
-      });
-      toast.present();
+					this.supportMessage = ''; 
+					this.submitted = false;
+				}
+		},error=>{
+			let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+			this.http.get(url).subscribe( result =>{
+				
+				Toast.show('Cannot connect to server. Please try again later','3000','center').subscribe(toast=>{
+						
+					}, error=>{
+						
+					});
+
+				this.submitted = false;
+			},error=>{
+				
+				Toast.show('Please check your Internet connection','3000','center').subscribe(toast=>{
+						
+					}, error=>{
+						
+					});
+
+				this.submitted = false;
+			});	
+		});
     }
+  }
+  
+  ionViewCanEnter(){
+    let env = this;
+    NativeStorage.getItem('user')
+    .then((data) =>{
+      env.user = {
+        name: data.name,
+        picture: data.picture,
+		email: data.email,
+		phone : data.phone,
+		karma_points : data.karma_points,
+		login : data.login
+      };  
+    }).catch((error) =>{
+      
+    });
   }
 
   // If the user enters text in the support question and then navigates

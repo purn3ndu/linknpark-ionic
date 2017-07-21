@@ -1,5 +1,35 @@
 
-page-account img {
+page-account{
+
+ img {
   max-width: 140px;
   border-radius: 50%;
 }
+
+	h3,h5{
+		padding:0px;
+		margin:0px;
+	}
+	
+	.editUsername
+	{
+		position:absolute;
+		right:0;
+		margin-right: 15px;
+	}
+	
+	select{
+		background-color : rgba(256,256,256,0.5);
+	}
+	
+	select option
+	{
+		background-color : rgba(256,256,256,0.5);
+	}
+	
+	.iconColor
+	{
+		color:#478aff;
+	}
+}
+ 

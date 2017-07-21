@@ -1,0 +1,34 @@
+<!--
+  Generated template for the NotificationArea page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>View/Set Notification Area</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content >
+<ion-searchbar [(ngModel)]="inputAdd"   id="searchLocation"   (ionClear)="onClear($event)" ></ion-searchbar> 
+<div id="map1"></div>
+  <ion-fab right middle>
+  <button ion-fab class="myLocation" (click)="checkPermission()">
+  <ion-icon name="locate" color="black"></ion-icon>
+  </button>	
+  </ion-fab>
+  <ion-row>
+  <ion-col>
+  <ion-item>
+	<ion-radio  (ionSelect)="changeNotificationArea()" [checked]="changeNotification"></ion-radio><ion-label>{{radioText}}</ion-label>
+	</ion-item>
+  </ion-col>
+  <ion-col>
+  <button ion-button (click)="updateNotificationArea()" color="light" [hidden]="!changeNotification" block>Update</button>
+  </ion-col>
+  </ion-row>
+</ion-content>

@@ -18,12 +18,24 @@ page-login {
   }
 
   .top-row{
-    height: 80%;
+    height: 60%;
   }
 
   .bottom-row{
-    height: 20%;
-
+    height: 10%;
   }
+  .or-text{
+   text-align:center;
+   font-size:200%;
+   font-weight: bold;
+   color: green;
+}
+
+  ion-spinner  {
+    width: 50px;
+    height: 50px;
+    stroke: #444;
+    fill: #222;
+  }  
 
 }

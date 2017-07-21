@@ -1,11 +1,10 @@
-import { NgModule } from '@angular/core';
+import { NgModule, ErrorHandler } from '@angular/core';
 
-import { IonicApp, IonicModule } from 'ionic-angular';
+import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { Storage } from '@ionic/storage';
 
 import { CitysavApp } from './app.component';
 
-import { SettingsPage } from '../pages/settings/settings';
 import { AccountPage } from '../pages/account/account';
 import { LoginPage } from '../pages/login/login';
 import { MapPage } from '../pages/map/map';
@@ -15,17 +14,24 @@ import { RankPage } from '../pages/rank/rank';
 import { TabsPage } from '../pages/tabs/tabs';
 import { TutorialPage } from '../pages/tutorial/tutorial';
 import { SupportPage } from '../pages/support/support';
-import { IssuePostPage } from '../pages/post/post';
+import { IssuepostPage } from '../pages/issuepost/issuepost';
+import { PostdetailPage } from '../pages/postdetail/postdetail';
+import { EditPostPage } from '../pages/edit-post/edit-post';
+import { AboutPage } from '../pages/about/about';
+import {NotificationAreaPage} from '../pages/notification-area/notification-area';
+import {UserProfilePage} from '../pages/user-profile/user-profile';
+import { IssuePost1Page } from '../pages/issue-post1/issue-post1';
+
+import {Params} from '../providers/params';
+import {Data} from '../providers/data';
 
 
-import { PostDetailPage } from '../pages/postdetail/postdetail';
 
 
 
 @NgModule({
   declarations: [
     CitysavApp,
-    SettingsPage,
     AccountPage,
     LoginPage,
     MapPage,
@@ -34,8 +40,13 @@ import { PostDetailPage } from '../pages/postdetail/postdetail';
     TabsPage,
     TutorialPage,
     SupportPage,
-    IssuePostPage,
-    PostDetailPage
+	IssuepostPage,
+	PostdetailPage,
+	EditPostPage,
+	AboutPage,
+	NotificationAreaPage,
+	UserProfilePage,
+	IssuePost1Page
   ],
   imports: [
     IonicModule.forRoot(CitysavApp)
@@ -43,7 +54,6 @@ import { PostDetailPage } from '../pages/postdetail/postdetail';
   bootstrap: [IonicApp],
   entryComponents: [
     CitysavApp,
-    SettingsPage,
     AccountPage,
     LoginPage,
     MapPage,
@@ -52,9 +62,15 @@ import { PostDetailPage } from '../pages/postdetail/postdetail';
     TabsPage,
     TutorialPage,
     SupportPage,
-    IssuePostPage,
-    PostDetailPage
+	IssuepostPage,
+	PostdetailPage,
+	EditPostPage,
+	AboutPage,
+	NotificationAreaPage,
+	UserProfilePage,
+	IssuePost1Page
   ],
-  providers: [ Storage]
+  providers: [ Storage, Params,  Data,
+  {provide: ErrorHandler, useClass: IonicErrorHandler}]
 })
 export class AppModule { }

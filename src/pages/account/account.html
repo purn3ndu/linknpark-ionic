@@ -1,22 +1,30 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>Account</ion-title>
+    <ion-title>My Profile</ion-title>
   </ion-navbar>
 </ion-header>
 
 <ion-content *ngIf='userReady'>
 
   <div padding-top text-center>
-    <img [src]="user.picture" alt="avatar">
-    <h2>{{user.name}}</h2>
-
-    <ion-list inset>
-      <button ion-item (click)="updatePicture()">Update Picture</button>
-      <button ion-item (click)="updatePhone()">Update Phone number</button>
-      <button ion-item (click)="changeUsername()">Change Username</button>
-      <button ion-item (click)="changePassword()">Change Password</button>
+    <img [src]="user.picture" alt="avatar"/>
+    <h3 [hidden]="isUsernameEdit"><ion-icon name="person"></ion-icon> : {{user.name}} <ion-icon name="create" (click)="changeUsername()" class="editUsername"></ion-icon></h3>
+	<div text-center [hidden]="!isUsernameEdit"><font size="5"><ion-icon name="person"></ion-icon> : <input type="text" name="userName" [(ngModel)]="userName" style="width:50%;"/> </font><button ion-button clear icon-only (click)="updateUsername()"><ion-icon name="checkmark"></ion-icon></button><button ion-button clear icon-only (click)="cancelEditUsername()"><ion-icon name="close"></ion-icon></button></div>
+	<h3><ion-icon name="ribbon"></ion-icon> : {{user.karma_points}} karma points</h3>
+	<h5><ion-icon name="mail" ></ion-icon>  : {{user.email}}</h5>
+	<h5 [hidden]="phoneExist ==='Add Phone Number' || isPhoneEdit"><ion-icon name="call" ></ion-icon>  : {{user.phone}} <ion-icon name="create" (click)="addPhoneNumber()" class="editUsername"></ion-icon></h5>
+	<h5 [hidden]="phoneExist!='Add Phone Number' || isPhoneEdit"><button ion-button icon-left small clear (click)="addPhoneNumber()"><ion-icon name="add" ></ion-icon> Add Phone Number</button></h5>
+	
+	<div text-center [hidden]="!isPhoneEdit"><ion-icon name="call" ></ion-icon>  : <select [(ngModel)]="countryCode" name="countryCode"><option value="" hidden>Country</option><option value="+91">India(+91)</option><option value="+1">USA(+1)</option></select>  <input type="number" name="phoneNumber" [(ngModel)]="phoneNumber" style="width:30%;"/> <button ion-button clear small icon-only  (click)="updatePhoneNumber()"><ion-icon name="checkmark" ></ion-icon></button><button ion-button clear small icon-only (click)="cancelEditPhone()"><ion-icon name="close"></ion-icon></button>
+	</div>
+	
+    <ion-list inset padding-top>
+	  <button ion-item (click)="setNotificationArea()">Set Home Area</button>
+	  <button ion-item (click)="shareLink()" [disabled]="isShareDisabled">Share App</button>
       <button ion-item (click)="support()">Support</button>
-      <button ion-item (click)="doFbLogout()">Logout</button>
+	  <button ion-item (click)="help()" >About and Help</button>
+      <button ion-item (click)="doLogout()">Logout</button>
     </ion-list>
-  </div>
+	</div>
+  
 </ion-content>

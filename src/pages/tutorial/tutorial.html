@@ -1,13 +1,13 @@
 <ion-header no-border>
   <ion-navbar>
-    <ion-buttons end *ngIf="showSkip">
+    <ion-buttons end [hidden]="!showSkip">
       <button ion-button (click)="startApp()" color="primary">Skip</button>
     </ion-buttons>
   </ion-navbar>
 </ion-header>
 
 <ion-content no-bounce>
-  <ion-slides [options]="{pager: true}" (ionWillChange)="onSlideChangeStart($event)">
+  <ion-slides pager= "true" (ionSlideWillChange)="onSlideChangeStart($event)">
 
     <ion-slide>
       <img src="assets/img/csav1.png" class="slide-image"/>

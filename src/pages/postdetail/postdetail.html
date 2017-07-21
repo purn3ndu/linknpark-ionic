@@ -1,46 +1,57 @@
+<!--
+  Generated template for the Postdetail page.
 
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
 <ion-header>
-    <ion-navbar>
-        <ion-title>
-            {{postData.title}}
-        </ion-title>
-    </ion-navbar>
+  <ion-navbar >
+    <ion-title>Post Details</ion-title>
+  </ion-navbar>
 </ion-header>
 
-<ion-content>
-<ion-grid>
-  <!-- Header -->
-  <ion-row>
-    <img class="postPic" src="{{img}}" />
-  </ion-row>
-  
-  <!-- Body -->
-  <ion-row>
-    <ion-col>
-      CATEGORY :
-    </ion-col>
-    <ion-col>
-      {{postData.category}}
-    </ion-col>
-  </ion-row>
-  <ion-row>
-    <ion-col>
-      DESCRIPTION :
-    </ion-col>
-    <ion-col>
-      {{postData.desc}}
-    </ion-col>
-  </ion-row>
-  <ion-row>
-    <ion-col>
-      REPORTED BY :
-    </ion-col>
-    <ion-col>
-      {{postData.email}}
-    </ion-col>
-  </ion-row>
-  
 
-</ion-grid>
+<ion-content padding [hidden]="!userReady">
+
+<ion-list no-lines id="options">
+<ion-item text-wrap> 
+<h2><b>{{ userName }} </b> posted <b>{{ postData.title}}</b></h2>
+<p><ion-icon name="pin"></ion-icon> {{ postAddress}} </p>
+<p class="time">{{ postData.timestamp}} </p>
+</ion-item>
+<ion-item>
+<ion-row>
+<ion-col *ngFor="let image of postImages">
+<img src="{{ image}}" id="image1" (click)="zoomImage(image)" height="{{imgHeight}}" width="{{imgHeight}}"/>
+</ion-col>
+</ion-row>
+</ion-item>
+<ion-item text-wrap> {{ postData.desc}} <br><br>
+<h3> Status : <b>{{postData.stats}}</b></h3>
+</ion-item>
+<ion-item [hidden]="isEditHidden"><button ion-button item-right icon-only clear (click)="editPost()" ><ion-icon name="create"></ion-icon></button></ion-item>
+</ion-list>
+<ion-row id="options">
+<ion-col><button ion-button icon-left small clear><ion-icon name="eye" ></ion-icon>{{postData.views}}</button></ion-col>
+<ion-col> <button ion-button icon-left small clear (click)="updateUpvote()" [color]="isColor" [disabled]="isDisabled"><ion-icon name="person-add"></ion-icon>{{postData.upvotes}}</button></ion-col>
+<ion-col> <button ion-button small clear (click)="showNewComment()" [disabled]="isCommentDisabled">Comment</button></ion-col>
+<ion-col> <button ion-button small icon-only clear (click)="sharePost()" [disabled]="isShareDisabled"><ion-icon name="share" ></ion-icon></button></ion-col>
+</ion-row>
+
+
+<ion-list  id="commentOptions" [hidden]="postComments.length == 0 && newCommentHidden">
+<ion-item [hidden]="postComments.length == 0" id="commentTitle"><b><i> Comments</i></b> </ion-item>
+<ion-item *ngFor="let comment of postComments" text-wrap id="commentStyle">
+<h2 [hidden]="!comment.detailsEnabled"><b>{{ comment.name }}</b></h2>
+<p [hidden]="!comment.detailsEnabled">{{ comment.comment_text}}</p>
+<p [hidden]="!comment.detailsEnabled">{{ comment.timestamp}} <button ion-button clear [hidden]="!comment.enabled" [disabled]="isCommentDisabled" (click)="editComment(comment)">Edit</button><button ion-button clear [hidden]="!comment.enabled" (click)="deleteComment(comment)" [disabled]="isCommentDisabled">Delete</button></p>
+<ion-row [hidden]="comment.detailsEnabled"><textarea [(ngModel)]="commentsText" [id]="comment.pk" color="black" (ngModelChange)="adjustHeight(comment.pk)" style="width:75%;"></textarea><button ion-button icon-only small clear id="done" (click)="submitComment(comment)"><ion-icon name="send" ></ion-icon></button><button ion-button icon-only small clear id="cancelEdit" (click)="cancelEdit(comment)"><ion-icon name="close"></ion-icon></button></ion-row> 
+</ion-item>
+<ion-item [hidden]="newCommentHidden">
+<ion-row ><textarea [(ngModel)]="newCommentsText" name="newComment" placeholder ="Enter Comment" id="newComment" color="black" (ngModelChange)="adjustHeight('newComment')" style="width:75%;"></textarea>
+<button ion-button icon-only small clear id="done" (click)="newComment()"><ion-icon name="send" ></ion-icon></button><button ion-button icon-only small clear id="cancelNew" (click)="cancelNewComment()"><ion-icon name="close" ></ion-icon></button></ion-row>
+</ion-item>
+</ion-list>
+<div id="newCommentSpace" [hidden]="!isCommentDisabled">
+</div>
 </ion-content>
-

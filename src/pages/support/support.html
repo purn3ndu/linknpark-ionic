@@ -9,18 +9,20 @@
 
 <ion-content>
 	<div class="logo">
-		<img src="assets/img/appicon.svg" alt="Ionic Logo">
+		
+		<p> City Savior </p>
+		
 	</div>
 
 	<form #submitForm="ngForm" novalidate (ngSubmit)="submit(submitForm)">
 		<ion-list no-lines>
 			<ion-item>
-				<ion-label stacked color="primary">Enter your support message below</ion-label>
+				<ion-label stacked color="primary" text-wrap><font size="4">Please help us to improve and provide your valuable feedback below:</font></ion-label>
 				<ion-textarea [(ngModel)]="supportMessage" name="supportQuestion" #supportQuestion="ngModel" rows="6" required></ion-textarea>
 			</ion-item>
 		</ion-list>
 
-		<p [hidden]="supportQuestion.valid || submitted === false" color="danger" padding-left>
+		<p [hidden]="supportQuestion.valid || submitted === false" ion-text color="danger" padding-left>
 			Support message is required
 		</p>
 
