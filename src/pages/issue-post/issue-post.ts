@@ -27,10 +27,10 @@ var folderOptions = {
 
 
 @Component({
-  selector: 'page-issue-post1',
-  templateUrl: 'issue-post1.html'
+  selector: 'page-issue-post',
+  templateUrl: 'issue-post.html'
 })
-export class IssuePost1Page {
+export class IssuePostPage {
 	
   @ViewChild('input') myInput;	
   @ViewChild(Content) content : Content;
@@ -54,6 +54,7 @@ export class IssuePost1Page {
   img2_occ : boolean = false;
   loading : any;
   userAnonymous: boolean = false;
+  postVerified: boolean = false;
   
   items : any;
   
@@ -482,6 +483,10 @@ export class IssuePost1Page {
 			is_otherCategory = true;
 			this.category = 'Other';	
 		}
+		if(this.inputImage != null && this.img1_occ )
+		{
+			this.postVerified = true;
+		}
 	   
 		if(this.title != null && this.title.trim().length != 0 && (this.category !=null && this.category.trim().length != 0 ) && (this.img1_occ || (this.desc !=null && this.desc.trim().length != 0)))
 	   {
@@ -491,7 +496,7 @@ export class IssuePost1Page {
 	   this.loading.present();
 	   
 	   let url = 'https://citysavior.pythonanywhere.com/posts/api/post/';
-	   let body = JSON.stringify({'title': this.title, 'desc': this.desc, 'lat': this.lat, 'lon': this.lon,'email': this.user.email,'category': this.category,'is_otherCategory': is_otherCategory,'is_anonymous': this.userAnonymous});
+	   let body = JSON.stringify({'title': this.title, 'desc': this.desc, 'lat': this.lat, 'lon': this.lon,'email': this.user.email,'category': this.category,'is_otherCategory': is_otherCategory,'is_anonymous': this.userAnonymous,'verified':this.postVerified});
 	   let headers = new Headers({'Content-Type': 'application/json'});
 	   let options = new RequestOptions({ headers:headers});
 	   this.http.post(url,body,options).subscribe( result => {

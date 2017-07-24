@@ -11,7 +11,7 @@ import { Storage } from '@ionic/storage';
 import {Params} from '../../providers/params';
 import {Camera, File} from 'ionic-native';
 
-import { IssuePost1Page } from '../issue-post1/issue-post1';
+import { IssuePostPage } from '../issue-post/issue-post';
 
 
  
@@ -624,7 +624,7 @@ export class MapPage {
 	  this.currLocation = loc;
 	  this.lastLocation = loc;
 
-	  this.app.getRootNav().push(IssuePost1Page, {lat:postlat,lon:postlng,inputImage:null}, {animate: true, direction: 'forward'});
+	  this.app.getRootNav().push(IssuePostPage, {lat:postlat,lon:postlng,inputImage:null}, {animate: true, direction: 'forward'});
 	}).catch((error) => {
 
    });
@@ -1152,7 +1152,7 @@ checkPermission(called : string)
 		}
 		else
 		{
-			this.app.getRootNav().push(IssuePost1Page, {lat:userLocation.lat,lon:userLocation.lng,inputImage:imagePath}, {animate: true, direction: 'forward'});
+			this.app.getRootNav().push(IssuePostPage, {lat:userLocation.lat,lon:userLocation.lng,inputImage:imagePath}, {animate: true, direction: 'forward'});
 		}
 	 },error=>{
 		

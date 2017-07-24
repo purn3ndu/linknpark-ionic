@@ -39623,41 +39623,22 @@ page-edit-post .cancel2 {
   font-size: 24px;
 }
 
-page-issue-post1 #image1 {
+page-issue-post #image1 {
   margin-right: 5px;
 }
 
-page-issue-post1 #image2 {
+page-issue-post #image2 {
   margin-right: 5px;
 }
 
-page-issue-post1 .cancel1 {
+page-issue-post .cancel1 {
   top: 0px;
   margin-right: 2px;
   font-size: 24px;
 }
 
-page-issue-post1 .cancel2 {
+page-issue-post .cancel2 {
   top: 0px;
-  margin-top: 5px;
-  margin-right: 2px;
-  font-size: 24px;
-}
-
-page-issuepost #image1 {
-  margin-right: 5px;
-}
-
-page-issuepost #image2 {
-  margin-right: 5px;
-}
-
-page-issuepost .cancel1 {
-  margin-right: 2px;
-  font-size: 24px;
-}
-
-page-issuepost .cancel2 {
   margin-top: 5px;
   margin-right: 2px;
   font-size: 24px;
@@ -39723,24 +39704,14 @@ map-page ion-spinner {
   fill: #222;
 }
 
-map-page .item-inner {
-  padding-right: 0px !important;
-}
-
-map-page .label {
-  margin: 0;
-}
-
 map-page #show {
-  text-align: center;
-  padding-right: 0px !important;
   position: absolute;
   top: 46%;
   right: 0;
   margin-right: 10px;
   background-color: rgba(255, 255, 255, 0.5);
-  width: 43px;
-  height: 80px;
+  width: 42px;
+  height: 42px;
 }
 
 map-page .image-center {
@@ -39772,7 +39743,8 @@ map-page .myLocImage {
 }
 
 map-page .pinImage {
-  font-size: 24px;
+  font-size: 36px;
+  padding: 3px;
 }
 
 map-page .postClass {
@@ -39868,6 +39840,10 @@ page-rank .karmaClass {
 page-rank img {
   margin: 0 auto;
   text-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  -ms-grid-row-align: center;
+  align-items: center;
 }
 
 page-rank .firstMember {

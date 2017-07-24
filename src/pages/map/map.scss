@@ -26,24 +26,15 @@ map-page {
     fill: #222;
 	}
 	
-	.item-inner{
-	  padding-right:0px !important;
-	}
-	
-	.label{
-	  margin: 0;
-	}
 	
 	#show{
-	 text-align:center;	
-	 padding-right:0px !important;	
 	 position:absolute;
 	 top:46%;
 	 right:0;
 	 margin-right: 10px;
 	 background-color: rgba(256,256,256,0.5);
-	 width:43px;
-	 height:80px;
+	 width:42px;  //change width to increase or decrease the size of  pin icon
+	 height:42px; //change height to increase or decrease the size of pin icon
 	}
 	
 	.image-center {
@@ -73,7 +64,8 @@ map-page {
 	}
 	
 	.pinImage{
-	  font-size:24px;
+	  font-size:36px;  //change font-size to increase or decrease the size of pin icon
+	  padding:3px;
 	}
 	
 	.postClass

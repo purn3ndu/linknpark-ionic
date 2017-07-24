@@ -135,7 +135,7 @@ export class CitysavApp {
 			 }
               Splashscreen.hide();
             });
-			},200);
+			},500);
             
           });
 

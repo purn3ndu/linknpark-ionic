@@ -14,13 +14,13 @@ import { RankPage } from '../pages/rank/rank';
 import { TabsPage } from '../pages/tabs/tabs';
 import { TutorialPage } from '../pages/tutorial/tutorial';
 import { SupportPage } from '../pages/support/support';
-import { IssuepostPage } from '../pages/issuepost/issuepost';
+
 import { PostdetailPage } from '../pages/postdetail/postdetail';
 import { EditPostPage } from '../pages/edit-post/edit-post';
 import { AboutPage } from '../pages/about/about';
 import {NotificationAreaPage} from '../pages/notification-area/notification-area';
 import {UserProfilePage} from '../pages/user-profile/user-profile';
-import { IssuePost1Page } from '../pages/issue-post1/issue-post1';
+import { IssuePostPage } from '../pages/issue-post/issue-post';
 
 import {Params} from '../providers/params';
 import {Data} from '../providers/data';
@@ -40,13 +40,12 @@ import {Data} from '../providers/data';
     TabsPage,
     TutorialPage,
     SupportPage,
-	IssuepostPage,
 	PostdetailPage,
 	EditPostPage,
 	AboutPage,
 	NotificationAreaPage,
 	UserProfilePage,
-	IssuePost1Page
+	IssuePostPage
   ],
   imports: [
     IonicModule.forRoot(CitysavApp)
@@ -62,13 +61,12 @@ import {Data} from '../providers/data';
     TabsPage,
     TutorialPage,
     SupportPage,
-	IssuepostPage,
 	PostdetailPage,
 	EditPostPage,
 	AboutPage,
 	NotificationAreaPage,
 	UserProfilePage,
-	IssuePost1Page
+	IssuePostPage
   ],
   providers: [ Storage, Params,  Data,
   {provide: ErrorHandler, useClass: IonicErrorHandler}]
