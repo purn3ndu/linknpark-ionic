@@ -2,6 +2,7 @@ import { Component,ViewChild } from '@angular/core';
 import { NavController, NavParams, LoadingController, ActionSheetController, Platform, AlertController,Content} from 'ionic-angular';
 import { Http, Headers, RequestOptions } from '@angular/http';
 import { NativeStorage,Camera, File, FilePath, Transfer, Diagnostic, Toast } from 'ionic-native';
+import {Data} from '../../providers/data';
 
 declare var cordova : any;
 var env;
@@ -13,7 +14,7 @@ var folderOptions = {
 };
 
 var cameraOptions= {
- quality : 15,
+ quality : 30,
  sourceType : Camera.PictureSourceType.CAMERA,
  encodingType : Camera.EncodingType.JPEG,
  saveToPhotoAlbum : false,
@@ -27,6 +28,7 @@ var cameraOptions= {
 })
 export class EditPostPage {
 	
+	@ViewChild('input') myInput;	
 	@ViewChild('descInput') descInput;	
 	@ViewChild(Content) content : Content;
 
@@ -38,6 +40,7 @@ export class EditPostPage {
   userName : string = null;
   
   issueDesc: string =null;
+  issueTitle : string = null;
   image1: string = null;
   image2: string = null;
   img1_occ : boolean = false;
@@ -58,16 +61,25 @@ export class EditPostPage {
   
   descHidden : boolean = true;
   
+  postStatus : string ;
+  isStatusHidden: boolean = true;
+  
+  showSuggestion : boolean = false;
+  items : any;
+  
+  userNameChange: boolean = false;
+  
   constructor(public navCtrl: NavController, 
   public navParams: NavParams,
   private http: Http,
   public loadingCtrl: LoadingController,
   public actionSheetCtrl: ActionSheetController,
   private platform : Platform,
-  private alertCtrl : AlertController) {
+  private alertCtrl : AlertController,
+  public data:Data) {
   
   this.postID = navParams.get("postID"); 
-  this.postData={'id':null,'title':null,'desc':null,'lat':null,'lon':null,'email':null,'category':null,'timestamp':null,'is_anonymous':null};
+  this.postData={'id':null,'title':null,'desc':null,'lat':null,'lon':null,'email':null,'category':null,'timestamp':null,'is_anonymous':null,'status':null,'verified':null};
   this.image1 ="";
    this.image2 ="";
    
@@ -123,13 +135,17 @@ export class EditPostPage {
 	 this.postData.email=data.email;
 	 this.postData.desc = data.desc;
 	 this.issueDesc = this.postData.desc;
+	 this.postData.status = data.status;
+	 this.postStatus = data.status;
+	 this.postData.verified  = data.verified;
+	 this.issueTitle = this.postData.title;
 	 if(this.issueDesc !=null && this.issueDesc.trim().length !=0 )
 	 {
 		 this.descHidden = false;
 	 }else{
 		 this.descHidden = true;
 	 }
-	 if(!this.postData.is_anonymous)
+	 if(this.postData.is_anonymous)
 	 {
 	  let url = 'https://citysavior.pythonanywhere.com/posts/api/member/'+this.postData.email+'/';
 	  this.http.get(url).subscribe( userResult => {
@@ -148,52 +164,105 @@ export class EditPostPage {
 	   {
 	    this.userName='Anonymous';
 	   }
-	url = 'https://citysavior.pythonanywhere.com/posts/api/getImage/';	 
-    let body = JSON.stringify({'post_id':this.postID});
-	let headers = new Headers({'Content-Type': 'application/json'});
-	let options = new RequestOptions({ headers:headers});
-	this.http.post(url,body,options).subscribe(imageResult =>{
+	   
+	let url='https://citysavior.pythonanywhere.com/posts/api/member/'+this.user.email+'/';   
+	this.http.get(url).subscribe(userResult=>{
 	
-	  if(imageResult.status == 200)
-	  {
-	    let images = imageResult.json();
-		if(images.length == 0)
-		{
-	
-		  this.loading.dismiss(); 
-		}
-		for(var i=0;i<images.length;i++)
-		{
-		  if(i==0)
-		  {
-		    this.image1='https://citysavior.pythonanywhere.com'+images[i].image_url;
-			this.img1_occ = true;
-			this.image_id1 = images[i].image_id;
+		let userData =userResult.json();
+		if(userData.role == 'authority' || userData.role == 'moderator')
+		 {
+			 this.isStatusHidden = false;
+		 }else{
+			this.isStatusHidden = true;
+		 }
+
+			let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/get/'+this.postID+'/';	 
+			//let body = JSON.stringify({'post_id':this.postID});
+			//let headers = new Headers({'Content-Type': 'application/json'});
+			//let options = new RequestOptions({ headers:headers});
+			this.http.get(url).subscribe(imageResult =>{
 			
-		  }
-		  else if(i==1)
-		  {
-		    this.image2='https://citysavior.pythonanywhere.com'+images[i].image_url;
-			this.img2_occ = true;
-			this.image_id2 = images[i].image_id;
-		  }
-		  if(i==images.length-1)
-		    {
-			 
-		    this.loading.dismiss();
+			  if(imageResult.status == 200)
+			  {
+				let images = imageResult.json();
+				if(images.length == 0)
+				{
+			
+				  this.loading.dismiss(); 
+				}
+				for(var i=0;i<images.length;i++)
+				{
+				  if(i==0)
+				  {
+					this.image1='https://citysavior.pythonanywhere.com'+images[i].image_url;
+					this.img1_occ = true;
+					this.image_id1 = images[i].image_id;
+					
+				  }
+				  else if(i==1)
+				  {
+					this.image2='https://citysavior.pythonanywhere.com'+images[i].image_url;
+					this.img2_occ = true;
+					this.image_id2 = images[i].image_id;
+				  }
+				  if(i==images.length-1)
+					{
+					 
+					this.loading.dismiss();
+				   
+					}
+				}
+			  }
+			}, imageError =>{
+				let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+				 this.http.get(url).subscribe( result =>{
+					this.loading.dismiss();
+					
+					Toast.show('Cannot connect to server. Please try again','3000','center').subscribe(toast=>{
+									
+					}, error=>{
+									
+					});
+					
+				 }, error=>{
+						this.loading.dismiss();
+						
+						Toast.show('Please check your Internet connection','3000','center').subscribe(toast=>{
+									
+						}, error=>{
+									
+						});
+					});
+			  
+			});
+		},userError=>{
+			
+			let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+				 this.http.get(url).subscribe( result =>{
+					this.loading.dismiss();
+					
+					Toast.show('Cannot connect to server. Please try again','3000','center').subscribe(toast=>{
+									
+					}, error=>{
+									
+					});
+					
+				 }, error=>{
+						this.loading.dismiss();
+						
+						Toast.show('Please check your Internet connection','3000','center').subscribe(toast=>{
+									
+						}, error=>{
+									
+						});
+					});
+		
+		});	
 		   
-		    }
-		}
-	  }
-	}, imageError =>{
-	
-	  this.loading.dismiss();
-	});
-   
    }
    },postError =>{
     
-	 let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+	 let url='https://citysavior.pythonanywhere.com/posts/api/member/'
 	 this.http.get(url).subscribe( result =>{
 	    this.loading.dismiss();
 		
@@ -267,15 +336,13 @@ takePicture(sourceType)
 			 var currentName = imagePath.substr(imagePath.lastIndexOf('/') + 1);
 			 var correctPath = imagePath.substr(0,imagePath.lastIndexOf('/') + 1);
 			 
-			 console.log('The image path is: ',imagePath);		
-		   	if(this.img1_occ == false){		
-			   	this.image1= imagePath;		
+			if(this.img1_occ == false){					
+			   this.image1= imagePath
 			   this.img1_occ = true;		
 			} else if(this.img2_occ== false){		
-				this.image2= imagePath;		
+		      this.image2= imagePath		
 			  this.img2_occ = true;		
 			  }
-			
 			 //this.copyFileToLocalDir(correctPath,currentName,this.createFileName());
 			}
 		}
@@ -371,12 +438,92 @@ takePicture(sourceType)
 		  this.descInput.setFocus();
 		},300);
   }
+  
+  updateStatus()
+  {
+	  let url='https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+	  let body = JSON.stringify({'status':this.postStatus});
+	  let headers = new Headers({'Content-Type': 'application/json'});
+	  let options = new RequestOptions({ headers:headers});
+	  this.http.patch(url,body,options).subscribe(result=>{
+		let statusData = result.json();
+		// url changed
+		let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
+		body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Status update for your post on City Savior','message':'The status of your post : '+this.postData.title+' has been changed to '+statusData.status+'.','not_id':this.postID,send_not:true});
+		
+		this.http.post(url,body,options).subscribe(result=>{
+						 
+		},error=>{
+
+		});
+		
+		Toast.show('Status updated','3000','bottom').subscribe(toast=>{
+						
+		}, error=>{
+						
+			});
+	  },error=>{
+		  
+		  let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+		 this.http.get(url).subscribe( result =>{
+			
+			Toast.show('Cannot connect to server. Please try again','3000','center').subscribe(toast=>{
+							
+			}, error=>{
+							
+			});
+			
+		 }, error=>{
+				
+				Toast.show('Please check your Internet connection','3000','center').subscribe(toast=>{
+							
+				}, error=>{
+							
+				});
+			});
+		});
+  }
+  
+  hasFocus()
+  {
+	  this.showSuggestion = true;
+	  
+  }
+  
+  noFocus()
+  {
+	  this.showSuggestion = false;
+  }
+  
+  setTitle(item : any)
+  {
+	  this.issueTitle = item.title;	  
+  }
+  
+  setFilteredItems()
+  {
+	  this.items = this.data.filterItems(this.issueTitle);
+	  if(this.issueTitle.trim().length == 50)
+	  {
+		  Toast.show('Add addition details in Description','1000','center').subscribe(toast=>{
+						
+			}, error=>{
+						
+			});
+	  }
+  }
 
  onPostSubmit()
  {
      
-   this.submitted = true;
-	if(((this.issueDesc != this.postData.desc) || (this.img1_occ == true && this.image_id1==null) || (this.img2_occ == true && this.image_id2==null) || (this.deletedImages.length > 0) ) && ((this.issueDesc != null && this.issueDesc.trim().length!=0)|| this.img1_occ))
+   if(this.postStatus != this.postData.status)
+   {
+	   this.updateStatus();
+   }else{
+	   
+	   this.submitted = true;
+	
+	if(((this.issueDesc != this.postData.desc)|| (this.issueTitle!=this.postData.title) || ( this.userNameChange ) || (this.img1_occ == true && this.image_id1==null) || (this.img2_occ == true && this.image_id2==null) || (this.deletedImages.length > 0) ) && ((this.issueDesc != null && this.issueDesc.trim().length!=0)|| this.img1_occ) && (this.issueTitle !=null && this.issueTitle.trim().length !=0))
    {
 	this.descEdited=false;
 	this.imageUpload1Edited=false;
@@ -387,32 +534,56 @@ takePicture(sourceType)
       content : 'Updating post'
 	 });
 	this.loading.present();	 
-  if(this.issueDesc != this.postData.desc)
+   if((this.issueDesc != this.postData.desc)|| (this.issueTitle != this.postData.title) || this.userNameChange )
   {
-   let url = 'https://citysavior.pythonanywhere.com/posts/api/updatePost/';
-   let body = JSON.stringify({'post_id':this.postID,'issueDes':this.issueDesc});
+   
+   let is_anonymous = this.postData.is_anonymous;
+   
+   if(this.userNameChange)
+	{
+		if(this.userName=='Anonymous')
+		{
+			is_anonymous = true;
+		}
+		else
+		{
+			is_anonymous = false;
+		}
+	}
+   // updated url - patch request to PostDetail class view 	
+	
+   let url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+   let body = JSON.stringify({'desc':this.issueDesc,'title':this.issueTitle,'is_anonymous':is_anonymous});
    let headers = new Headers({'Content-Type': 'application/json'});
    let options = new RequestOptions({ headers:headers});
-   this.http.post(url,body,options).subscribe( postUpdate=>{
+   this.http.patch(url,body,options).subscribe( postUpdate=>{
     
 	  if(postUpdate.status == 200)
 	  {
 	   let postUpdateResult= postUpdate.json();
 	
 	   this.descEdited = true;
-	   this.postData.desc = postUpdateResult.issueDes;
+	   this.postData.desc = postUpdateResult.desc;
+	   this.postData.title = postUpdateResult.title;
+	   this.postData.is_anonymous = postUpdateResult.is_anonymous;
 	   if(this.descEdited && this.imageUpload1Edited && this.imageDeleteEdited && this.imageUpload2Edited)
 	   {
 	     
 		 this.submitted = false;
+		 
+		 
+		 
+		 
 		 let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
 		 let body = JSON.stringify({'email':this.user.email,'activity_done':'Edited post-'+this.postID+' :'+this.postData.title});
-		 
+		 let headers = new Headers({'Content-Type': 'application/json'});
+		 let options = new RequestOptions({ headers:headers});
 		 this.http.post(url,body,options).subscribe(result =>{
 	
 			}, error=>{
 
 		});
+		
 			
 		 this.loading.dismiss();
 		 
@@ -427,7 +598,7 @@ takePicture(sourceType)
 	  }
    }, postUpdateError=>{
        
-	   let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+	   let url='https://citysavior.pythonanywhere.com/posts/api/member/'
 	   this.http.get(url).subscribe( result =>{
 		this.loading.dismiss();
 		
@@ -467,6 +638,7 @@ takePicture(sourceType)
 			}, error=>{
 
 		});
+		
 		 
 		 this.loading.dismiss();
 		 
@@ -525,7 +697,7 @@ takePicture(sourceType)
 		  }
 		},error1=>{
 			
-			let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+			let url='https://citysavior.pythonanywhere.com/posts/api/member/'
 			this.http.get(url).subscribe( result =>{
 			this.loading.dismiss();
 			
@@ -620,7 +792,7 @@ takePicture(sourceType)
 			   }
 			},error2=>{
 				
-				let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+				let url='https://citysavior.pythonanywhere.com/posts/api/member/'
 				this.http.get(url).subscribe( result =>{
 				this.loading.dismiss();
 					
@@ -698,7 +870,8 @@ takePicture(sourceType)
 					this.submitted = false;  
                     let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
 					let body = JSON.stringify({'email':this.user.email,'activity_done':'Edited post-'+this.postID+' :'+this.postData.title});
-		 
+					let headers = new Headers({'Content-Type': 'application/json'});
+					let options = new RequestOptions({ headers:headers});
 					this.http.post(url,body,options).subscribe(result =>{
 
 					}, error=>{
@@ -719,7 +892,7 @@ takePicture(sourceType)
 			}	
 	  }, deleteImageError =>{
 	
-			let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+			let url='https://citysavior.pythonanywhere.com/posts/api/member/'
 			this.http.get(url).subscribe( result =>{
 			this.loading.dismiss();
 			
@@ -774,13 +947,18 @@ takePicture(sourceType)
   }
   else
   {
-	  Toast.show('No changes made','3000','center').subscribe(toast=>{
+	  if(((this.issueDesc != null && this.issueDesc.trim().length!=0)|| this.img1_occ) && (this.issueTitle !=null && this.issueTitle.trim().length !=0))
+	  {
+	    Toast.show('No changes made','3000','center').subscribe(toast=>{
 						
 		}, error=>{
 						
 		});
+	  }		
+		
   }
   
+ }
  }
  
  ionViewCanLeave(): boolean | Promise<boolean> {
@@ -847,8 +1025,7 @@ takePicture(sourceType)
 				
 		  } 
 	  }).catch(error=>{
-		  this.selectImage();
-		  
+				this.selectImage();
 	  });
   }
 }

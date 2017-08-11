@@ -1,7 +1,7 @@
 import { Component} from '@angular/core';
 
 import { NavController, Platform, NavParams, App, Events,AlertController } from 'ionic-angular';
-import { GoogleMap, GoogleMapsEvent, Geolocation, GoogleMapsLatLng, GoogleMapsMarkerOptions, GoogleMapsMarker,GoogleMapsAnimation, NativeStorage,Diagnostic, LocationAccuracy,Toast } from 'ionic-native';
+import { GoogleMap, GoogleMapsEvent, GoogleMapsLatLng, GoogleMapsMarkerOptions, GoogleMapsMarker,GoogleMapsAnimation, NativeStorage,Diagnostic, LocationAccuracy,Toast } from 'ionic-native';
 
 import { Http, Headers, RequestOptions } from '@angular/http';
 import { PostdetailPage } from '../postdetail/postdetail';
@@ -98,7 +98,7 @@ export class MapPage {
         'zoom': this.lastZoom,
         'duration' : 100,
 		'tilt':40,
-        'bearing': 50
+        'bearing': 0
        }).then(() => {
 	    this.getVisibleRegion();
 		});
@@ -173,8 +173,8 @@ export class MapPage {
       }
     });
 
-    this.map.on(GoogleMapsEvent.MY_LOCATION_BUTTON_CLICK).subscribe(() => {
-	  this.getMyLocation();
+    this.map.on(GoogleMapsEvent.MY_LOCATION_BUTTON_CLICK).subscribe(() => {		
+	  this.getMyLocation();		
 	});
 	
 
@@ -199,7 +199,7 @@ export class MapPage {
         'zoom': 17,
 		'duration' : 2000,
 		'tilt':40,
-		'bearing': 50
+		'bearing': 0
        });
 	
 	   }
@@ -229,9 +229,10 @@ export class MapPage {
 							this.map.animateCamera({
 
 								'target': loc,
+						        'zoom': 17,
 						        'duration' : 1000,
 								'tilt':40,
-						        'zoom': 17
+						        'bearing': 0
 					       }).then(() => {
 							    this.getVisibleRegion();
 						   });
@@ -244,42 +245,36 @@ export class MapPage {
 		  
 		  if(locAuth)
 		  {
-
-		  	console.log('in here 1');
 			
 			this.checkPermission('loadMap');
 		  
 		  }else{
-
-		  		// For first time enter. Should also be extended to detect later changes in location permission by user.
-		  		Diagnostic.registerLocationStateChangeHandler((state) =>{
-
-		  			console.log("Location state changed to : " + state);
-
-				    let from_device=null;
-
-		  			if(this.platform.is('android'))
-					{
-						from_device='Android';
-					}
-					else if(this.platform.is('ios'))
-					{
-						from_device = 'iOS';
-					}
-
-				    if((from_device === "Android" && state !== Diagnostic.locationMode.LOCATION_OFF)
-				        || (from_device === "iOS") && ( state === 'authorized_when_in_use'
-				            || state === Diagnostic.permissionStatus.GRANTED_WHEN_IN_USE
-				    )){
-				        console.log("Location is available now!");
-				    	console.log('Calling user location method');
-				    	this.checkPermission('loadMap');
-				    }else{
-				    	console.log("Location is still not available now!");
-				    }
-		  			
+			  
+			  // For first time enter. Should also be extended to detect later changes in location permission by user.		
+		  		Diagnostic.registerLocationStateChangeHandler((state) =>{		
+		  			console.log("Location state changed to : " + state);		
+				    let from_device=null;		
+		  			if(this.platform.is('android'))		
+					{		
+						from_device='Android';		
+					}		
+					else if(this.platform.is('ios'))		
+					{		
+						from_device = 'iOS';		
+					}		
+				    if((from_device === "Android" && state !== Diagnostic.locationMode.LOCATION_OFF)		
+				        || (from_device === "iOS") && ( state === 'authorized_when_in_use'		
+				            || state === Diagnostic.permissionStatus.GRANTED_WHEN_IN_USE		
+				    )){		
+				        console.log("Location is available now!");		
+				    	console.log('Calling user location method');		
+				    	this.checkPermission('loadMap');		
+				    }else{		
+				    	console.log("Location is still not available now!");		
+				    }		
+		  					
 			});
-
+		  		
 			  this.checkPermissionCalled = true;
 			  
 		  this.map.getCameraPosition().then((position) => {
@@ -293,7 +288,8 @@ export class MapPage {
 			this.lastLocation = loc;
 			this.lastZoom = 1;
 			
-			let url = 'https://citysavior.pythonanywhere.com/posts/api/getArea/'+this.user.email+'/';
+			// url changed - Response changed
+			let url = 'https://citysavior.pythonanywhere.com/posts/api/notificationarea/'+this.user.email+'/';
 			this.http.get(url).subscribe( result => {
 			if(result.status == 200)
 			{
@@ -301,8 +297,8 @@ export class MapPage {
 				let resultData = result.json();
 				if(resultData.length == 0 )
 				{
-					
-					let url = 'https://citysavior.pythonanywhere.com/posts/api/createOrUpdateArea/';
+					// url changed - post request to Notification List class view to create a new area
+					let url = 'https://citysavior.pythonanywhere.com/posts/api/notificationarea/';
 					let body = JSON.stringify({'email':this.user.email,'cen_lat':loc.lat,'cen_lon':loc.lng,'radius':2,'user_set':false});
 					let headers = new Headers({'Content-Type': 'application/json'});
 					let options = new RequestOptions({ headers:headers});
@@ -326,11 +322,7 @@ export class MapPage {
 		});
 	  }
 		  }
-	  }).catch((error) => {
-
-	  	console.log('Something went wrong with location authorization request');
-
-		});
+	  });
 	  
 	});
 	
@@ -355,109 +347,76 @@ export class MapPage {
   }
   
   getUserLocation(called:string) {
-
-  	console.log("enters here 2");
-
-  	// this.map.getMyLocation();
    
-     
-	//  let GeolocOptions = {
-	//   'maximumAge': 900000
-	//  };
-	 
-	 
-	 
- //     Geolocation.getCurrentPosition(GeolocOptions).then((res) => {
+		
+		this.map.getMyLocation().then(myLoc=>{
        
-	//      let userLocation = new GoogleMapsLatLng(res.coords.latitude,res.coords.longitude);
+			let newLat  = Number(myLoc.latLng.lat.toString());
+	        let newLng = Number(myLoc.latLng.lng.toString());
+			let userLocation = new GoogleMapsLatLng(newLat,newLng);
 	    
-	// }).catch((error) => {	
+	
+     this.currLocation = userLocation;	
+	 this.lastLocation = userLocation;
+	 
+	 
+	 if(this.lastZoom == null)
+	 {
+	 this.lastZoom = 17;
+	 }
+      
+      this.map.animateCamera({
+     
+		'target': userLocation,
+        'zoom': 17,
+        'duration' : 2000,
+		'tilt':40,
+        'bearing': 0
+      }).then(() => {
+		  
+		  
+	  if(called == 'cameraBtn')
+	  {
+		  this.checkPermissionCalled = false;
+		  
+		  this.startCamera(userLocation);
+		  
+	  }else{
+	  
+	  // url changed - Reponse changed
+	  let url = 'https://citysavior.pythonanywhere.com/posts/api/notificationarea/'+this.user.email+'/';
+		this.http.get(url).subscribe( result => {
+			if(result.status == 200)
+			{
+				
+				let resultData = result.json();
+				if(!(resultData[0].user_set))
+				{
+					// url changed - patch request to NotificationDetail class view to update the area
+					let url = 'https://citysavior.pythonanywhere.com/posts/api/notificationarea/'+resultData[0].notification_id+'/';
+					let body = JSON.stringify({'cen_lat':this.currLocation.lat,'cen_lon':this.currLocation.lng,'radius':2});
+					let headers = new Headers({'Content-Type': 'application/json'});
+					let options = new RequestOptions({ headers:headers});
+					this.http.patch(url,body,options).subscribe(result=>{
+			
+					},error=>{
+			
+					});	
+						
+				}
+			}
+		}, error=>{
+			
+		});
+	  
+	  this.getVisibleRegion();
+	  }
+	  });
+
+    }).catch((error) => {	
 		
  
- //    });
-
-
-	// let userLocation = this.map.getMyLocation();
-
-
-	this.map.getMyLocation().then((position) => {
-	        let newLat  = Number(position.latLng.lat.toString());
-	        let newLng = Number(position.latLng.lng.toString());
-			this.lastLocation = new GoogleMapsLatLng(newLat,newLng);
-			this.currLocation = new GoogleMapsLatLng(newLat,newLng);	
-
-
-			console.log('The user lat lng is: ',newLat,'  ',newLng );
-			console.log('The user location is: '+JSON.stringify(position));
-
-
-
-		if(this.lastZoom == null)
-		 {
-		 this.lastZoom = 17;
-		 }
-	      
-	      this.map.animateCamera({
-	     
-			'target': this.currLocation,
-	        'zoom': 17,
-	        'duration' : 2000,
-			'tilt':40,
-	        'bearing': 50
-	      }).then(() => {
-			  
-			  
-		  if(called == 'cameraBtn')
-		  {
-			  this.checkPermissionCalled = false;
-			  
-			  this.startCamera(this.currLocation);
-			  
-		  }else{
-		  
-		  let url = 'https://citysavior.pythonanywhere.com/posts/api/getArea/'+this.user.email+'/';
-			this.http.get(url).subscribe( result => {
-				if(result.status == 200)
-				{
-					
-					let resultData = result.json();
-					if(!(resultData[0].fields.user_set))
-					{
-						
-						let url = 'https://citysavior.pythonanywhere.com/posts/api/createOrUpdateArea/';
-						let body = JSON.stringify({'email':this.user.email,'cen_lat':this.currLocation.lat,'cen_lon':this.currLocation.lng,'radius':2,'user_set':false});
-						let headers = new Headers({'Content-Type': 'application/json'});
-						let options = new RequestOptions({ headers:headers});
-						this.http.post(url,body,options).subscribe(result=>{
-				
-						},error=>{
-				
-						});	
-							
-					}
-				}
-			}, error=>{
-				
-			});
-		  
-		  this.getVisibleRegion();
-		  }
-		  });
-
-
-	}).catch((error) => {	
-		console.log("enters here 4a");
- 
     });
-
-
-	console.log("enters here 4b");
-     
-	 
-	 
-	 
-
-    
   }
   
   cameraLocationChange()
@@ -567,7 +526,7 @@ export class MapPage {
         'zoom': this.lastZoom,
         'duration' : 2000,
 		'tilt':40,
-        'bearing': 50
+        'bearing': 0
        }).then(() => {
 	    this.getVisibleRegion(); 
 	});
@@ -632,7 +591,8 @@ export class MapPage {
   
   searchNearby(lat_min : number, lat_max : number, lng_min : number, lng_max : number)
   { 
-    let url = 'https://citysavior.pythonanywhere.com/posts/api/post_search_nearby/';
+	// url changed - Response changed
+    let url = 'https://citysavior.pythonanywhere.com/posts/api/post_nearby/';
 	let body = JSON.stringify({'min_lat': lat_min, 'min_lon': lng_min, 'max_lat': lat_max, 'max_lon': lng_max});
 	
 	let headers = new Headers({'Content-Type': 'application/json'});
@@ -667,18 +627,18 @@ export class MapPage {
 				
 				mid = Math.trunc((low + high)/2);
 				
-				if (this.data[this.sorted_index[mid]].pk == resultData[n1].pk)
+				if (this.data[this.sorted_index[mid]].id == resultData[n1].id)
 				{
 					low = high = mid;
-					if(this.newMarker!= undefined && this.newMarker.userEnter=='push' && this.data[this.sorted_index[mid]].pk == this.newMarker.post_id){
-						this.markers[this.sorted_index[mid]].setAnimation(GoogleMapsAnimation.DROP);
-						this.markers[this.sorted_index[mid]].setIcon('green');
+					if(this.newMarker!= undefined && this.newMarker.userEnter=='push' && this.data[this.sorted_index[mid]].id == this.newMarker.post_id){
+						this.markers[this.sorted_index[mid]].setAnimation(GoogleMapsAnimation.BOUNCE);
 						let normalJSON = {userEnter:'normal'};
 						this.params.params=normalJSON;	  
+						this.newMarker= this.params.params;
 					}
 					break;
 				}
-				else if(resultData[n1].pk > this.data[this.sorted_index[mid]].pk )
+				else if(resultData[n1].id > this.data[this.sorted_index[mid]].id )
 				{
 				
 					low = mid + 1;
@@ -695,7 +655,7 @@ export class MapPage {
 			if(low > high)
 			{
 				var new_length = this.data.push(resultData[n1]);
-				if(resultData[n1].pk > this.data[this.sorted_index[mid]].pk)
+				if(resultData[n1].id > this.data[this.sorted_index[mid]].id)
 				{
 					this.sorted_index.splice(mid+1,0,new_length-1);
 			    }
@@ -710,84 +670,177 @@ export class MapPage {
 	}
 	
 	
+	
 	for(var i=i_previous;i < this.data.length;i++)
 	{
-
-	  let loc = new GoogleMapsLatLng(this.data[i].fields.lat,this.data[i].fields.lon);
-	  
+		
 	  let i1 = i;
+	  let loc = new GoogleMapsLatLng(this.data[i].lat,this.data[i].lon);	  
 	  
-	  if(this.newMarker!= undefined && this.newMarker.userEnter=='push' && this.data[i].pk == this.newMarker.post_id){
-		let markerOptions : GoogleMapsMarkerOptions = {
+	  let color= 'blue';
+		switch(this.data[i].status){
+			case 'Review' : color='blue';
+							break;
+									
+			case 'Verification': color='green';
+								break;
+									  
+			case 'In-progress': color='#f5c52c';
+								break;
+
+			case 'Closed': color='red';
+						break;
+			}
+					
+	  let icon_img = null;
+		switch(this.data[i].category){
+				case 'Trash' : icon_img='./assets/img/garbage.jpg';
+								break;
+							
+				case 'Street Light': icon_img='./assets/img/street_light.jpg';
+									break;
+							  
+				case 'Damaged Road': icon_img='./assets/img/roads.jpg';
+									break;
+
+				case 'Traffic Problems': icon_img='./assets/img/traffic.png';
+										break;
+														
+				case 'Homeless': icon_img='./assets/img/homeless.jpg';
+								break;	
+							 
+				default : icon_img='./assets/img/other.jpg';
+							break;
+			}
+							
+			let icon = {
+				url : icon_img,
+				size:{
+						width:50,
+						height:50,
+					}
+			};
+		
+		if(this.newMarker!= undefined && this.newMarker.userEnter=='push' && this.data[i].id == this.newMarker.post_id){
+			
+			let markerOptions : GoogleMapsMarkerOptions = {
+				position : loc,
+				title : this.data[i].title,
+				icon : icon,
+				animation:GoogleMapsAnimation.BOUNCE,
+				styles : {
+					'color':color
+					}
+					   
+				};
+				let normalJSON = {userEnter:'normal'};
+				this.params.params=normalJSON;	  
+				this.newMarker= this.params.params;
+				this.map.addMarker(markerOptions).then((marker: GoogleMapsMarker) =>{
+				
+					this.markers[i1]= marker;
+					
+					let i2 = i1;
+					let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/get/'+this.data[i1].id+'/';
+					this.http.get(url).subscribe(imageResult=>{
+						let img = imageResult.json();
+						  
+						  if(img.length != 0)
+						  {
+							
+							let icon = {
+								url : 'https://citysavior.pythonanywhere.com'+img[0].image_url,
+								size:{
+									width:50,
+									height:50,
+									}
+							};
+							
+							this.markers[i2].setIcon(icon);
+						  }
+					},error=>{
+						
+					});
+					
+					marker.getTitle();	
+					marker.addEventListener(GoogleMapsEvent.INFO_CLICK).subscribe(() => {
+						
+						
+						let postID=this.data[i1].id;
+						
+						this.app.getRootNav().push(PostdetailPage, {postID:postID}, {animate: true, direction: 'forward'});
+						
+					});
+					this.map.animateCamera({
+
+						'target': loc,
+						'zoom': 17,
+						'duration' : 1000,
+						'tilt':40,
+						'bearing': 0
+					   });	
+
+					marker.showInfoWindow();	
+				});
+			  }else{
+
+					
+			  
+			  let markerOptions : GoogleMapsMarkerOptions = {
 			   position : loc,
-			   title : this.data[i].fields.title,
-			   icon: 'green',
-			   animation:GoogleMapsAnimation.BOUNCE
-			   
+			   title : this.data[i].title,
+			   icon : icon,
+			   styles : {
+				   'color':color
+			   }
 			  };
-		let normalJSON = {userEnter:'normal'};
-        this.params.params=normalJSON;	  
-		
-		
-		
-		this.map.addMarker(markerOptions).then((marker: GoogleMapsMarker) =>{
-	    
-			this.markers[i1]= marker;
-			
-			
-			
-			marker.getTitle();	
-			marker.addEventListener(GoogleMapsEvent.INFO_CLICK).subscribe(() => {
-				
-				
-				let postID=this.data[i1].pk;
-				
-				this.app.getRootNav().push(PostdetailPage, {postID:postID}, {animate: true, direction: 'forward'});
-				
-			});
-			this.map.animateCamera({
+			  this.map.addMarker(markerOptions).then((marker: GoogleMapsMarker) =>{
+				  
+				  this.markers[i1]= marker;
+				  
+				  let i2 = i1;
+					let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/get/'+this.data[i1].id+'/';
+					this.http.get(url).subscribe(imageResult=>{
+						let img = imageResult.json();
+						  
+						  if(img.length != 0)
+						  {
+							
+							let icon = {
+								url : 'https://citysavior.pythonanywhere.com'+img[0].image_url,
+								size:{
+									width:50,
+									height:50,
+									}
+							};
+							
+							this.markers[i2].setIcon(icon);
+						  }
+					},error=>{
+						
+					});
 
-				'target': loc,
-		        'zoom': 17,
-		        'duration' : 1000,
-				'tilt':40,
-		        'bearing': 50
-		       });	
-
-			marker.showInfoWindow();	
-		});
-	  }else{
-	  
-	  let markerOptions : GoogleMapsMarkerOptions = {
-	   position : loc,
-	   title : this.data[i].fields.title,
-	   icon : '#008ae6' 
-	  };
-	  this.map.addMarker(markerOptions).then((marker: GoogleMapsMarker) =>{
-	    
-		this.markers[i1]= marker;
-		
-		
-		marker.getTitle();
-	    	marker.addEventListener(GoogleMapsEvent.INFO_CLICK).subscribe(() => {
+				marker.getTitle();
+					marker.addEventListener(GoogleMapsEvent.INFO_CLICK).subscribe(() => {
+						
+						let postID=this.data[i1].id;
+						
+						this.app.getRootNav().push(PostdetailPage, {postID:postID}, {animate: true, direction: 'forward'});
+						
+				});
 				
-				let postID=this.data[i1].pk;
-				
-				this.app.getRootNav().push(PostdetailPage, {postID:postID}, {animate: true, direction: 'forward'});
-				
-		});
-	  });
-	 }
-	  
+			  });
+			 }
 	}
-	
-		this.isHidden = false;
-		this.checkPermissionCalled = false;
-	
+			
+			
+				this.isHidden = false;
+				this.checkPermissionCalled = false;
+			
 	}, err =>
 	{
 
-		let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+		let url='https://citysavior.pythonanywhere.com/posts/api/member/'
 		this.http.get(url).subscribe( result =>{
 	
 				this.isHidden = false;
@@ -830,10 +883,9 @@ checkPermission(called : string)
 						}, error=>{
 						
 						});
-						console.log("enters here 1");
 						this.getUserLocation(called);
 
-					}).catch((error) => {  // called when gps id off and user denies the request to turn gps on
+					}).catch((error) => {  // called when gps is off and user denies the request to turn gps on
 					
 					
 					this.map.getCameraPosition().then((position) => {
@@ -847,7 +899,8 @@ checkPermission(called : string)
 						this.lastLocation = loc;
 						this.lastZoom = 1;
 					
-						let url = 'https://citysavior.pythonanywhere.com/posts/api/getArea/'+this.user.email+'/';
+						//url changed - Response changed 
+						let url = 'https://citysavior.pythonanywhere.com/posts/api/notificationarea/'+this.user.email+'/';
 						this.http.get(url).subscribe( result => {
 						if(result.status == 200)
 						{
@@ -855,8 +908,8 @@ checkPermission(called : string)
 								let resultData = result.json();
 								if(resultData.length == 0 )
 								{
-							
-									let url = 'https://citysavior.pythonanywhere.com/posts/api/createOrUpdateArea/';
+									// url changed - post request to NotificationList class view to create a area
+									let url = 'https://citysavior.pythonanywhere.com/posts/api/notificationarea/';
 									let body = JSON.stringify({'email':this.user.email,'cen_lat':loc.lat,'cen_lon':loc.lng,'radius':2,'user_set':false});
 									let headers = new Headers({'Content-Type': 'application/json'});
 									let options = new RequestOptions({ headers:headers});
@@ -1044,7 +1097,7 @@ checkPermission(called : string)
 						        'zoom': 17,
 						        'duration' : 1000,
 								'tilt':40,
-						        'bearing': 50
+						        'bearing': 0
 					       }).then(() => {
 							    this.getVisibleRegion();
 						   });
@@ -1117,10 +1170,131 @@ checkPermission(called : string)
   
   checkStoragePermission()
   {
-  	//No need ter check storage in IOS
-  	this.cameraDisabled = true;
-  	this.isHidden = true;
-  	this.getUserLocation('cameraBtn');
+	  Diagnostic.getPermissionAuthorizationStatus(Diagnostic.permission.READ_EXTERNAL_STORAGE).then(result=>{
+		  
+
+		  switch(result){
+			  
+			case Diagnostic.permissionStatus.GRANTED: 	
+						this.cameraDisabled = true;
+						this.isHidden = true;
+						this.getUserLocation('cameraBtn');
+						break;
+			
+			case Diagnostic.permissionStatus.DENIED : 
+				Diagnostic.requestRuntimePermission(Diagnostic.permission.READ_EXTERNAL_STORAGE).then(result=>{
+					
+					
+					switch(result){
+					
+					case Diagnostic.permissionStatus.GRANTED: 	
+							this.cameraDisabled = true;
+							this.isHidden = true;
+							this.getUserLocation('cameraBtn');
+							break;
+			
+					case Diagnostic.permissionStatus.DENIED : 
+									
+				
+									
+									Toast.show('Storage Permission is required to use this feature','2000','center').subscribe(toast=>{
+						
+									}, error=>{
+						
+									});
+									this.checkPermissionCalled = false;
+									break;
+			
+					case Diagnostic.permissionStatus.DENIED_ALWAYS : 
+					
+						let storageAlert = this.alertCtrl.create({
+							title : 'Storage Permission',
+							subTitle : 'Storage permission has been denied. Enable the Storage permission manually from the Settings to access files',
+							buttons: [{
+								text: 'Ok',
+								role: 'cancel',
+								handler: () => {
+									this.map.setClickable(true);
+									this.checkPermissionCalled = false;
+							}
+						}]
+					});
+						this.map.setClickable(false);
+						storageAlert.present();
+						break;
+					}
+				});
+				break;
+			
+			case Diagnostic.permissionStatus.DENIED_ALWAYS : 
+				let storageAlert = this.alertCtrl.create({
+							title : 'Storage Permission',
+							subTitle : 'Storage permission has been denied. Enable the Storage permission manually from the Settings to access files',
+							buttons: [{
+								text: 'Ok',
+								role: 'cancel',
+								handler: () => {
+									this.map.setClickable(true);
+									this.checkPermissionCalled = false;
+							}
+						}]
+					});
+				this.map.setClickable(false);
+				storageAlert.present();
+				break;
+			
+			case Diagnostic.permissionStatus.NOT_REQUESTED :
+				Diagnostic.requestRuntimePermission(Diagnostic.permission.READ_EXTERNAL_STORAGE).then(result=>{
+					
+					
+					switch(result){
+					
+					case Diagnostic.permissionStatus.GRANTED: 
+							this.cameraDisabled = true;
+							this.isHidden = true;
+							this.getUserLocation('cameraBtn');
+																break;
+			
+					case Diagnostic.permissionStatus.DENIED : 
+									
+									
+									Toast.show('Storage Permission is required to use this feature','2000','center').subscribe(toast=>{
+						
+									}, error=>{
+						
+									});
+									this.checkPermissionCalled = false;
+									break;
+			
+					case Diagnostic.permissionStatus.DENIED_ALWAYS : 
+						let storageAlert = this.alertCtrl.create({
+							title : 'Storage Permission',
+							subTitle : 'Storage permission has been denied. Enable the Storage permission manually from the Settings to access files',
+							buttons: [{
+								text: 'Ok',
+								role: 'cancel',
+								handler: () => {
+									this.map.setClickable(true);
+									this.checkPermissionCalled = false;
+							}
+							}]
+						});
+						this.map.setClickable(false);
+						storageAlert.present();
+					
+						break;
+					}
+				});
+				break;
+				
+		  } 
+	  }).catch(error=>{
+		  
+		  this.cameraDisabled = true;
+		  this.isHidden = true;
+		  this.getUserLocation('cameraBtn');
+		  
+	  });
   }
   
   

@@ -20,6 +20,11 @@
       <button ion-button block (click)="doGoogleLogin()" color="danger">Continue with Google+</button>
     </ion-col>
   </ion-row>
+  <ion-row [hidden]="isHidden">
+  <ion-col>
+  <p>By clicking Continue with Facebook or Continue with Google+, you agree to the <a href="https://www.citysavior.co/CsavPrivacyPolicy.pdf">Privacy Policy</a> of City Savior</p>
+  </ion-col>
+  </ion-row>
   <ion-row text-center [hidden]="!isHidden">
   <ion-col>
   <ion-spinner name='dots'></ion-spinner>

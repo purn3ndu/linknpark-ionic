@@ -1,40 +1,37 @@
 <ion-header no-border>
   <ion-navbar>
     <ion-buttons end [hidden]="!showSkip">
-      <button ion-button (click)="startApp()" color="primary">Skip</button>
+      <button ion-button (click)="startApp()" color="danger">Skip</button>
     </ion-buttons>
   </ion-navbar>
 </ion-header>
 
-<ion-content no-bounce>
+<ion-content no-bounce class="backgroundColor">
   <ion-slides pager= "true" (ionSlideWillChange)="onSlideChangeStart($event)">
 
     <ion-slide>
-      <img src="assets/img/csav1.png" class="slide-image"/>
-      <h2 class="slide-title">
-        Welcome to <b>City Savior</b>
-      </h2>
-      <p>
-        <b>City Savior</b> is a map-based mobile application where you can post any civic issue and get it solved through appropriate channels.
-      </p>
+      <img src="assets/img/csav1.jpg" class="slide-image"/>      
     </ion-slide>
 
     <ion-slide>
-      <img src="assets/img/csav2b.png" class="slide-image"/>
-      <h2 class="slide-title">How to use it?</h2>
-      <p>Explore your neighborhood or any other area on the map and see the various issues or ideas that are reported. Upvote the ones you think are important.</p>
+      <img src="assets/img/csav2a.jpg" class="slide-image"/>
+      
     </ion-slide>
     <ion-slide>
-      <img src="assets/img/csav3a.png" class="slide-image"/>
-      <h2 class="slide-title" >Be the top savior of your country.</h2>
-      <p>Earn <b>Karma points</b> for every activity that you do on the app. This score ranks you in the leaderboards of your city, state and country.</p>
+      <img src="assets/img/csav2b.jpg" class="slide-image"/>
+      
+    </ion-slide>
+
+    <ion-slide>
+      <img src="assets/img/csav3.jpg" class="slide-image"/>
+      
     </ion-slide>
 
   
     <ion-slide>
-      <img src="assets/img/csav4.png" class="slide-image"/>
+      <img src="assets/img/notif.png" class="slide-image"/>
       <h2 class="slide-title">Ready to be a savior?</h2>
-      <button ion-button icon-right large clear (click)="startApp()">
+      <button ion-button icon-right large clear (click)="startApp()" color="danger">
         Continue
         <ion-icon name="arrow-forward"></ion-icon>
       </button>

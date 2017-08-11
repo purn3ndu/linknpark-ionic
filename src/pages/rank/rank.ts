@@ -69,16 +69,18 @@ export class RankPage {
 	this.isUserRank =false;
 	this.isLeaderboard = false;
 	this.isUserPresent=false;
-	let url ='https://citysavior.pythonanywhere.com/posts/api/updateKarma/';
-	let body = JSON.stringify({'email':this.user.email,'karma_points':this.user.karma_points});
+	
+	//url changed - patch request to MemberDetail to update karma points
+	let url ='https://citysavior.pythonanywhere.com/posts/api/member/'+this.user.email+'/';
+	let body = JSON.stringify({'karma_points':this.user.karma_points});
 	let headers = new Headers({'Content-Type': 'application/json'});
 	let options = new RequestOptions({ headers:headers});
 	
-	this.http.post(url,body,options).subscribe(result =>{
+	this.http.patch(url,body,options).subscribe(result =>{
 		
-		url = 'https://citysavior.pythonanywhere.com/posts/api/getMyRank/';
-		body = JSON.stringify({'karma_points':this.user.karma_points});
-		this.http.post(url,body,options).subscribe(result =>{
+		//url changed - get request to getUserRank view
+		url = 'https://citysavior.pythonanywhere.com/posts/api/member/rank/'+this.user.karma_points+'/';
+		this.http.get(url).subscribe(result =>{
 		
 		  this.userRank = result.json().rank + 1;
 		  this.isUserRank = true;
@@ -102,7 +104,7 @@ export class RankPage {
 			  
 			}
 		},error=>{
-			let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+			let url='https://citysavior.pythonanywhere.com/posts/api/member/'
 			this.http.get(url).subscribe( result =>{
 				
 				this.spinnerHidden = true;
@@ -126,7 +128,8 @@ export class RankPage {
 			
 		});
 		
-		url ='https://citysavior.pythonanywhere.com/posts/api/getLeaderBoard/';
+		//url changed - get request to getLeadeboard - Response returned changed
+		url ='https://citysavior.pythonanywhere.com/posts/api/leaderboard/';
 		this.http.get(url).subscribe(result=>{
 		
 		let memberData = result.json();
@@ -135,17 +138,17 @@ export class RankPage {
 			{
 				if(i>0)
 				{
-				  if(memberData[i].fields.karma_points != memberData[i-1].fields.karma_points)
+				  if(memberData[i].karma_points != memberData[i-1].karma_points)
 					{
 					  memberRank = i+1;
 					}
 				}
-				let memberItem = {'rank':memberRank,'name':memberData[i].fields.name,'karma_points':memberData[i].fields.karma_points,'picture':memberData[i].fields.profile_picture};
+				let memberItem = {'rank':memberRank,'name':memberData[i].name,'karma_points':memberData[i].karma_points,'picture':memberData[i].profile_picture};
 				if(memberItem.picture.trim().length == 0)
 				{
 				  memberItem.picture='assets/img/leaderboard_img.jpg';
 				}
-				if(memberData[i].pk == this.user.email)
+				if(memberData[i].email == this.user.email)
 				{
 				  memberItem.name = 'Me';
 				  this.isUserPresent = true;	
@@ -183,7 +186,7 @@ export class RankPage {
 			}
 		
 	}, error=>{
-		let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+		let url='https://citysavior.pythonanywhere.com/posts/api/member/'
 			this.http.get(url).subscribe( result =>{
 				
 				this.spinnerHidden = true;
@@ -206,7 +209,7 @@ export class RankPage {
 	});
 	
 	}, error =>{
-	  let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+	  let url='https://citysavior.pythonanywhere.com/posts/api/member/'
 	  this.http.get(url).subscribe( result =>{
 			
 				this.spinnerHidden = true;

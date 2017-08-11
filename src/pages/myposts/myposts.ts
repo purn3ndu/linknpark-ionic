@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NativeStorage, Toast } from 'ionic-native';
-import { Http,Headers,RequestOptions } from '@angular/http';
+import { Http } from '@angular/http';
 import { NavController, App } from 'ionic-angular';
 import { PostdetailPage } from '../postdetail/postdetail';
 
@@ -59,7 +59,8 @@ export class MypostsPage {
   {
    
    this.spinnerHidden = false;
-   let url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.user.email+'/';
+   //url changed - Response changed
+   let url = 'https://citysavior.pythonanywhere.com/posts/api/user_post/'+this.user.email+'/';
    this.http.get(url).subscribe( result => {
     
 	if(result.status == 200)
@@ -77,7 +78,7 @@ export class MypostsPage {
 	
 	for(var i=0;i<postData.length;i++)
 	{
-	let time = postData[i].fields.timestamp;
+	let time = postData[i].timestamp;
 	time = time.substring(0,10);
 	let day = time.substring(time.lastIndexOf('-')+1);
 	let mon_index = Number(time.substring(time.indexOf('-')+1,time.lastIndexOf('-')));
@@ -86,8 +87,8 @@ export class MypostsPage {
 	let timestamp = day+'-'+mon+'-'+year;
 	
 	
-	let image_src = null;
-	switch(postData[i].fields.category){
+	let image_src = 'assets/img/other.jpg';
+	switch(postData[i].category){
 	 case 'Trash' : image_src='assets/img/garbage.jpg';
 					break;
 	
@@ -97,21 +98,18 @@ export class MypostsPage {
 	 case 'Damaged Road': image_src='assets/img/roads.jpg';
 						   break;
 
-	 case 'Traffic Problems': image_src='assets/img/traffic_lights.jpg';
+	 case 'Traffic Problems': image_src='assets/img/traffic.png';
 							   break;
 								
 	 case 'Homeless': image_src='assets/img/homeless.jpg';
 					  break;	
-	 
-     default : image_src=null;
-					break;
 	}
 	
-	this.posts[i] = {'pk':postData[i].pk,'title':postData[i].fields.title,'category':postData[i].fields.category,'timestamp':timestamp,'address':'','views':postData[i].fields.views,'image':image_src,'upvotes':postData[i].fields.upvotes,'is_otherCategory':postData[i].fields.is_otherCategory,'stats':postData[i].fields.status};
+	this.posts[i] = {'id':postData[i].id,'title':postData[i].title,'category':postData[i].category,'timestamp':timestamp,'address':'','views':postData[i].views,'image':image_src,'upvotes':postData[i].upvotes,'is_otherCategory':postData[i].is_otherCategory,'stats':postData[i].status};
     
 	let i1 = i;
 	
-	let url='https://maps.googleapis.com/maps/api/geocode/json?latlng='+postData[i].fields.lat+','+postData[i].fields.lon+'&key=AIzaSyAUA6Q7vN-9u7rW4qyKb4i8KYbCo6gzBSE&sensor=true';
+	let url='https://maps.googleapis.com/maps/api/geocode/json?latlng='+postData[i].lat+','+postData[i].lon+'&key=AIzaSyAUA6Q7vN-9u7rW4qyKb4i8KYbCo6gzBSE&sensor=true';
 	 this.http.get(url).subscribe( res => {
 	
 	  if(res.status == 200)
@@ -141,13 +139,13 @@ export class MypostsPage {
 	  
 	 });
 	 
-	 if(postData[i].fields.is_otherCategory)
+	 if(postData[i].is_otherCategory)
 	 {
-		let url = 'https://citysavior.pythonanywhere.com/posts/api/getImage/';	 
-		let body = JSON.stringify({'post_id':postData[i].pk});
-		let headers = new Headers({'Content-Type': 'application/json'});
-		let options = new RequestOptions({ headers:headers});
-		this.http.post(url,body,options).subscribe(imageResult =>{
+		let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/get/'+postData[i].id+'/';	 
+		//let body = JSON.stringify({'post_id':postData[i].id});
+		//let headers = new Headers({'Content-Type': 'application/json'});
+		//let options = new RequestOptions({ headers:headers});
+		this.http.get(url).subscribe(imageResult =>{
 			let img = imageResult.json();
 			if(img.length != 0)
 			{
@@ -164,13 +162,13 @@ export class MypostsPage {
 		let temp_posts = [];
 		for(var i=0;i<postData.length ;i++)
 		{
-			if(postData[i].pk == this.posts[0].pk)
+			if(postData[i].id == this.posts[0].id)
 			{
 				break;
 			}
 			else
 			{
-				let time = postData[i].fields.timestamp;
+				let time = postData[i].timestamp;
 				time = time.substring(0,10);
 				let day = time.substring(time.lastIndexOf('-')+1);
 				let mon_index = Number(time.substring(time.indexOf('-')+1,time.lastIndexOf('-')));
@@ -179,8 +177,8 @@ export class MypostsPage {
 				let timestamp = day+'-'+mon+'-'+year;
 				
 				
-				let image_src = null;
-				switch(postData[i].fields.category){
+				let image_src = 'assets/img/other.jpg';
+				switch(postData[i].category){
 				 case 'Trash' : image_src='assets/img/garbage.jpg';
 								break;
 				
@@ -190,39 +188,36 @@ export class MypostsPage {
 				 case 'Damaged Road': image_src='assets/img/roads.jpg';
 									   break;
 
-				 case 'Traffic Problems': image_src='assets/img/traffic_lights.png';
+				 case 'Traffic Problems': image_src='assets/img/traffic.png';
 										   break;
 											
 				 case 'Homeless': image_src='assets/img/homeless.jpg';
 								  break;	
 				 
-				 default : image_src=null;
-								break;
 				}
 				
-				temp_posts[i] = {'pk':postData[i].pk,'title':postData[i].fields.title,'category':postData[i].fields.category,'timestamp':timestamp,'address':'','views':postData[i].fields.views,'image':image_src,'upvotes':postData[i].fields.upvotes,'is_otherCategory':postData[i].fields.is_otherCategory,'stats':postData[i].fields.status};			
+				temp_posts[i] = {'id':postData[i].id,'title':postData[i].title,'category':postData[i].category,'timestamp':timestamp,'address':'','views':postData[i].views,'image':image_src,'upvotes':postData[i].upvotes,'is_otherCategory':postData[i].is_otherCategory,'stats':postData[i].status};			
 			}
 		}
 		for(var i=0,j=temp_posts.length;i<this.posts.length;i++,j++)
 		{
-			this.posts[i].views = postData[j].fields.views;
-			this.posts[i].upvotes = postData[j].fields.upvotes;
-			this.posts[i].stats = postData[j].fields.status;
+			this.posts[i].views = postData[j].views;
+			this.posts[i].upvotes = postData[j].upvotes;
+			this.posts[i].stats = postData[j].status;
+			this.posts[i].title = postData[j].title;
 			if(this.posts[i].is_otherCategory)
 				 {
 					let i1=i; 
-					let url = 'https://citysavior.pythonanywhere.com/posts/api/getImage/';	 
-					let body = JSON.stringify({'post_id':postData[j].pk});
-					let headers = new Headers({'Content-Type': 'application/json'});
-					let options = new RequestOptions({ headers:headers});
-					this.http.post(url,body,options).subscribe(imageResult =>{
+					let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/get/'+postData[j].id+'/';
+					
+					this.http.get(url).subscribe(imageResult =>{
 						let img = imageResult.json();
 						if(img.length != 0)
 						{
 							this.posts[i1].image='https://citysavior.pythonanywhere.com'+img[0].image_url;
 							
 						}else{
-							this.posts[i1].image = null;
+							this.posts[i1].image = 'assets/img/other.jpg';
 						}
 					},error=>{
 						
@@ -239,7 +234,7 @@ export class MypostsPage {
 		{
 			this.posts.splice(i,0,temp_posts[i]);
 			let i1 =i;
-			let url='https://maps.googleapis.com/maps/api/geocode/json?latlng='+postData[i].fields.lat+','+postData[i].fields.lon+'&key=AIzaSyAUA6Q7vN-9u7rW4qyKb4i8KYbCo6gzBSE&sensor=true';
+			let url='https://maps.googleapis.com/maps/api/geocode/json?latlng='+postData[i].lat+','+postData[i].lon+'&key=AIzaSyAUA6Q7vN-9u7rW4qyKb4i8KYbCo6gzBSE&sensor=true';
 			
 			this.http.get(url).subscribe( res => {
 	
@@ -270,13 +265,11 @@ export class MypostsPage {
 			  
 			 });
 			 
-			if(temp_posts[i].fields.is_otherCategory)
+			if(temp_posts[i].is_otherCategory)
 			 {
-				let url = 'https://citysavior.pythonanywhere.com/posts/api/getImage/';	 
-				let body = JSON.stringify({'post_id':temp_posts[i].pk});
-				let headers = new Headers({'Content-Type': 'application/json'});
-				let options = new RequestOptions({ headers:headers});
-				this.http.post(url,body,options).subscribe(imageResult =>{
+				let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/get/'+temp_posts[i].id+'/';
+				
+				this.http.get(url).subscribe(imageResult =>{
 					let img = imageResult.json();
 					if(img.length != 0)
 					{
@@ -295,10 +288,10 @@ export class MypostsPage {
 	
    }, error =>{
     
-	let url = 'https://www.google.com';
+	let url = 'https://citysavior.pythonanywhere.com/posts/api/member/'
 	
 	this.http.get(url).subscribe( result =>{
-	    //this.loading.dismiss();
+	    
 		this.spinnerHidden = true;
 		
 		Toast.show('Cannot connect to server. Please try again later','3000','center').subscribe(toast=>{
@@ -308,7 +301,7 @@ export class MypostsPage {
 		});
 		
 	 }, error=>{
-			//this.loading.dismiss();
+			
 			this.spinnerHidden = true;
 			
 			Toast.show('Please check your Internet connection','3000','center').subscribe(toast=>{

@@ -57,6 +57,7 @@ export class LoginPage {
 	  this.isHidden = false;
 	  	  
     });
+	
   }
   
   checkMember(user : any, loginFrom : string)
@@ -78,8 +79,10 @@ export class LoginPage {
 	}, error => {
 	  
 	  
-	  let url = 'https://citysavior.pythonanywhere.com/posts/api/member/';
+	  let url = 'https://citysavior.pythonanywhere.com/posts/api/member/'
 	  this.http.get(url).subscribe( result =>{
+		  
+		  //member doesn't exist, create a new member
 		let url = 'https://citysavior.pythonanywhere.com/posts/api/member/';
 		let body = JSON.stringify({'email': user.email,'name':user.name,'profile_picture':user.picture});
 		let headers = new Headers({'Content-Type': 'application/json'});
@@ -125,7 +128,7 @@ export class LoginPage {
 		}, err => {
 	    
 			this.isHidden = false;	
-			let url = 'https://citysavior.pythonanywhere.com/posts/api/member/';
+			let url = 'https://citysavior.pythonanywhere.com/posts/api/member/'
 			this.http.get(url).subscribe( result =>{
 		
 			Toast.show('Cannot connect to the server. Please try again','3000','center').subscribe(toast=>{
@@ -173,7 +176,7 @@ export class LoginPage {
 		 
 		if(error.toString() != '12501')
 		{
-		let url = 'https://citysavior.pythonanywhere.com/posts/api/member/';
+		let url = 'https://citysavior.pythonanywhere.com/posts/api/member/'
 		this.http.get(url).subscribe( result =>{
 		
 		Toast.show('Login failed. Please check your email and password','3000','center').subscribe(toast=>{
@@ -197,11 +200,12 @@ export class LoginPage {
   httpUpdateMember(picture: any,data:any,loginFrom:string)
   {
 	
-	let url ='https://citysavior.pythonanywhere.com/posts/api/memberupdate/';
-	let body = JSON.stringify({'email':data.email,'phone_number':null,'name':null,'profile_picture':picture});
+	//updated the url- using patch request to the api to update the profile_picture of the user
+	let url ='https://citysavior.pythonanywhere.com/posts/api/member/'+data.email+'/';
+	let body = JSON.stringify({'profile_picture':picture});
 	let headers = new Headers({'Content-Type': 'application/json'});
 	let options = new RequestOptions({ headers:headers});
-	this.http.post(url,body,options).subscribe( result =>{
+	this.http.patch(url,body,options).subscribe( result =>{
 	 
 	 if(result.status == 200)
 	 {
@@ -244,7 +248,7 @@ export class LoginPage {
   }, error=>{
   
 		this.isHidden = false;
-		let url = 'https://citysavior.pythonanywhere.com/posts/api/member/';
+		let url = 'https://citysavior.pythonanywhere.com/posts/api/member/'
 		this.http.get(url).subscribe( result =>{
 		
 		Toast.show('Cannot connect to the server. Please try again later','3000','center').subscribe(toast=>{

@@ -54,7 +54,7 @@ export class IssuePostPage {
   img2_occ : boolean = false;
   loading : any;
   userAnonymous: boolean = false;
-  postVerified: boolean = false;
+  locImageVerified: boolean = false;
   
   items : any;
   
@@ -115,25 +115,22 @@ export class IssuePostPage {
 		 let currentName = this.inputImage.substr(this.inputImage.lastIndexOf('/') + 1);
 		 let correctPath = this.inputImage.substr(0,this.inputImage.lastIndexOf('/') + 1);
 		 
-		 //console.log('File name='+correctPath + '/'+currentName);
 		 File.readAsDataURL(correctPath,currentName).then( (imageData) =>{
 			let base64Image = imageData.toString();
 			
-			//console.log('Base 64='+imageData.toString());
-			//console.log('base64Image='+base64Image);
 					
 			this.calCategoryTags(base64Image.substring(base64Image.indexOf(',') + 1));
 		 });
-
-		  console.log('The image path is: ',this.inputImage);		
-		   	if(this.img1_occ == false){		
-			   	this.image1= this.inputImage;		
-			   this.img1_occ = true;		
-			} else if(this.img2_occ== false){		
-				this.image2= this.inputImage;		
-			  this.img2_occ = true;		
+			
+		 console.log('The image path is: ',this.inputImage);				
+		   	if(this.img1_occ == false){				
+			   	this.image1= this.inputImage;				
+			   this.img1_occ = true;				
+			} else if(this.img2_occ== false){				
+				this.image2= this.inputImage;				
+			  this.img2_occ = true;				
 			  }
-				
+
 		 //this.copyFileToLocalDir(correctPath,currentName,this.createFileName());
 		 
 	 }		 
@@ -163,16 +160,15 @@ export class IssuePostPage {
    var options = sourceType === 0 ? folderOptions : cameraOptions;
    Camera.getPicture(options).then((imagePath) =>{
 
-   	 console.log('The image path is: ',imagePath);		
-	   	if(this.img1_occ == false){		
-		   	this.image1= imagePath;		
-		   this.img1_occ = true;		
-		} else if(this.img2_occ== false){		
-			this.image2= imagePath;		
-		  this.img2_occ = true;		
+   	console.log('The image path is: ',imagePath);				
+	   	if(this.img1_occ == false){				
+		   	this.image1= imagePath;				
+		   this.img1_occ = true;				
+		} else if(this.img2_occ== false){				
+			this.image2= imagePath;				
+		  this.img2_occ = true;				
 		  }
 
-   	
     File.resolveLocalFilesystemUrl(imagePath).then((entry)=>{
 	 entry.getMetadata(metaData=>{
 	
@@ -189,7 +185,7 @@ export class IssuePostPage {
 				
 			  });
 			 
-			  this.copyFileToLocalDir(correctPath,currentName,this.createFileName());
+			  //this.copyFileToLocalDir(correctPath,currentName,this.createFileName());
 			 });
 			}
 			else{		
@@ -201,10 +197,8 @@ export class IssuePostPage {
 				
 				this.calCategoryTags(base64Image.substring(base64Image.indexOf(',') + 1));
 			  });
-
-
 			
-			 //this.copyFileToLocalDir(correctPath,currentName,this.createFileName());
+			 this.copyFileToLocalDir(correctPath,currentName,this.createFileName());
 			}
 		}
 		else		
@@ -485,8 +479,9 @@ export class IssuePostPage {
 		}
 		if(this.inputImage != null && this.img1_occ )
 		{
-			this.postVerified = true;
+			this.locImageVerified = true;
 		}
+		
 	   
 		if(this.title != null && this.title.trim().length != 0 && (this.category !=null && this.category.trim().length != 0 ) && (this.img1_occ || (this.desc !=null && this.desc.trim().length != 0)))
 	   {
@@ -496,7 +491,7 @@ export class IssuePostPage {
 	   this.loading.present();
 	   
 	   let url = 'https://citysavior.pythonanywhere.com/posts/api/post/';
-	   let body = JSON.stringify({'title': this.title, 'desc': this.desc, 'lat': this.lat, 'lon': this.lon,'email': this.user.email,'category': this.category,'is_otherCategory': is_otherCategory,'is_anonymous': this.userAnonymous,'verified':this.postVerified});
+	   let body = JSON.stringify({'title': this.title, 'desc': this.desc, 'lat': this.lat, 'lon': this.lon,'email': this.user.email,'category': this.category,'is_otherCategory': is_otherCategory,'is_anonymous': this.userAnonymous,'verified':this.locImageVerified});
 	   let headers = new Headers({'Content-Type': 'application/json'});
 	   let options = new RequestOptions({ headers:headers});
 	   this.http.post(url,body,options).subscribe( result => {
@@ -550,11 +545,12 @@ export class IssuePostPage {
 		   
 		 });
 		
-		url= 'https://citysavior.pythonanywhere.com/posts/api/updateKarma/';
-		body = JSON.stringify({'email':this.user.email,'karma_points':this.user.karma_points});
+		//url changed - patch request to MemberDetail to update karma_points
+		url= 'https://citysavior.pythonanywhere.com/posts/api/member/'+this.user.email+'/';
+		body = JSON.stringify({'karma_points':this.user.karma_points});
 		headers = new Headers({'Content-Type': 'application/json'});
 		options = new RequestOptions({ headers:headers});
-		this.http.post(url,body,options).subscribe(result =>{ 
+		this.http.patch(url,body,options).subscribe(result =>{ 
 
 		}, err=>{
 
@@ -607,7 +603,7 @@ export class IssuePostPage {
 				   }
 				} , err2 => {
 				 
-				 let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+				 let url='https://citysavior.pythonanywhere.com/posts/api/member/'
 				 this.http.get(url).subscribe( result =>{
 					this.loading.dismiss();
 					
@@ -653,7 +649,7 @@ export class IssuePostPage {
 		   }
 	   } , err1 =>{
 		 
-				let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+				let url='https://citysavior.pythonanywhere.com/posts/api/member/'
 				this.http.get(url).subscribe( result =>{
 				this.loading.dismiss();
 				
@@ -695,7 +691,7 @@ export class IssuePostPage {
 	  }	
 	 } , err => {
 		 
-		 let url = 'https://citysavior.pythonanywhere.com/posts/api/member/';
+		 let url = 'https://citysavior.pythonanywhere.com/posts/api/member/'
 		 this.http.get(url).subscribe( result =>{
 			this.loading.dismiss();
 			

@@ -206,12 +206,12 @@ export class NotificationAreaPage {
 		});
 		this.loading.present();
 		
-		
-		let url = 'https://citysavior.pythonanywhere.com/posts/api/createOrUpdateArea/';
-		let body = JSON.stringify({'email':this.user.email,'cen_lat':center.lat(),'cen_lon':center.lng(),'radius':radius,'user_set':true});
+		// url changed - patch request to NotificationDetail class view
+		let url = 'https://citysavior.pythonanywhere.com/posts/api/notificationarea/'+this.userLocation.notification_id+'/';
+		let body = JSON.stringify({'cen_lat':center.lat(),'cen_lon':center.lng(),'radius':radius,'user_set':true});
 		let headers = new Headers({'Content-Type': 'application/json'});
 		let options = new RequestOptions({ headers:headers});
-		this.http.post(url,body,options).subscribe(result=>{
+		this.http.patch(url,body,options).subscribe(result=>{
 			if(result.status == 200)
 			{
 		
@@ -231,7 +231,7 @@ export class NotificationAreaPage {
 			}
 		},error=>{
 			
-			let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+			let url='https://citysavior.pythonanywhere.com/posts/api/member/'
 			this.http.get(url).subscribe( result =>{
 				this.loading.dismiss();
 				
@@ -257,12 +257,13 @@ export class NotificationAreaPage {
 	
 	getArea()
 	{
-		let url = 'https://citysavior.pythonanywhere.com/posts/api/getArea/'+this.user.email+'/';
+		// url changed - Response changed
+		let url = 'https://citysavior.pythonanywhere.com/posts/api/notificationarea/'+this.user.email+'/';
 		this.http.get(url).subscribe( result => {
 			if(result.status == 200)
 			{
 				let areaData = result.json();
-				if(!(areaData[0].fields.user_set))
+				if(!(areaData[0].user_set))
 				{
 						this.radioText = 'Add Notification Area';
 			
@@ -272,15 +273,16 @@ export class NotificationAreaPage {
 					this.radioText = 'Update Notification Area';
 				}
 				this.userLocation = {
-						lat: areaData[0].fields.cen_lat,
-						lon: areaData[0].fields.cen_lon,
-						radius : areaData[0].fields.radius * 1000
+						lat: areaData[0].cen_lat,
+						lon: areaData[0].cen_lon,
+						radius : areaData[0].radius * 1000,
+						notification_id : areaData[0].notification_id
 					};
 				this.loadMap1();
 			}
 		}, error=>{
 			
-			let url = 'https://citysavior.pythonanywhere.com/posts/api/member/';
+			let url = 'https://citysavior.pythonanywhere.com/posts/api/member/'
 			this.http.get(url).subscribe( result =>{
 				
 				Toast.show('Cannot connect to server. Please try again later','3000','center').subscribe(toast=>{

@@ -45,7 +45,7 @@
 <h2 [hidden]="!comment.detailsEnabled"><b>{{ comment.name }}</b></h2>
 <p [hidden]="!comment.detailsEnabled">{{ comment.comment_text}}</p>
 <p [hidden]="!comment.detailsEnabled">{{ comment.timestamp}} <button ion-button clear [hidden]="!comment.enabled" [disabled]="isCommentDisabled" (click)="editComment(comment)">Edit</button><button ion-button clear [hidden]="!comment.enabled" (click)="deleteComment(comment)" [disabled]="isCommentDisabled">Delete</button></p>
-<ion-row [hidden]="comment.detailsEnabled"><textarea [(ngModel)]="commentsText" [id]="comment.pk" color="black" (ngModelChange)="adjustHeight(comment.pk)" style="width:75%;"></textarea><button ion-button icon-only small clear id="done" (click)="submitComment(comment)"><ion-icon name="send" ></ion-icon></button><button ion-button icon-only small clear id="cancelEdit" (click)="cancelEdit(comment)"><ion-icon name="close"></ion-icon></button></ion-row> 
+<ion-row [hidden]="comment.detailsEnabled"><textarea [(ngModel)]="commentsText" [id]="comment.comment_id" color="black" (ngModelChange)="adjustHeight(comment.comment_id)" style="width:75%;"></textarea><button ion-button icon-only small clear id="done" (click)="submitComment(comment)"><ion-icon name="send" ></ion-icon></button><button ion-button icon-only small clear id="cancelEdit" (click)="cancelEdit(comment)"><ion-icon name="close"></ion-icon></button></ion-row> 
 </ion-item>
 <ion-item [hidden]="newCommentHidden">
 <ion-row ><textarea [(ngModel)]="newCommentsText" name="newComment" placeholder ="Enter Comment" id="newComment" color="black" (ngModelChange)="adjustHeight('newComment')" style="width:75%;"></textarea>

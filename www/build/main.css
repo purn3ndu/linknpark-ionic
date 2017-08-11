@@ -39659,7 +39659,7 @@ page-login .label-description {
 }
 
 page-login .top-row {
-  height: 60%;
+  height: 55%;
 }
 
 page-login .bottom-row {
@@ -39840,10 +39840,6 @@ page-rank .karmaClass {
 page-rank img {
   margin: 0 auto;
   text-align: center;
-  -webkit-align-items: center;
-  -ms-flex-align: center;
-  -ms-grid-row-align: center;
-  align-items: center;
 }
 
 page-rank .firstMember {
@@ -39881,6 +39877,10 @@ page-rank ion-spinner {
   max-width: 200px;
 }
 
+page-tutorial .backgroundColor {
+  background-color: #00b9d1;
+}
+
 page-tutorial .toolbar-background {
   background: transparent;
   border-color: transparent;
@@ -39895,24 +39895,7 @@ page-tutorial .slide-title {
 }
 
 page-tutorial .slide-image {
-  max-height: 50%;
-  max-width: 60%;
-  margin: 36px 0;
-}
-
-page-tutorial b {
-  font-weight: 500;
-}
-
-page-tutorial p {
-  padding: 0 40px;
-  font-size: 14px;
-  line-height: 1.5;
-  color: #60646B;
-}
-
-page-tutorial p b {
-  color: #000000;
+  max-height: 90%;
 }
 
 page-user-profile img {

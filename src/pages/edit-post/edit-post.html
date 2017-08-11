@@ -15,8 +15,6 @@
 
 <ion-content padding [hidden]='!userReady'>
 
-<ion-list no-lines>
-
 <ion-fab right top [hidden]="(img2_occ)" > 
 <button ion-fab (click)="checkStoragePermission()" color="primary">
 		    <ion-icon  name="camera"></ion-icon>
@@ -33,27 +31,52 @@
 
  <ion-item>
    <ion-label stacked color="primary"> Title </ion-label>
-   <ion-input [(ngModel)]="postData.title" name="title"  type="text" spellcheck="false" disabled></ion-input>
+   <ion-input #input [(ngModel)]="issueTitle" name="title"  type="text" spellcheck="false" (input)="setFilteredItems()" (focus)="hasFocus()" (blur)="noFocus()" [attr.maxlength]="50"></ion-input>
  </ion-item> 
+ <ion-list [hidden]="!showSuggestion">
+ <button ion-item *ngFor="let item of items" (tap)="setTitle(item)">
+ {{item.title}}
+ </button>
+ </ion-list>
+ 
+ <p [hidden]="(title !=null && title.trim().length !=0) || submitted === false" ion-text color="danger" padding-left>
+			Title is required
+</p>
 
  <div text-center [hidden]="!descHidden" padding-top>
 <button ion-button icon-left clear (click)="addDescription()"><ion-icon name="add" ></ion-icon> Add Description</button>
 </div>
  
- <ion-item [hidden]="descHidden">
+ <ion-item no-lines [hidden]="descHidden">
    <ion-label stacked color="primary">Description</ion-label>
    <ion-textarea #descInput [(ngModel)]="issueDesc" rows="6" placeholder="Enter your description here"></ion-textarea>
  </ion-item>
  <p [hidden]="(issueDesc!=null && issueDesc.trim().length !=0) || submitted === false || img1_occ === true" ion-text color="danger" padding-left>
 			Description or image is required
 </p>
+
+<ion-item no-lines>
+	<ion-checkbox [(ngModel)]="userNameChange"></ion-checkbox><ion-label color="primary">Post as {{userName}}</ion-label>
+</ion-item>
+
+	<p [hidden]="isStatusHidden">Location verified flag = {{postData.verified}}</p>
+
+  <ion-item no-lines [hidden]="isStatusHidden">
+  <ion-label color="primary">Status</ion-label>
+  <ion-select [(ngModel)]="postStatus">
+  <ion-option>Review</ion-option>
+  <ion-option>Verification</ion-option>
+  <ion-option>In-progress</ion-option>
+  <ion-option>Closed</ion-option>
+  <ion-option>Archived</ion-option>
+ </ion-select>
+  </ion-item>  
  
-   <ion-item>
+   <ion-item no-lines>
   <ion-row responsive-sm>
          <ion-col>
                   <button ion-button (click)="onPostSubmit()" color="light" block>Edit</button>
          </ion-col>
   </ion-row>
 </ion-item> 
-</ion-list>
 </ion-content>

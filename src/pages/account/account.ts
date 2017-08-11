@@ -51,17 +51,26 @@ export class AccountPage {
   
   httpUpdateMember(name: string , phone: string)
   {
-    let url ='https://citysavior.pythonanywhere.com/posts/api/memberupdate/';
-	let body = JSON.stringify({'email':this.user.email,'phone_number':phone,'name':name,'profile_picture':null});
+	// url changed - patch request to MemberDetail for updating name or phone number  
+    let url ='https://citysavior.pythonanywhere.com/posts/api/member/'+this.user.email+'/';
+	let body = null;
+	if(phone!=null)
+	{
+		body = JSON.stringify({'phone_number':phone});
+	}else
+	{
+		body = JSON.stringify({'name':name});
+	}		
 	let headers = new Headers({'Content-Type': 'application/json'});
 	let options = new RequestOptions({ headers:headers});
-	this.http.post(url,body,options).subscribe( result =>{
+	this.http.patch(url,body,options).subscribe( result =>{
 	 
 	 if(result.status == 200)
 	 {
+	 
 	   if(phone!=null)
 	   {
-		this.user.phone = phone;
+		this.user.phone = result.json().phone_number;
 		this.phoneExist='Update Phone Number';
 		this.isPhoneEdit = false;
 		this.phoneNumber = null;	
@@ -69,7 +78,7 @@ export class AccountPage {
 	   }
 	   if(name!=null)
 	   {
-		this.user.name = name;
+		this.user.name = result.json().name;
 		this.isUsernameEdit = false;
 	   }
 		url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
@@ -96,7 +105,7 @@ export class AccountPage {
 	 }
 	}, error=>{
 		
-			url='https://citysavior.pythonanywhere.com/posts/api/member/';
+			url='https://citysavior.pythonanywhere.com/posts/api/member/'
 			this.http.get(url).subscribe( result =>{
 				Toast.show('Cannot connect to server. Please try again later','3000','center').subscribe(toast=>{
 						
@@ -150,12 +159,13 @@ export class AccountPage {
       content : 'Logging out'
 	 });
 	loading.present(); 
-	let url ='https://citysavior.pythonanywhere.com/posts/api/updateKarma/';
-	let body = JSON.stringify({'email':this.user.email,'karma_points':this.user.karma_points});
+	//url changed - patch request to MemberDetail to update karma points
+	let url ='https://citysavior.pythonanywhere.com/posts/api/member/'+this.user.email+'/';
+	let body = JSON.stringify({'karma_points':this.user.karma_points});
 	let headers = new Headers({'Content-Type': 'application/json'});
 	let options = new RequestOptions({ headers:headers});
 	
-	this.http.post(url,body,options).subscribe(result=>{
+	this.http.patch(url,body,options).subscribe(result=>{
 	  if(this.user.login == 'Facebook')
 		{
 			Facebook.logout()
