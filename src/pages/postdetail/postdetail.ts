@@ -28,6 +28,7 @@ export class PostdetailPage {
   
   loading : any=null;
   isDisabled : boolean = true;
+  isReportDisabled : boolean = false;
   isCommentDisabled : boolean = false;
   newCommentHidden: boolean = true;
   newCommentsText : string = null;
@@ -978,6 +979,18 @@ export class PostdetailPage {
    
    
    },500);
+ }
+
+ reportPost()
+ {
+
+ 	this.isReportDisabled = true;
+
+	Toast.show('Thank you for reporting. This post will be reviewed within 24 hours and necessary action will be taken.','3000','center').subscribe(toast=>{
+					
+	}, error=>{
+					
+	});
  }
  
  cancelNewComment()
