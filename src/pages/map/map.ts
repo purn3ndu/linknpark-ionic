@@ -631,7 +631,7 @@ export class MapPage {
 				{
 					low = high = mid;
 					if(this.newMarker!= undefined && this.newMarker.userEnter=='push' && this.data[this.sorted_index[mid]].id == this.newMarker.post_id){
-						this.markers[this.sorted_index[mid]].setAnimation(GoogleMapsAnimation.BOUNCE);
+						this.markers[this.sorted_index[mid]].setAnimation(GoogleMapsAnimation.DROP);
 						let normalJSON = {userEnter:'normal'};
 						this.params.params=normalJSON;	  
 						this.newMarker= this.params.params;
@@ -676,49 +676,37 @@ export class MapPage {
 		
 	  let i1 = i;
 	  let loc = new GoogleMapsLatLng(this.data[i].lat,this.data[i].lon);	  
-	  
-	  let color= 'blue';
-		switch(this.data[i].status){
-			case 'Review' : color='blue';
-							break;
-									
-			case 'Verification': color='green';
-								break;
-									  
-			case 'In-progress': color='#f5c52c';
-								break;
-
-			case 'Closed': color='red';
-						break;
-			}
+	 
 					
 	  let icon_img = null;
+	  
+	  
 		switch(this.data[i].category){
-				case 'Trash' : icon_img='./assets/img/garbage.jpg';
+				case 'Trash' : icon_img='./assets/img/garbage_'+this.data[i].status.toLowerCase()+'.png';
 								break;
 							
-				case 'Street Light': icon_img='./assets/img/street_light.jpg';
+				case 'Street Light': icon_img='./assets/img/street_light_'+this.data[i].status.toLowerCase()+'.png';
 									break;
 							  
-				case 'Damaged Road': icon_img='./assets/img/roads.jpg';
+				case 'Damaged Road': icon_img='./assets/img/roads_'+this.data[i].status.toLowerCase()+'.png';
 									break;
 
-				case 'Traffic Problems': icon_img='./assets/img/traffic.png';
+				case 'Traffic Problems': icon_img='./assets/img/traffic_'+this.data[i].status.toLowerCase()+'.png';
 										break;
 														
-				case 'Homeless': icon_img='./assets/img/homeless.jpg';
+				case 'Homeless': icon_img='./assets/img/homeless_'+this.data[i].status.toLowerCase()+'.png';
 								break;	
 							 
-				default : icon_img='./assets/img/other.jpg';
+				default : icon_img='./assets/img/other_'+this.data[i].status.toLowerCase()+'.png';
 							break;
 			}
 							
 			let icon = {
 				url : icon_img,
-				size:{
+				/*size:{
 						width:50,
 						height:50,
-					}
+					}*/
 			};
 		
 		if(this.newMarker!= undefined && this.newMarker.userEnter=='push' && this.data[i].id == this.newMarker.post_id){
@@ -727,10 +715,7 @@ export class MapPage {
 				position : loc,
 				title : this.data[i].title,
 				icon : icon,
-				animation:GoogleMapsAnimation.BOUNCE,
-				styles : {
-					'color':color
-					}
+				animation:GoogleMapsAnimation.DROP,
 					   
 				};
 				let normalJSON = {userEnter:'normal'};
@@ -741,25 +726,29 @@ export class MapPage {
 					this.markers[i1]= marker;
 					
 					let i2 = i1;
-					let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/get/'+this.data[i1].id+'/';
-					this.http.get(url).subscribe(imageResult=>{
-						let img = imageResult.json();
-						  
-						  if(img.length != 0)
+					let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/thumbnail/';
+					let body = JSON.stringify({'post_id':this.data[i1].id,'status':this.data[i1].status});
+					let headers = new Headers({'Content-Type': 'application/json'});
+					let options = new RequestOptions({ headers:headers});
+					
+					this.http.post(url,body,options).subscribe(thumbnailResult=>{
+						let thumbnail = thumbnailResult.json();
+  
+						  if(thumbnail.length != 0)
 						  {
 							
 							let icon = {
-								url : 'https://citysavior.pythonanywhere.com'+img[0].image_url,
-								size:{
+								url : 'https://citysavior.pythonanywhere.com'+thumbnail[0].thumbnail_url,
+								/*size:{
 									width:50,
 									height:50,
-									}
+									}*/
 							};
 							
 							this.markers[i2].setIcon(icon);
 						  }
 					},error=>{
-						
+
 					});
 					
 					marker.getTitle();	
@@ -790,28 +779,28 @@ export class MapPage {
 			   position : loc,
 			   title : this.data[i].title,
 			   icon : icon,
-			   styles : {
-				   'color':color
-			   }
 			  };
 			  this.map.addMarker(markerOptions).then((marker: GoogleMapsMarker) =>{
 				  
 				  this.markers[i1]= marker;
 				  
 				  let i2 = i1;
-					let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/get/'+this.data[i1].id+'/';
-					this.http.get(url).subscribe(imageResult=>{
-						let img = imageResult.json();
-						  
-						  if(img.length != 0)
+					let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/thumbnail/';
+					let body = JSON.stringify({'post_id':this.data[i1].id,'status':this.data[i1].status});
+					let headers = new Headers({'Content-Type': 'application/json'});
+					let options = new RequestOptions({ headers:headers});
+					this.http.post(url,body,options).subscribe(thumbnailResult=>{
+						let thumbnail = thumbnailResult.json();
+
+						if(thumbnail.length != 0)
 						  {
 							
 							let icon = {
-								url : 'https://citysavior.pythonanywhere.com'+img[0].image_url,
-								size:{
+								url : 'https://citysavior.pythonanywhere.com'+thumbnail[0].thumbnail_url,
+								/*size:{
 									width:50,
 									height:50,
-									}
+									}*/
 							};
 							
 							this.markers[i2].setIcon(icon);
@@ -840,7 +829,7 @@ export class MapPage {
 	}, err =>
 	{
 
-		let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+		let url='https://citysavior.pythonanywhere.com/posts/api/member/';
 		this.http.get(url).subscribe( result =>{
 	
 				this.isHidden = false;
