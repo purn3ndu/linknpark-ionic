@@ -1,5 +1,5 @@
 
-<ion-content no-lines>
+<ion-content no-bounce no-lines>
   <div id="map">
   <ion-searchbar [(ngModel)]="myInput"   (ionBlur)="onBlur($event)" (ionInput)="onInput($event)"  (ionClear)="onClear($event)" id="searchLocation"></ion-searchbar>
   <ion-row text-center [hidden]="!isHidden" class ="loadClass">

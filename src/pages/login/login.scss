@@ -11,9 +11,20 @@ page-login {
     padding-top: 50px;
   }
 
+  .logo-imagep{
+    
+    text-align: center;
+  }
+
+  .logo-image{
+    padding-top: 50px;
+    height: 200px;
+    width: auto;
+  }
+
   .label-description{
-    color: green;
-    font-size: 130%;
+    color: grey;
+    font-size: 120%;
     text-align: center;
   }
 
@@ -26,10 +37,15 @@ page-login {
   }
   .or-text{
    text-align:center;
-   font-size:200%;
-   font-weight: bold;
-   color: green;
+   font-size:120%;
+   color: grey;
 }
+
+.terms-privacy{
+    color: grey;
+    font-size: 100%;
+    text-align: center;
+  }
 
   ion-spinner  {
     width: 50px;

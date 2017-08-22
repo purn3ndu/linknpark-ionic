@@ -39652,9 +39652,19 @@ page-login .label-logo {
   padding-top: 50px;
 }
 
+page-login .logo-imagep {
+  text-align: center;
+}
+
+page-login .logo-image {
+  padding-top: 50px;
+  height: 200px;
+  width: auto;
+}
+
 page-login .label-description {
-  color: green;
-  font-size: 130%;
+  color: grey;
+  font-size: 120%;
   text-align: center;
 }
 
@@ -39668,9 +39678,14 @@ page-login .bottom-row {
 
 page-login .or-text {
   text-align: center;
-  font-size: 200%;
-  font-weight: bold;
-  color: green;
+  font-size: 120%;
+  color: grey;
+}
+
+page-login .terms-privacy {
+  color: grey;
+  font-size: 100%;
+  text-align: center;
 }
 
 page-login ion-spinner {

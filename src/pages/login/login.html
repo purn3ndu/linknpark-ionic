@@ -1,7 +1,8 @@
-<ion-content class="login-content" padding>
+<ion-content no-bounce padding>
   <ion-row class="top-row">
     <ion-col>
-      <h1 class="label-logo">City Savior</h1>
+      <!-- <h1 class="label-logo">City Savior</h1> -->
+      <p class="logo-imagep"><img class="logo-image" src="assets/img/logoName.png"/> </p>
       <p class="label-description">Solve all the problems you see around when you step out.</p>
     </ion-col>
   </ion-row>
@@ -21,9 +22,9 @@
     </ion-col>
   </ion-row>
   <ion-row text-center [hidden]="isHidden">
-  <ion-col>
-  <p>By continuing you agree to the <a href = "https://www.citysavior.co/iOScsavEULA.pdf">Terms of Usage</a> and <a href="https://www.citysavior.co/CsavPrivacyPolicy.pdf">Privacy Policy.</a></p>
-  </ion-col>
+    <ion-col>
+      <p class="terms-privacy">By continuing you agree to the <a href = "https://www.citysavior.co/iOScsavEULA.pdf">Terms of Usage</a> and <a href="https://www.citysavior.co/CsavPrivacyPolicy.pdf">Privacy Policy.</a></p>
+    </ion-col>
   </ion-row>
   <ion-row text-center [hidden]="!isHidden">
   <ion-col>
