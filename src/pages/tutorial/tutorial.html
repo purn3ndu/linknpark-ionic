@@ -1,7 +1,7 @@
 <ion-header no-border>
   <ion-navbar>
     <ion-buttons end [hidden]="!showSkip">
-      <button ion-button (click)="startApp()" color="danger">Skip</button>
+      <button ion-button (click)="startApp()">Skip</button>
     </ion-buttons>
   </ion-navbar>
 </ion-header>
@@ -31,7 +31,7 @@
     <ion-slide>
       <img src="assets/img/notif.png" class="slide-image"/>
       <h2 class="slide-title">Ready to be a savior?</h2>
-      <button ion-button icon-right large clear (click)="startApp()" color="danger">
+      <button ion-button icon-right large clear (click)="startApp()">
         Continue
         <ion-icon name="arrow-forward"></ion-icon>
       </button>

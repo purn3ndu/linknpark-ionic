@@ -28,7 +28,9 @@ export class PostdetailPage {
   
   loading : any=null;
   isDisabled : boolean = true;
+  
   isReportDisabled : boolean = false;
+  
   isCommentDisabled : boolean = false;
   newCommentHidden: boolean = true;
   newCommentsText : string = null;
@@ -197,7 +199,7 @@ export class PostdetailPage {
 	   }	   
 	  }, userError =>{
 	   
-	    let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+	    let url='https://citysavior.pythonanywhere.com/posts/api/member/';
 		this.http.get(url).subscribe( result =>{
 		this.loading.dismiss();
 		
@@ -252,7 +254,7 @@ export class PostdetailPage {
 		 }
 	  }
 	}, upvoteError =>{
-	  let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+	  let url='https://citysavior.pythonanywhere.com/posts/api/member/';
 	  this.http.get(url).subscribe( result =>{
 		this.loading.dismiss();
 		
@@ -334,7 +336,7 @@ export class PostdetailPage {
 		  }
 		},commentsEmailError =>{
 		  
-		  let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+		  let url='https://citysavior.pythonanywhere.com/posts/api/member/';
 		  this.http.get(url).subscribe( result =>{
 			this.loading.dismiss();
 			
@@ -361,7 +363,7 @@ export class PostdetailPage {
 	   }
 	 }, commentsError =>{
 	   
-	    let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+	    let url='https://citysavior.pythonanywhere.com/posts/api/member/';
 		this.http.get(url).subscribe( result =>{
 			this.loading.dismiss();
 			
@@ -435,7 +437,7 @@ export class PostdetailPage {
 		
 	  }
 	}, imageError =>{
-		let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+		let url='https://citysavior.pythonanywhere.com/posts/api/member/';
 		this.http.get(url).subscribe( result =>{
 			this.loading.dismiss();
 			
@@ -464,7 +466,7 @@ export class PostdetailPage {
    }
    }, postError =>{
      
-		let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+		let url='https://citysavior.pythonanywhere.com/posts/api/member/';
 		this.http.get(url).subscribe( result =>{
 			this.loading.dismiss();
 			
@@ -582,7 +584,7 @@ export class PostdetailPage {
 			}
 		  }, updateError =>{
 		   
-			let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+			let url='https://citysavior.pythonanywhere.com/posts/api/member/';
 			this.http.get(url).subscribe( result =>{
 			
 				Toast.show('Failed to upvote. Please try again later','3000','center').subscribe(toast=>{
@@ -605,7 +607,7 @@ export class PostdetailPage {
 		});
 	  }, postError =>{
 	    
-			let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+			let url='https://citysavior.pythonanywhere.com/posts/api/member/';
 			this.http.get(url).subscribe( result =>{
 			
 				Toast.show('Failed to upvote. Please try again later','3000','center').subscribe(toast=>{
@@ -696,7 +698,7 @@ export class PostdetailPage {
 			  this.isDisabled = false;
 			}
 		  }, updateError =>{
-				let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+				let url='https://citysavior.pythonanywhere.com/posts/api/member/';
 				this.http.get(url).subscribe( result =>{
 			
 					Toast.show('Failed to update upvote. Please try again later','3000','center').subscribe(toast=>{
@@ -720,7 +722,7 @@ export class PostdetailPage {
 		  });
 		}
 	  }, cancelError=>{
-			let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+			let url='https://citysavior.pythonanywhere.com/posts/api/member/';
 			this.http.get(url).subscribe( result =>{
 			
 				Toast.show('Failed to update upvote. Please try again later','3000','center').subscribe(toast=>{
@@ -861,7 +863,7 @@ export class PostdetailPage {
 	 }
    }, error =>{
       
-	  let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+	  let url='https://citysavior.pythonanywhere.com/posts/api/member/';
 	  this.http.get(url).subscribe( result =>{
 			
 		Toast.show('Failed to edit comment. Please try again later','3000','center').subscribe(toast=>{
@@ -938,7 +940,7 @@ export class PostdetailPage {
 	 }
    }, error =>{
      
-	 let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+	 let url='https://citysavior.pythonanywhere.com/posts/api/member/';
 	  this.http.get(url).subscribe( result =>{
 			
 		Toast.show('Failed to delete comment. Please try again later','3000','center').subscribe(toast=>{
@@ -979,18 +981,6 @@ export class PostdetailPage {
    
    
    },500);
- }
-
- reportPost()
- {
-
- 	this.isReportDisabled = true;
-
-	Toast.show('Thank you for reporting. This post will be reviewed within 24 hours and necessary action will be taken.','3000','center').subscribe(toast=>{
-					
-	}, error=>{
-					
-	});
  }
  
  cancelNewComment()
@@ -1089,7 +1079,7 @@ export class PostdetailPage {
    }, commentError =>{
      
 	 
-	 let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+	 let url='https://citysavior.pythonanywhere.com/posts/api/member/';
 	 this.http.get(url).subscribe( result =>{
 			
 	 Toast.show('Failed to comment. Please try again later','3000','center').subscribe(toast=>{
@@ -1108,6 +1098,77 @@ export class PostdetailPage {
 	
 	  });
    });
+ }
+ 
+ reportPost()
+ {
+
+ 	this.isReportDisabled = true;
+
+	let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+	let body = JSON.stringify({'email':this.user.email,'activity_done':'Reported post-'+this.postID+' as offensive.'});
+	let headers = new Headers({'Content-Type': 'application/json'});
+	let options = new RequestOptions({ headers:headers});
+	 
+	this.http.post(url,body,options).subscribe(result =>{
+			
+		let memberActivity = result.json();
+		let url='https://citysavior.pythonanywhere.com/posts/api/send_user_notification/';
+		let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Post reported as Offensive','message':'Hi,\n Your post : '+this.postData.title+' has been reported as offensive on City Savior. This post will be reviewed within 24 hours and necessary action will be taken.','not_id':memberActivity.activity_id,'send_not':true});
+				
+		this.http.post(url,body,options).subscribe(result=>{
+				
+			Toast.show('Thank you for reporting. This post will be reviewed within 24 hours and necessary action will be taken.','3000','center').subscribe(toast=>{
+					
+			}, error=>{
+					
+			});	
+				
+		}, error=>{
+						
+				let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+				this.http.get(url).subscribe( result =>{
+							
+					Toast.show('Failed to comment. Please try again later','3000','center').subscribe(toast=>{
+											
+					}, error=>{
+											
+					});
+					
+				}, error =>{
+							
+					Toast.show('Please check your Internet connection','3000','center').subscribe(toast=>{
+										
+					}, error=>{
+										
+					});
+					
+				});	
+					
+		});
+			
+	},error=>{
+		let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+		this.http.get(url).subscribe( result =>{
+					
+			Toast.show('Failed to comment. Please try again later','3000','center').subscribe(toast=>{
+								
+			}, error=>{
+								
+			});
+			
+		}, error =>{
+					
+			Toast.show('Please check your Internet connection','3000','center').subscribe(toast=>{
+								
+			}, error=>{
+								
+			});
+			
+		});
+			
+	});
+	
  }
  
  editPost()

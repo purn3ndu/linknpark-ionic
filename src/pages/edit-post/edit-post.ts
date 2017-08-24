@@ -654,7 +654,7 @@ takePicture(sourceType)
   
   if(this.img1_occ == true && this.image_id1==null)
   {
-    this.img1_occ = false;
+    //this.img1_occ = false;
 	let url = 'https://citysavior.pythonanywhere.com/posts/api/imageUpload/';
 	let fileOptions = {
       fileKey:'uploadedfile',
@@ -751,7 +751,7 @@ takePicture(sourceType)
   }
   if(this.img2_occ == true && this.image_id2==null)
   {
-   this.img2_occ = false;
+   //this.img2_occ = false;
    let url = 'https://citysavior.pythonanywhere.com/posts/api/imageUpload/';
 	let fileOptions = {
       fileKey:'uploadedfile',
@@ -963,7 +963,7 @@ takePicture(sourceType)
  
  ionViewCanLeave(): boolean | Promise<boolean> {
     
-    if (this.issueDesc == this.postData.desc && ((this.img1_occ == true && this.image_id1!=null) || this.img1_occ == false) && ((this.img2_occ == true && this.image_id2!=null) || this.img2_occ == false) && this.deletedImages.length == 0) {
+    if (this.issueDesc == this.postData.desc && ((this.img1_occ == true && this.image_id1!=null) ||(!this.img1_occ)|| this.imageUpload1Edited) && ((this.img2_occ == true && this.image_id2!=null) ||(!this.img2_occ)|| this.imageUpload2Edited) && this.deletedImages.length == 0) {
       return true;
     }
 

@@ -172,11 +172,10 @@ export class MapPage {
         'zoom': true
       }
     });
-
-    this.map.on(GoogleMapsEvent.MY_LOCATION_BUTTON_CLICK).subscribe(() => {		
-	  this.getMyLocation();		
-	});
 	
+	this.map.on(GoogleMapsEvent.MY_LOCATION_BUTTON_CLICK).subscribe(() => {				
+	  this.getMyLocation();				
+	});
 
 	let elem = <HTMLInputElement>document.getElementsByClassName('searchbar-input')[0];
 	this.autocomplete = new google.maps.places.Autocomplete(elem);
@@ -249,32 +248,32 @@ export class MapPage {
 			this.checkPermission('loadMap');
 		  
 		  }else{
-			  
-			  // For first time enter. Should also be extended to detect later changes in location permission by user.		
-		  		Diagnostic.registerLocationStateChangeHandler((state) =>{		
-		  			console.log("Location state changed to : " + state);		
-				    let from_device=null;		
-		  			if(this.platform.is('android'))		
-					{		
-						from_device='Android';		
-					}		
-					else if(this.platform.is('ios'))		
-					{		
-						from_device = 'iOS';		
-					}		
-				    if((from_device === "Android" && state !== Diagnostic.locationMode.LOCATION_OFF)		
-				        || (from_device === "iOS") && ( state === 'authorized_when_in_use'		
-				            || state === Diagnostic.permissionStatus.GRANTED_WHEN_IN_USE		
-				    )){		
-				        console.log("Location is available now!");		
-				    	console.log('Calling user location method');		
-				    	this.checkPermission('loadMap');		
-				    }else{		
-				    	console.log("Location is still not available now!");		
-				    }		
-		  					
+
+		  	// For first time enter. Should also be extended to detect later changes in location permission by user.				
+		  		Diagnostic.registerLocationStateChangeHandler((state) =>{				
+		  			console.log("Location state changed to : " + state);				
+				    let from_device=null;				
+		  			if(this.platform.is('android'))				
+					{				
+						from_device='Android';				
+					}				
+					else if(this.platform.is('ios'))				
+					{				
+						from_device = 'iOS';				
+					}				
+				    if((from_device === "Android" && state !== Diagnostic.locationMode.LOCATION_OFF)				
+				        || (from_device === "iOS") && ( state === 'authorized_when_in_use'				
+				            || state === Diagnostic.permissionStatus.GRANTED_WHEN_IN_USE				
+				    )){				
+				        console.log("Location is available now!");				
+				    	console.log('Calling user location method');				
+				    	this.checkPermission('loadMap');				
+				    }else{				
+				    	console.log("Location is still not available now!");				
+				    }				
+		  							
 			});
-		  		
+			  
 			  this.checkPermissionCalled = true;
 			  
 		  this.map.getCameraPosition().then((position) => {
@@ -602,7 +601,7 @@ export class MapPage {
 	
 	let i_previous = this.data.length;
 	
-	
+	console.log('working 1');
 	if(this.data.length == 0)
 	{
 		this.data = result.json();
@@ -615,7 +614,7 @@ export class MapPage {
 	{
 		let resultData = result.json();
 		
-		
+		console.log('working 2');
 		for(var n1=0;n1<resultData.length;n1++)
 		{
 			
@@ -630,11 +629,156 @@ export class MapPage {
 				if (this.data[this.sorted_index[mid]].id == resultData[n1].id)
 				{
 					low = high = mid;
+					this.data[this.sorted_index[mid]].title = resultData[n1].title;
+					this.markers[this.sorted_index[mid]].setTitle(this.data[this.sorted_index[mid]].title);
 					if(this.newMarker!= undefined && this.newMarker.userEnter=='push' && this.data[this.sorted_index[mid]].id == this.newMarker.post_id){
-						this.markers[this.sorted_index[mid]].setAnimation(GoogleMapsAnimation.DROP);
-						let normalJSON = {userEnter:'normal'};
-						this.params.params=normalJSON;	  
-						this.newMarker= this.params.params;
+						
+						if(resultData[n1].status.toLowerCase() == 'archived')
+						{
+							this.data[this.sorted_index[mid]].status = resultData[n1].status;
+							this.markers[this.sorted_index[mid]].setVisible(false);
+							let normalJSON = {userEnter:'normal'};
+							this.params.params=normalJSON;	  
+							this.newMarker= this.params.params;
+							this.app.getRootNav().push(PostdetailPage, {postID:this.data[this.sorted_index[mid]].id}, {animate: true, direction: 'forward'});
+							
+						}else{
+								if(this.data[this.sorted_index[mid]].status != resultData[n1].status)
+								{
+									this.data[this.sorted_index[mid]].status = resultData[n1].status;
+									let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/thumbnail/';
+									let body = JSON.stringify({'post_id':this.data[this.sorted_index[mid]].id,'status':this.data[this.sorted_index[mid]].status});
+									let headers = new Headers({'Content-Type': 'application/json'});
+									let options = new RequestOptions({ headers:headers});
+												
+									let i1 = this.sorted_index[mid];
+									let icon_img = null;
+												console.log('working 3');
+									this.http.post(url,body,options).subscribe(thumbnailResult=>{
+										
+										
+										let thumbnail = thumbnailResult.json();
+							  
+										if(thumbnail.length != 0)
+											{
+														
+												icon_img ='https://citysavior.pythonanywhere.com'+thumbnail[0].thumbnail_url;
+
+											}else{
+												switch(this.data[i1].category){
+													case 'Trash' : icon_img='./assets/img/garbage_'+this.data[i1].status.toLowerCase()+'.png';
+																	break;
+																
+													case 'Street Light': icon_img='./assets/img/street_light_'+this.data[i1].status.toLowerCase()+'.png';
+																		break;
+																  
+													case 'Damaged Road': icon_img='./assets/img/roads_'+this.data[i1].status.toLowerCase()+'.png';
+																		break;
+
+													case 'Traffic Problems': icon_img='./assets/img/traffic_'+this.data[i1].status.toLowerCase()+'.png';
+																			break;
+																							
+													case 'Homeless': icon_img='./assets/img/homeless_'+this.data[i1].status.toLowerCase()+'.png';
+																	break;	
+																 
+													default : icon_img='./assets/img/other_'+this.data[i1].status.toLowerCase()+'.png';
+																break;
+													}		  
+														  
+											}
+											console.log('working 4');
+											let icon={
+												
+												url : icon_img
+											};
+											this.markers[i1].setIcon(icon);
+											this.markers[i1].setVisible(true);
+											//this.markers[i1].setAnimation(GoogleMapsAnimation.DROP);
+											
+											let normalJSON = {userEnter:'normal'};
+											this.params.params=normalJSON;	  
+											this.newMarker= this.params.params;
+											this.app.getRootNav().push(PostdetailPage, {postID:this.data[i1].id}, {animate: true, direction: 'forward'});
+											
+									},error=>{
+										console.log('working 5');
+									});
+								}else{
+									console.log('working 6');
+									this.markers[this.sorted_index[mid]].setVisible(true);
+									//this.markers[this.sorted_index[mid]].setAnimation(GoogleMapsAnimation.DROP);
+									let normalJSON = {userEnter:'normal'};
+									this.params.params=normalJSON;	  
+									this.newMarker= this.params.params;
+									this.app.getRootNav().push(PostdetailPage, {postID:this.data[this.sorted_index[mid]].id}, {animate: true, direction: 'forward'});
+								}
+							}	
+								
+					}else{
+						console.log('working 7');
+						if(resultData[n1].status.toLowerCase() == 'archived')
+						{
+							this.data[this.sorted_index[mid]].status = resultData[n1].status;
+							this.markers[this.sorted_index[mid]].setVisible(false);
+						}else{
+						
+						if(this.data[this.sorted_index[mid]].status != resultData[n1].status){
+						
+							this.data[this.sorted_index[mid]].status = resultData[n1].status;	
+							let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/thumbnail/';
+							let body = JSON.stringify({'post_id':this.data[this.sorted_index[mid]].id,'status':this.data[this.sorted_index[mid]].status});
+							let headers = new Headers({'Content-Type': 'application/json'});
+							let options = new RequestOptions({ headers:headers});
+										
+							let i1 = this.sorted_index[mid];
+							let icon_img = null;
+										console.log('working 8');
+							this.http.post(url,body,options).subscribe(thumbnailResult=>{
+								let thumbnail = thumbnailResult.json();
+								
+													  
+								if(thumbnail.length != 0)
+									{
+												
+										icon_img ='https://citysavior.pythonanywhere.com'+thumbnail[0].thumbnail_url;
+
+									}else{
+										switch(this.data[i1].category){
+											case 'Trash' : icon_img='./assets/img/garbage_'+this.data[i1].status.toLowerCase()+'.png';
+															break;
+														
+											case 'Street Light': icon_img='./assets/img/street_light_'+this.data[i1].status.toLowerCase()+'.png';
+																break;
+														  
+											case 'Damaged Road': icon_img='./assets/img/roads_'+this.data[i1].status.toLowerCase()+'.png';
+																break;
+
+											case 'Traffic Problems': icon_img='./assets/img/traffic_'+this.data[i1].status.toLowerCase()+'.png';
+																	break;
+																					
+											case 'Homeless': icon_img='./assets/img/homeless_'+this.data[i1].status.toLowerCase()+'.png';
+															break;	
+														 
+											default : icon_img='./assets/img/other_'+this.data[i1].status.toLowerCase()+'.png';
+														break;
+											}		  
+												  
+									}
+									console.log('working 9');
+									let icon={
+										
+										url : icon_img
+									};
+									this.markers[i1].setIcon(icon);
+									this.markers[i1].setVisible(true);
+									//this.markers[i1].set('icon',{'url':'https://citysavior.pythonanywhere.com'+thumbnail[0].thumbnail_url});
+										},error=>{
+
+										});
+									
+							}
+						}	
+						
 					}
 					break;
 				}
@@ -649,7 +793,7 @@ export class MapPage {
 					high = mid -1;
 				}
 				
-				
+				console.log('working 10');
 			
 			}
 			if(low > high)
@@ -669,7 +813,7 @@ export class MapPage {
 		
 	}
 	
-	
+	console.log('working 11');
 	
 	for(var i=i_previous;i < this.data.length;i++)
 	{
@@ -678,10 +822,11 @@ export class MapPage {
 	  let loc = new GoogleMapsLatLng(this.data[i].lat,this.data[i].lon);	  
 	 
 					
-	  let icon_img = null;
+	  let icon_img = 'blue';
 	  
-	  
-		switch(this.data[i].category){
+		if(this.data[i].status.toLowerCase()!= 'archived')
+		{
+			switch(this.data[i].category){
 				case 'Trash' : icon_img='./assets/img/garbage_'+this.data[i].status.toLowerCase()+'.png';
 								break;
 							
@@ -700,56 +845,69 @@ export class MapPage {
 				default : icon_img='./assets/img/other_'+this.data[i].status.toLowerCase()+'.png';
 							break;
 			}
-							
+		}	
+					console.log('working 12');		
 			let icon = {
 				url : icon_img,
-				/*size:{
-						width:50,
-						height:50,
-					}*/
+				
 			};
 		
 		if(this.newMarker!= undefined && this.newMarker.userEnter=='push' && this.data[i].id == this.newMarker.post_id){
 			
-			let markerOptions : GoogleMapsMarkerOptions = {
-				position : loc,
-				title : this.data[i].title,
-				icon : icon,
-				animation:GoogleMapsAnimation.DROP,
-					   
-				};
+				let markerOptions : GoogleMapsMarkerOptions = null;
+				
+				if(this.data[i].status.toLowerCase()=='archived')
+				{	
+					markerOptions  = {
+						position : loc,
+						title : this.data[i].title,
+						icon : icon,
+						//animation:GoogleMapsAnimation.DROP,
+						visible: false		
+					};
+				}else{
+						markerOptions  = {
+							position : loc,
+							title : this.data[i].title,
+							icon : icon,
+							//animation:GoogleMapsAnimation.DROP
+					};	
+				}
+				console.log('working 13');
 				let normalJSON = {userEnter:'normal'};
 				this.params.params=normalJSON;	  
 				this.newMarker= this.params.params;
 				this.map.addMarker(markerOptions).then((marker: GoogleMapsMarker) =>{
-				
+						
 					this.markers[i1]= marker;
 					
 					let i2 = i1;
-					let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/thumbnail/';
-					let body = JSON.stringify({'post_id':this.data[i1].id,'status':this.data[i1].status});
-					let headers = new Headers({'Content-Type': 'application/json'});
-					let options = new RequestOptions({ headers:headers});
-					
-					this.http.post(url,body,options).subscribe(thumbnailResult=>{
-						let thumbnail = thumbnailResult.json();
-  
-						  if(thumbnail.length != 0)
-						  {
+					if(this.data[i1].status.toLowerCase()!='archived')
+					{
+							let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/thumbnail/';
+							let body = JSON.stringify({'post_id':this.data[i1].id,'status':this.data[i1].status});
+							let headers = new Headers({'Content-Type': 'application/json'});
+							let options = new RequestOptions({ headers:headers});
 							
-							let icon = {
-								url : 'https://citysavior.pythonanywhere.com'+thumbnail[0].thumbnail_url,
-								/*size:{
-									width:50,
-									height:50,
-									}*/
-							};
-							
-							this.markers[i2].setIcon(icon);
-						  }
-					},error=>{
+							this.http.post(url,body,options).subscribe(thumbnailResult=>{
+								let thumbnail = thumbnailResult.json();
+		  
+								  if(thumbnail.length != 0)
+								  {
+									
+									let icon = {
+										url : 'https://citysavior.pythonanywhere.com'+thumbnail[0].thumbnail_url
+										
+									};
+									
+									this.markers[i2].setIcon(icon);
+									this.app.getRootNav().push(PostdetailPage, {postID:this.data[i2].id}, {animate: true, direction: 'forward'});
+									//this.markers[i2].set('icon',{'url':'https://citysavior.pythonanywhere.com'+thumbnail[0].thumbnail_url});
+								  }
+							},error=>{
 
-					});
+							});
+					}		
 					
 					marker.getTitle();	
 					marker.addEventListener(GoogleMapsEvent.INFO_CLICK).subscribe(() => {
@@ -760,6 +918,7 @@ export class MapPage {
 						this.app.getRootNav().push(PostdetailPage, {postID:postID}, {animate: true, direction: 'forward'});
 						
 					});
+					console.log('working 14');
 					this.map.animateCamera({
 
 						'target': loc,
@@ -770,21 +929,39 @@ export class MapPage {
 					   });	
 
 					marker.showInfoWindow();	
+					if(this.data[i1].status == 'archived')
+					{
+						this.app.getRootNav().push(PostdetailPage, {postID:this.data[i1].id}, {animate: true, direction: 'forward'});
+					}
 				});
 			  }else{
 
-					
+					console.log('working 15');
+			  let markerOptions : GoogleMapsMarkerOptions = null;
 			  
-			  let markerOptions : GoogleMapsMarkerOptions = {
-			   position : loc,
-			   title : this.data[i].title,
-			   icon : icon,
-			  };
+				if(this.data[i].status.toLowerCase() == 'archived')
+				{
+					markerOptions = {
+					   position : loc,
+					   title : this.data[i].title,
+					   icon : icon,
+					   visible : false
+					};
+				}else{
+					markerOptions = {
+					   position : loc,
+					   title : this.data[i].title,
+					   icon : icon
+					};
+				}
+				console.log('working 16');
 			  this.map.addMarker(markerOptions).then((marker: GoogleMapsMarker) =>{
 				  
 				  this.markers[i1]= marker;
 				  
 				  let i2 = i1;
+				  if(this.data[i1].status !='archived')
+				  {	
 					let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/thumbnail/';
 					let body = JSON.stringify({'post_id':this.data[i1].id,'status':this.data[i1].status});
 					let headers = new Headers({'Content-Type': 'application/json'});
@@ -796,19 +973,18 @@ export class MapPage {
 						  {
 							
 							let icon = {
-								url : 'https://citysavior.pythonanywhere.com'+thumbnail[0].thumbnail_url,
-								/*size:{
-									width:50,
-									height:50,
-									}*/
+								url : 'https://citysavior.pythonanywhere.com'+thumbnail[0].thumbnail_url
+								
 							};
 							
 							this.markers[i2].setIcon(icon);
+							//this.markers[i2].set('icon',{'url':'https://citysavior.pythonanywhere.com'+thumbnail[0].thumbnail_url});
 						  }
 					},error=>{
 						
 					});
-
+				  }
+				  console.log('working 17');
 				marker.getTitle();
 					marker.addEventListener(GoogleMapsEvent.INFO_CLICK).subscribe(() => {
 						
@@ -828,7 +1004,7 @@ export class MapPage {
 			
 	}, err =>
 	{
-
+		console.log('working 17');
 		let url='https://citysavior.pythonanywhere.com/posts/api/member/';
 		this.http.get(url).subscribe( result =>{
 	
@@ -1078,6 +1254,8 @@ checkPermission(called : string)
 							let newLat  = Number(newLatStr);
 					        let newLng = Number(newLngStr);
 							this.lastLocation = new GoogleMapsLatLng(newLat,newLng);
+							
+							
 
 							let loc = new GoogleMapsLatLng(newLat,newLng);
 							this.map.animateCamera({

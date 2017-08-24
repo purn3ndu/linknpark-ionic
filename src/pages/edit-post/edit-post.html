@@ -39,7 +39,7 @@
  </button>
  </ion-list>
  
- <p [hidden]="(title !=null && title.trim().length !=0) || submitted === false" ion-text color="danger" padding-left>
+ <p [hidden]="((issueTitle !=null && issueTitle.trim().length !=0) || submitted === false)" ion-text color="danger" padding-left>
 			Title is required
 </p>
 
@@ -51,7 +51,7 @@
    <ion-label stacked color="primary">Description</ion-label>
    <ion-textarea #descInput [(ngModel)]="issueDesc" rows="6" placeholder="Enter your description here"></ion-textarea>
  </ion-item>
- <p [hidden]="(issueDesc!=null && issueDesc.trim().length !=0) || submitted === false || img1_occ === true" ion-text color="danger" padding-left>
+ <p [hidden]="((issueDesc!=null && issueDesc.trim().length !=0) || submitted === false || img1_occ === true)" ion-text color="danger" padding-left>
 			Description or image is required
 </p>
 
