@@ -513,7 +513,7 @@ export class IssuePostPage {
 			  
 			});
 			
-		url = 'https://citysavior.pythonanywhere.com/posts/api/send_user_notification/';	
+		url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';
 		body = JSON.stringify({'post_id':postData.id,'email':this.user.email,'title':'Thanks for posting on City Savior','message':'We have received your post : '+this.title+'. Its in review status. We will notify you about its progress.','not_id':postData.id,send_not:false});
 		
 		this.http.post(url,body,options).subscribe(result=>{
@@ -531,7 +531,7 @@ export class IssuePostPage {
 			 
 			let memberActivity = result.json();
 			 
-			let url='https://citysavior.pythonanywhere.com/posts/api/send_area_notification/';
+			let url='https://citysavior.pythonanywhere.com/posts/api/notification/area/send/';
 			let body = JSON.stringify({'lat':postData.lat,'lon':postData.lon,'post_id':postData.id,'email':this.user.email,'title':'New issue posted in your area','message':'New post : '+postData.title+' has been posted in you area in '+postData.category+' category on City Savior.','not_id':memberActivity.activity_id});
 		
 			this.http.post(url,body,options).subscribe(result=>{

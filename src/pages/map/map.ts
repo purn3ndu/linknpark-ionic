@@ -848,7 +848,7 @@ export class MapPage {
 		}	
 					console.log('working 12');		
 			let icon = {
-				url : icon_img,
+				url : icon_img
 				
 			};
 		
@@ -869,8 +869,7 @@ export class MapPage {
 						markerOptions  = {
 							position : loc,
 							title : this.data[i].title,
-							icon : icon,
-							//animation:GoogleMapsAnimation.DROP
+							icon : icon
 					};	
 				}
 				console.log('working 13');

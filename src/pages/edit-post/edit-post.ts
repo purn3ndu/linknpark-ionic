@@ -214,7 +214,7 @@ export class EditPostPage {
 				}
 			  }
 			}, imageError =>{
-				let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+				let url='https://www.google.com';
 				 this.http.get(url).subscribe( result =>{
 					this.loading.dismiss();
 					
@@ -237,7 +237,7 @@ export class EditPostPage {
 			});
 		},userError=>{
 			
-			let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+			let url='https://www.google.com';
 				 this.http.get(url).subscribe( result =>{
 					this.loading.dismiss();
 					
@@ -262,7 +262,7 @@ export class EditPostPage {
    }
    },postError =>{
     
-	 let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+	 let url='https://www.google.com';
 	 this.http.get(url).subscribe( result =>{
 	    this.loading.dismiss();
 		
@@ -336,13 +336,14 @@ takePicture(sourceType)
 			 var currentName = imagePath.substr(imagePath.lastIndexOf('/') + 1);
 			 var correctPath = imagePath.substr(0,imagePath.lastIndexOf('/') + 1);
 			 
-			if(this.img1_occ == false){					
+			
+			 if(this.img1_occ == false){										
 			   this.image1= imagePath
-			   this.img1_occ = true;		
-			} else if(this.img2_occ== false){		
-		      this.image2= imagePath		
-			  this.img2_occ = true;		
-			  }
+			   this.img1_occ = true;				
+			} else if(this.img2_occ== false){				
+		      this.image2= imagePath				
+			  this.img2_occ = true;				
+			  }		
 			 //this.copyFileToLocalDir(correctPath,currentName,this.createFileName());
 			}
 		}
@@ -464,7 +465,7 @@ takePicture(sourceType)
 			});
 	  },error=>{
 		  
-		  let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+		  let url='https://www.google.com';
 		 this.http.get(url).subscribe( result =>{
 			
 			Toast.show('Cannot connect to server. Please try again','3000','center').subscribe(toast=>{
@@ -570,35 +571,69 @@ takePicture(sourceType)
 	   {
 	     
 		 this.submitted = false;
-		 
-		 
-		 
-		 
+
 		 let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
 		 let body = JSON.stringify({'email':this.user.email,'activity_done':'Edited post-'+this.postID+' :'+this.postData.title});
 		 let headers = new Headers({'Content-Type': 'application/json'});
 		 let options = new RequestOptions({ headers:headers});
 		 this.http.post(url,body,options).subscribe(result =>{
+			 
+			let memberActivity = result.json();
+			let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
+			let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Update of post on City Savior','message':'We have received update for your post : '+this.issueTitle+ '.Its changed to Review status. We will notify you about its progress.','not_id':memberActivity.activity_id,send_not:false});
+			
+			this.http.post(url,body,options).subscribe(result=>{
+							 
+			},error=>{
+
+			});
 	
 			}, error=>{
 
 		});
 		
+		 
+		 url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+		 body = JSON.stringify({'status':'Review'});
+		 this.http.patch(url,body,options).subscribe( statusUpdate=>{
+			this.loading.dismiss();
+			Toast.show('Post updated successfully','3000','bottom').subscribe(toast=>{
+						
+			}, error=>{
+						
+			});
+			this.navCtrl.pop();
 			
-		 this.loading.dismiss();
-		 
-		Toast.show('Post updated successfully','3000','bottom').subscribe(toast=>{
-						
-		}, error=>{
-						
-		});
-		 
-		 this.navCtrl.pop();
+		 },error=>{
+			 
+				 let url='https://www.google.com';
+		   this.http.get(url).subscribe( result =>{
+			this.loading.dismiss();
+			
+			Toast.show('Cannot connect to server. Please try again','3000','center').subscribe(toast=>{
+							
+			}, error=>{
+							
+			});
+
+		  }, error=>{
+				this.loading.dismiss();
+				
+				Toast.show('Please check your Internet connection','3000','center').subscribe(toast=>{
+							
+				}, error=>{
+							
+				});
+
+			});
+			
+		 });
+ 
 	   }	   
 	  }
    }, postUpdateError=>{
        
-	   let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+	   let url='https://www.google.com';
 	   this.http.get(url).subscribe( result =>{
 		this.loading.dismiss();
 		
@@ -634,27 +669,62 @@ takePicture(sourceType)
 	     let options = new RequestOptions({ headers:headers});
 		 
 		 this.http.post(url,body,options).subscribe(result =>{
+			 
+			 let memberActivity = result.json();
+			let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
+			let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Update of post on City Savior','message':'We have received update for your post : '+this.issueTitle+ '.Its changed to Review status. We will notify you about its progress.','not_id':memberActivity.activity_id,send_not:false});
+			
+			this.http.post(url,body,options).subscribe(result=>{
+							 
+			},error=>{
+
+			});
 
 			}, error=>{
 
 		});
-		
+
 		 
-		 this.loading.dismiss();
-		 
-		 Toast.show('Post updated successfully','3000','bottom').subscribe(toast=>{
+		 url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+		 body = JSON.stringify({'status':'Review'});
+		 this.http.patch(url,body,options).subscribe( statusUpdate=>{
+			this.loading.dismiss();
+			Toast.show('Post updated successfully','3000','bottom').subscribe(toast=>{
 						
-		}, error=>{
+			}, error=>{
 						
-		});
-		 
-		 this.navCtrl.pop();
+			});
+			this.navCtrl.pop();
+		 },error=>{
+				 
+				 let url='https://www.google.com';
+		   this.http.get(url).subscribe( result =>{
+			this.loading.dismiss();
+			
+			Toast.show('Cannot connect to server. Please try again','3000','center').subscribe(toast=>{
+							
+			}, error=>{
+							
+			});
+
+		  }, error=>{
+				this.loading.dismiss();
+				
+				Toast.show('Please check your Internet connection','3000','center').subscribe(toast=>{
+							
+				}, error=>{
+							
+				});
+
+			});
+			
+		 });
 	   }
   }
   
   if(this.img1_occ == true && this.image_id1==null)
   {
-    //this.img1_occ = false;
+   // this.img1_occ = false;
 	let url = 'https://citysavior.pythonanywhere.com/posts/api/imageUpload/';
 	let fileOptions = {
       fileKey:'uploadedfile',
@@ -679,25 +749,59 @@ takePicture(sourceType)
 			let options = new RequestOptions({ headers:headers});
 		 
 			this.http.post(url,body,options).subscribe(result =>{
+				
+				let memberActivity = result.json();
+				let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
+				let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Update of post on City Savior','message':'We have received update for your post : '+this.issueTitle+ '.Its changed to Review status. We will notify you about its progress.','not_id':memberActivity.activity_id,send_not:false});
+						
+				this.http.post(url,body,options).subscribe(result=>{
+										 
+				},error=>{
+
+				});
 
 			}, error=>{
 
 			});
 			
-			this.loading.dismiss();			
-			
-			Toast.show('Post updated successfully','3000','bottom').subscribe(toast=>{
+			 url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+			 body = JSON.stringify({'status':'Review'});
+			 this.http.patch(url,body,options).subscribe( statusUpdate=>{
+				this.loading.dismiss();
+				Toast.show('Post updated successfully','3000','bottom').subscribe(toast=>{
+							
+				}, error=>{
+							
+				});
+				this.navCtrl.pop();
+			 },error=>{
+					let url='https://www.google.com';
+				   this.http.get(url).subscribe( result =>{
+					this.loading.dismiss();
+					
+					Toast.show('Cannot connect to server. Please try again','3000','center').subscribe(toast=>{
+									
+					}, error=>{
+									
+					});
+
+				  }, error=>{
+						this.loading.dismiss();
 						
-			}, error=>{
-						
-			});
+						Toast.show('Please check your Internet connection','3000','center').subscribe(toast=>{
+									
+						}, error=>{
+									
+						});
+
+					});
+			 });
 			
-			 this.navCtrl.pop();
 	       }
 		  }
 		},error1=>{
 			
-			let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+			let url='https://www.google.com';
 			this.http.get(url).subscribe( result =>{
 			this.loading.dismiss();
 			
@@ -732,20 +836,55 @@ takePicture(sourceType)
 			let	options = new RequestOptions({ headers:headers});
 		 
 			this.http.post(url,body,options).subscribe(result =>{
+				
+				let memberActivity = result.json();
+				let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
+				let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Update of post on City Savior','message':'We have received update for your post : '+this.issueTitle+ '.Its changed to Review status. We will notify you about its progress.','not_id':memberActivity.activity_id,send_not:false});
+						
+				this.http.post(url,body,options).subscribe(result=>{
+										 
+				},error=>{
+
+				});
 
 			}, error=>{
 
 			});
-		
-			this.loading.dismiss();
-			
-			Toast.show('Post updated successfully','3000','bottom').subscribe(toast=>{
-						
-			}, error=>{
-						
-			});
+
+			url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+			body = JSON.stringify({'status':'Review'});
+			 this.http.patch(url,body,options).subscribe( statusUpdate=>{
+				this.loading.dismiss();
+				Toast.show('Post updated successfully','3000','bottom').subscribe(toast=>{
+							
+				}, error=>{
+							
+				});
+				this.navCtrl.pop();
+			},error=>{
+				
+				let url='https://www.google.com';
+			   this.http.get(url).subscribe( result =>{
+				this.loading.dismiss();
+				
+				Toast.show('Cannot connect to server. Please try again','3000','center').subscribe(toast=>{
+								
+				}, error=>{
+								
+				});
+
+			  }, error=>{
+					this.loading.dismiss();
 					
-			 this.navCtrl.pop();
+					Toast.show('Please check your Internet connection','3000','center').subscribe(toast=>{
+								
+					}, error=>{
+								
+					});
+
+				});
+			
+			 });
 	       }
 	
   }
@@ -764,7 +903,7 @@ takePicture(sourceType)
 
 			 if(data2.responseCode == 200)
 			   {
-			     this.loading.dismiss();
+			     
 				 this.imageUpload2Edited= true;
 
 				 if(this.descEdited && this.imageUpload1Edited && this.imageDeleteEdited && this.imageUpload2Edited)
@@ -776,23 +915,60 @@ takePicture(sourceType)
 					let options = new RequestOptions({ headers:headers});
 		 
 					this.http.post(url,body,options).subscribe(result =>{
+						
+						let memberActivity = result.json();
+						let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
+						let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Update of post on City Savior','message':'We have received update for your post : '+this.issueTitle+ '.Its changed to Review status. We will notify you about its progress.','not_id':memberActivity.activity_id,send_not:false});
+						
+						this.http.post(url,body,options).subscribe(result=>{
+										 
+						},error=>{
+
+						});
 
 					}, error=>{
 
 					});
 					
-					Toast.show('Post updated successfully','3000','bottom').subscribe(toast=>{
+					 url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+					 body = JSON.stringify({'status':'Review'});
+					 this.http.patch(url,body,options).subscribe( statusUpdate=>{
+						this.loading.dismiss();
+						Toast.show('Post updated successfully','3000','bottom').subscribe(toast=>{
+									
+						}, error=>{
+									
+						});
+						this.navCtrl.pop();
+					 },error=>{
+						 
+						   let url='https://www.google.com';
+						   this.http.get(url).subscribe( result =>{
+							this.loading.dismiss();
+							
+							Toast.show('Cannot connect to server. Please try again','3000','center').subscribe(toast=>{
+											
+							}, error=>{
+											
+							});
+
+						  }, error=>{
+								this.loading.dismiss();
+								
+								Toast.show('Please check your Internet connection','3000','center').subscribe(toast=>{
+											
+								}, error=>{
+											
+								});
+
+							});
 						
-					}, error=>{
-						
-					});
-					
-					this.navCtrl.pop();
+					 });
 	              }
 			   }
 			},error2=>{
 				
-				let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+				let url='https://www.google.com';
 				this.http.get(url).subscribe( result =>{
 				this.loading.dismiss();
 					
@@ -828,19 +1004,55 @@ takePicture(sourceType)
 			let options = new RequestOptions({ headers:headers});
 		 
 			this.http.post(url,body,options).subscribe(result =>{
+				
+				let memberActivity = result.json();
+				let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
+				let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Update of post on City Savior','message':'We have received update for your post : '+this.issueTitle+ '.Its changed to Review status. We will notify you about its progress.','not_id':memberActivity.activity_id,send_not:false});
+						
+				this.http.post(url,body,options).subscribe(result=>{
+										 
+				},error=>{
+
+				});
 
 			}, error=>{
 
 			});
-		
-			this.loading.dismiss();
+	
+			url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+			body = JSON.stringify({'status':'Review'});
+			this.http.patch(url,body,options).subscribe( statusUpdate=>{
+				this.loading.dismiss();
+				Toast.show('Post updated successfully','3000','bottom').subscribe(toast=>{
+							
+				}, error=>{
+							
+				});
+				this.navCtrl.pop();
+			},error=>{
+				
+				let url='https://www.google.com';
+			   this.http.get(url).subscribe( result =>{
+				this.loading.dismiss();
+				
+				Toast.show('Cannot connect to server. Please try again','3000','center').subscribe(toast=>{
+								
+				}, error=>{
+								
+				});
+
+			  }, error=>{
+					this.loading.dismiss();
+					
+					Toast.show('Please check your Internet connection','3000','center').subscribe(toast=>{
+								
+					}, error=>{
+								
+					});
+
+				});
 			
-			Toast.show('Post updated successfully','3000','bottom').subscribe(toast=>{
-						
-			}, error=>{
-						
-			});
-		   this.navCtrl.pop();
+			 });
 	    }
   }
   
@@ -873,26 +1085,61 @@ takePicture(sourceType)
 					let headers = new Headers({'Content-Type': 'application/json'});
 					let options = new RequestOptions({ headers:headers});
 					this.http.post(url,body,options).subscribe(result =>{
+						
+						let memberActivity = result.json();
+						let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
+						let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Update of post on City Savior','message':'We have received update for your post : '+this.issueTitle+ '.Its changed to Review status. We will notify you about its progress.','not_id':memberActivity.activity_id,send_not:false});
+						
+						this.http.post(url,body,options).subscribe(result=>{
+										 
+						},error=>{
+
+						});
 
 					}, error=>{
 
 					});
 					
-					this.loading.dismiss();
-					
-					Toast.show('Post updated successfully','3000','bottom').subscribe(toast=>{
+					url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+					body = JSON.stringify({'status':'Review'});
+					 this.http.patch(url,body,options).subscribe( statusUpdate=>{
+						this.loading.dismiss();
+						Toast.show('Post updated successfully','3000','bottom').subscribe(toast=>{
+									
+						}, error=>{
+									
+						});
+						this.navCtrl.pop();
+					},error=>{
 						
-					}, error=>{
+						let url='https://www.google.com';
+					   this.http.get(url).subscribe( result =>{
+						this.loading.dismiss();
 						
-					});
+						Toast.show('Cannot connect to server. Please try again','3000','center').subscribe(toast=>{
+										
+						}, error=>{
+										
+						});
+
+					  }, error=>{
+							this.loading.dismiss();
+							
+							Toast.show('Please check your Internet connection','3000','center').subscribe(toast=>{
+										
+							}, error=>{
+										
+							});
+
+						});
 					
-					this.navCtrl.pop();
+					 });
 	              }
 				}  
 			}	
 	  }, deleteImageError =>{
 	
-			let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+			let url='https://www.google.com';
 			this.http.get(url).subscribe( result =>{
 			this.loading.dismiss();
 			
@@ -928,20 +1175,55 @@ takePicture(sourceType)
 	     let options = new RequestOptions({ headers:headers});
 		 
 		 this.http.post(url,body,options).subscribe(result =>{
+			 
+			 let memberActivity = result.json();
+			let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
+			let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Update of post on City Savior','message':'We have received update for your post : '+this.issueTitle+ '.Its changed to Review status. We will notify you about its progress.','not_id':memberActivity.activity_id,send_not:false});
+			
+			this.http.post(url,body,options).subscribe(result=>{
+							 
+			},error=>{
+
+			});
 
 			}, error=>{
 
 		});
-		
-	    this.loading.dismiss();
-		
-        Toast.show('Post updated successfully','3000','bottom').subscribe(toast=>{
+
+		url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+		 body = JSON.stringify({'status':'Review'});
+		 this.http.patch(url,body,options).subscribe( statusUpdate=>{
+			this.loading.dismiss();
+			Toast.show('Post updated successfully','3000','bottom').subscribe(toast=>{
 						
-		}, error=>{
+			}, error=>{
+						
+			});
+			this.navCtrl.pop();
+		},error=>{
+			
+			let url='https://www.google.com';
+		   this.http.get(url).subscribe( result =>{
+			this.loading.dismiss();
+			
+			Toast.show('Cannot connect to server. Please try again','3000','center').subscribe(toast=>{
+							
+			}, error=>{
+							
+			});
+
+		  }, error=>{
+				this.loading.dismiss();
 				
-		});
+				Toast.show('Please check your Internet connection','3000','center').subscribe(toast=>{
+							
+				}, error=>{
+							
+				});
+
+			});
 		
-		this.navCtrl.pop();
+		 });
 	   }
   }
   }
@@ -963,7 +1245,7 @@ takePicture(sourceType)
  
  ionViewCanLeave(): boolean | Promise<boolean> {
     
-    if (this.issueDesc == this.postData.desc && ((this.img1_occ == true && this.image_id1!=null) ||(!this.img1_occ)|| this.imageUpload1Edited) && ((this.img2_occ == true && this.image_id2!=null) ||(!this.img2_occ)|| this.imageUpload2Edited) && this.deletedImages.length == 0) {
+	if (this.issueDesc == this.postData.desc && ((this.img1_occ == true && this.image_id1!=null) ||(!this.img1_occ)|| this.imageUpload1Edited) && ((this.img2_occ == true && this.image_id2!=null) ||(!this.img2_occ)|| this.imageUpload2Edited) && this.deletedImages.length == 0) {
       return true;
     }
 
