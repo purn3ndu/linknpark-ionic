@@ -450,8 +450,7 @@ takePicture(sourceType)
 		let statusData = result.json();
 		// url changed
 		let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
-		body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Status update for your post on City Savior','message':'The status of your post : '+this.postData.title+' has been changed to '+statusData.status+'.','not_id':this.postID,send_not:true});
-		
+		body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Status update for your post on City Savior','message':'The status of your post :<i style="color:red"> '+this.postData.title+'</i> has been changed to <i style="color:red">'+statusData.status+'</i>.','not_id':this.postID,send_not:true});		
 		this.http.post(url,body,options).subscribe(result=>{
 						 
 		},error=>{

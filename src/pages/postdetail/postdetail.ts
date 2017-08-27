@@ -569,7 +569,7 @@ export class PostdetailPage {
 			  {
 				
 				let url='https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';
-				let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Your post just earned a helpful upvote','message':this.user.name+' upvoted your post : '+this.postData.title+' on City Savior.\n Total upvotes for the post ='+this.postData.upvotes,'not_id':memberActivity.activity_id,'send_not':true});
+				let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Your post just earned a helpful upvote','message':'<i style="color:red">'+this.user.name+'</i> upvoted your post : <i style="color:red">'+this.postData.title+'</i> on City Savior.<br/> Total upvotes for the post = <i style="color:red>"'+this.postData.upvotes+'</i>','not_id':memberActivity.activity_id,'send_not':true});
 				this.http.post(url,body,options).subscribe(result=>{
 				  
 				}, error=>{
@@ -1055,7 +1055,7 @@ export class PostdetailPage {
 			if(this.user.email != this.postData.email)
 			{
 				let url='https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';
-				let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'You received a comment on your post','message':this.user.name+' commented on your post : '+this.postData.title+' on City Savior.','not_id':memberActivity.activity_id,'send_not':true});
+				let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'You received a comment on your post','message':'<i style="color:red">'+this.user.name+'</i> commented on your post : <i style="color:red">'+this.postData.title+'</i> on City Savior.','not_id':memberActivity.activity_id,'send_not':true});
 				this.http.post(url,body,options).subscribe(result=>{
 				  
 				}, error=>{
@@ -1114,7 +1114,7 @@ export class PostdetailPage {
 			
 		let memberActivity = result.json();
 		let url='https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';
-		let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Post reported as Offensive','message':'Hi,\n Your post : '+this.postData.title+' has been reported as offensive on City Savior. This post will be reviewed within 24 hours and necessary action will be taken.','not_id':memberActivity.activity_id,'send_not':true});
+		let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Post reported as Offensive','message':'Your post : <i style="color:red">'+this.postData.title+'</i> has been reported as offensive on City Savior. This post will be reviewed within 24 hours and necessary action will be taken.','not_id':memberActivity.activity_id,'send_not':true});
 				
 		this.http.post(url,body,options).subscribe(result=>{
 				
