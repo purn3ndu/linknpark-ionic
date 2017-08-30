@@ -53,7 +53,7 @@ export class SettingsPage {
 	shareLink()
 	{
 		this.isShareDisabled = true;
-		SocialSharing.share('City Savior - Facilitating effective solutions for civic issues around you. Download it from ',null,null,'https://play.google.com/store/apps/details?id='+this.packageName).then((success)=>{
+		SocialSharing.share('City Savior - Facilitating effective solutions for civic issues around you. Download it from ',null,null,'www.citysavior.co').then((success)=>{
 			this.isShareDisabled=false;
 			
 			let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';

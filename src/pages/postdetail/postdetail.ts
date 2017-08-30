@@ -1190,7 +1190,7 @@ export class PostdetailPage {
 	this.isShareDisabled = true;
 	
 	Screenshot.URI(100).then((result) =>{
-		SocialSharing.share('Share your support for this issue in City Savior. Download it from',null,result.URI,'https://play.google.com/store/apps/details?id='+this.packageName).then((success) =>{
+		SocialSharing.share('Share your support for this issue in City Savior. Download it from',null,result.URI,'www.citysavior.co').then((success) =>{
 	
 			this.isShareDisabled=false;
 		  
