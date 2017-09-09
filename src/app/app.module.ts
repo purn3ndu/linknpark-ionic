@@ -8,6 +8,11 @@ import { CitysavApp } from './app.component';
 import { AccountPage } from '../pages/account/account';
 import { LoginPage } from '../pages/login/login';
 import { MapPage } from '../pages/map/map';
+
+ import {MapHost} from '../pages/map2/map';
+
+
+
 import { MypostsPage } from '../pages/myposts/myposts';
 import { RankPage } from '../pages/rank/rank';
 
@@ -35,6 +40,7 @@ import {Data} from '../providers/data';
     AccountPage,
     LoginPage,
     MapPage,
+    MapHost,
     MypostsPage,
     RankPage,
     TabsPage,
@@ -56,6 +62,7 @@ import {Data} from '../providers/data';
     AccountPage,
     LoginPage,
     MapPage,
+    MapHost,
     MypostsPage,
     RankPage,
     TabsPage,

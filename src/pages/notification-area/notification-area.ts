@@ -207,7 +207,7 @@ export class NotificationAreaPage {
 		this.loading.present();
 		
 		// url changed - patch request to NotificationDetail class view
-		let url = 'https://citysavior.pythonanywhere.com/posts/api/notificationarea/'+this.userLocation.notification_id+'/';
+		let url = 'https://linknpark.pythonanywhere.com/posts/api/notificationarea/'+this.userLocation.notification_id+'/';
 		let body = JSON.stringify({'cen_lat':center.lat(),'cen_lon':center.lng(),'radius':radius,'user_set':true});
 		let headers = new Headers({'Content-Type': 'application/json'});
 		let options = new RequestOptions({ headers:headers});
@@ -231,7 +231,7 @@ export class NotificationAreaPage {
 			}
 		},error=>{
 			
-			let url='https://citysavior.pythonanywhere.com/posts/api/member/'
+			let url='https://linknpark.pythonanywhere.com/posts/api/member/'
 			this.http.get(url).subscribe( result =>{
 				this.loading.dismiss();
 				
@@ -258,7 +258,7 @@ export class NotificationAreaPage {
 	getArea()
 	{
 		// url changed - Response changed
-		let url = 'https://citysavior.pythonanywhere.com/posts/api/notificationarea/'+this.user.email+'/';
+		let url = 'https://linknpark.pythonanywhere.com/posts/api/notificationarea/'+this.user.email+'/';
 		this.http.get(url).subscribe( result => {
 			if(result.status == 200)
 			{
@@ -282,7 +282,7 @@ export class NotificationAreaPage {
 			}
 		}, error=>{
 			
-			let url = 'https://citysavior.pythonanywhere.com/posts/api/member/'
+			let url = 'https://linknpark.pythonanywhere.com/posts/api/member/'
 			this.http.get(url).subscribe( result =>{
 				
 				Toast.show('Cannot connect to server. Please try again later','3000','center').subscribe(toast=>{

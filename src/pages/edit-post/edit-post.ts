@@ -120,7 +120,7 @@ export class EditPostPage {
  getPostDetails()
  {
   
-   let url='https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+   let url='https://linknpark.pythonanywhere.com/posts/api/post/'+this.postID+'/';
    this.http.get(url).subscribe( postResult => {
   
 	if(postResult.status == 200)
@@ -147,7 +147,7 @@ export class EditPostPage {
 	 }
 	 if(this.postData.is_anonymous)
 	 {
-	  let url = 'https://citysavior.pythonanywhere.com/posts/api/member/'+this.postData.email+'/';
+	  let url = 'https://linknpark.pythonanywhere.com/posts/api/member/'+this.postData.email+'/';
 	  this.http.get(url).subscribe( userResult => {
 	
 	   if(userResult.status == 200)
@@ -165,7 +165,7 @@ export class EditPostPage {
 	    this.userName='Anonymous';
 	   }
 	   
-	let url='https://citysavior.pythonanywhere.com/posts/api/member/'+this.user.email+'/';   
+	let url='https://linknpark.pythonanywhere.com/posts/api/member/'+this.user.email+'/';   
 	this.http.get(url).subscribe(userResult=>{
 	
 		let userData =userResult.json();
@@ -176,7 +176,7 @@ export class EditPostPage {
 			this.isStatusHidden = true;
 		 }
 
-			let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/get/'+this.postID+'/';	 
+			let url = 'https://linknpark.pythonanywhere.com/posts/api/post/image/get/'+this.postID+'/';	 
 			//let body = JSON.stringify({'post_id':this.postID});
 			//let headers = new Headers({'Content-Type': 'application/json'});
 			//let options = new RequestOptions({ headers:headers});
@@ -194,14 +194,14 @@ export class EditPostPage {
 				{
 				  if(i==0)
 				  {
-					this.image1='https://citysavior.pythonanywhere.com'+images[i].image_url;
+					this.image1='https://linknpark.pythonanywhere.com'+images[i].image_url;
 					this.img1_occ = true;
 					this.image_id1 = images[i].image_id;
 					
 				  }
 				  else if(i==1)
 				  {
-					this.image2='https://citysavior.pythonanywhere.com'+images[i].image_url;
+					this.image2='https://linknpark.pythonanywhere.com'+images[i].image_url;
 					this.img2_occ = true;
 					this.image_id2 = images[i].image_id;
 				  }
@@ -442,14 +442,14 @@ takePicture(sourceType)
   
   updateStatus()
   {
-	  let url='https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+	  let url='https://linknpark.pythonanywhere.com/posts/api/post/'+this.postID+'/';
 	  let body = JSON.stringify({'status':this.postStatus});
 	  let headers = new Headers({'Content-Type': 'application/json'});
 	  let options = new RequestOptions({ headers:headers});
 	  this.http.patch(url,body,options).subscribe(result=>{
 		let statusData = result.json();
 		// url changed
-		let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
+		let url = 'https://linknpark.pythonanywhere.com/posts/api/notification/user/send/';	
 		body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Status update for your post on City Savior','message':'The status of your post :<i style="color:red"> '+this.postData.title+'</i> has been changed to <i style="color:red">'+statusData.status+'</i>.','not_id':this.postID,send_not:true});		
 		this.http.post(url,body,options).subscribe(result=>{
 						 
@@ -552,7 +552,7 @@ takePicture(sourceType)
 	}
    // updated url - patch request to PostDetail class view 	
 	
-   let url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+   let url = 'https://linknpark.pythonanywhere.com/posts/api/post/'+this.postID+'/';
    let body = JSON.stringify({'desc':this.issueDesc,'title':this.issueTitle,'is_anonymous':is_anonymous});
    let headers = new Headers({'Content-Type': 'application/json'});
    let options = new RequestOptions({ headers:headers});
@@ -571,14 +571,14 @@ takePicture(sourceType)
 	     
 		 this.submitted = false;
 
-		 let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+		 let url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 		 let body = JSON.stringify({'email':this.user.email,'activity_done':'Edited post-'+this.postID+' :'+this.postData.title});
 		 let headers = new Headers({'Content-Type': 'application/json'});
 		 let options = new RequestOptions({ headers:headers});
 		 this.http.post(url,body,options).subscribe(result =>{
 			 
 			let memberActivity = result.json();
-			let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
+			let url = 'https://linknpark.pythonanywhere.com/posts/api/notification/user/send/';	
 			let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Update of post on City Savior','message':'We have received update for your post : '+this.issueTitle+ '.Its changed to Review status. We will notify you about its progress.','not_id':memberActivity.activity_id,send_not:false});
 			
 			this.http.post(url,body,options).subscribe(result=>{
@@ -592,7 +592,7 @@ takePicture(sourceType)
 		});
 		
 		 
-		 url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+		 url = 'https://linknpark.pythonanywhere.com/posts/api/post/'+this.postID+'/';
 		 body = JSON.stringify({'status':'Review'});
 		 this.http.patch(url,body,options).subscribe( statusUpdate=>{
 			this.loading.dismiss();
@@ -662,7 +662,7 @@ takePicture(sourceType)
   if(this.descEdited && this.imageUpload1Edited && this.imageDeleteEdited && this.imageUpload2Edited)
 	   {
 	     this.submitted = false;
-		 let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+		 let url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 		 let body = JSON.stringify({'email':this.user.email,'activity_done':'Edited post-'+this.postID+' :'+this.postData.title});
 		 let headers = new Headers({'Content-Type': 'application/json'});
 	     let options = new RequestOptions({ headers:headers});
@@ -670,7 +670,7 @@ takePicture(sourceType)
 		 this.http.post(url,body,options).subscribe(result =>{
 			 
 			 let memberActivity = result.json();
-			let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
+			let url = 'https://linknpark.pythonanywhere.com/posts/api/notification/user/send/';	
 			let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Update of post on City Savior','message':'We have received update for your post : '+this.issueTitle+ '.Its changed to Review status. We will notify you about its progress.','not_id':memberActivity.activity_id,send_not:false});
 			
 			this.http.post(url,body,options).subscribe(result=>{
@@ -684,7 +684,7 @@ takePicture(sourceType)
 		});
 
 		 
-		 url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+		 url = 'https://linknpark.pythonanywhere.com/posts/api/post/'+this.postID+'/';
 		 body = JSON.stringify({'status':'Review'});
 		 this.http.patch(url,body,options).subscribe( statusUpdate=>{
 			this.loading.dismiss();
@@ -724,7 +724,7 @@ takePicture(sourceType)
   if(this.img1_occ == true && this.image_id1==null)
   {
    // this.img1_occ = false;
-	let url = 'https://citysavior.pythonanywhere.com/posts/api/imageUpload/';
+	let url = 'https://linknpark.pythonanywhere.com/posts/api/imageUpload/';
 	let fileOptions = {
       fileKey:'uploadedfile',
 	  chunkedMode:false,
@@ -742,7 +742,7 @@ takePicture(sourceType)
 		   if(this.descEdited && this.imageUpload1Edited && this.imageDeleteEdited && this.imageUpload2Edited)
 	       {
 	        this.submitted = false;
-			let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+			let url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 			let body = JSON.stringify({'email':this.user.email,'activity_done':'Edited post-'+this.postID+' :'+this.postData.title});
 			let headers = new Headers({'Content-Type': 'application/json'});
 			let options = new RequestOptions({ headers:headers});
@@ -750,7 +750,7 @@ takePicture(sourceType)
 			this.http.post(url,body,options).subscribe(result =>{
 				
 				let memberActivity = result.json();
-				let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
+				let url = 'https://linknpark.pythonanywhere.com/posts/api/notification/user/send/';	
 				let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Update of post on City Savior','message':'We have received update for your post : '+this.issueTitle+ '.Its changed to Review status. We will notify you about its progress.','not_id':memberActivity.activity_id,send_not:false});
 						
 				this.http.post(url,body,options).subscribe(result=>{
@@ -763,7 +763,7 @@ takePicture(sourceType)
 
 			});
 			
-			 url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+			 url = 'https://linknpark.pythonanywhere.com/posts/api/post/'+this.postID+'/';
 			 body = JSON.stringify({'status':'Review'});
 			 this.http.patch(url,body,options).subscribe( statusUpdate=>{
 				this.loading.dismiss();
@@ -829,7 +829,7 @@ takePicture(sourceType)
 	if(this.descEdited && this.imageUpload1Edited && this.imageDeleteEdited && this.imageUpload2Edited)
 	       {
 	        this.submitted = false;
-			let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+			let url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 			let body = JSON.stringify({'email':this.user.email,'activity_done':'Edited post-'+this.postID+' :'+this.postData.title});
 			let headers = new Headers({'Content-Type': 'application/json'});
 			let	options = new RequestOptions({ headers:headers});
@@ -837,7 +837,7 @@ takePicture(sourceType)
 			this.http.post(url,body,options).subscribe(result =>{
 				
 				let memberActivity = result.json();
-				let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
+				let url = 'https://linknpark.pythonanywhere.com/posts/api/notification/user/send/';	
 				let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Update of post on City Savior','message':'We have received update for your post : '+this.issueTitle+ '.Its changed to Review status. We will notify you about its progress.','not_id':memberActivity.activity_id,send_not:false});
 						
 				this.http.post(url,body,options).subscribe(result=>{
@@ -850,7 +850,7 @@ takePicture(sourceType)
 
 			});
 
-			url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+			url = 'https://linknpark.pythonanywhere.com/posts/api/post/'+this.postID+'/';
 			body = JSON.stringify({'status':'Review'});
 			 this.http.patch(url,body,options).subscribe( statusUpdate=>{
 				this.loading.dismiss();
@@ -890,7 +890,7 @@ takePicture(sourceType)
   if(this.img2_occ == true && this.image_id2==null)
   {
    //this.img2_occ = false;
-   let url = 'https://citysavior.pythonanywhere.com/posts/api/imageUpload/';
+   let url = 'https://linknpark.pythonanywhere.com/posts/api/imageUpload/';
 	let fileOptions = {
       fileKey:'uploadedfile',
 	  chunkedMode:false,
@@ -908,7 +908,7 @@ takePicture(sourceType)
 				 if(this.descEdited && this.imageUpload1Edited && this.imageDeleteEdited && this.imageUpload2Edited)
 	              {
 					this.submitted = false;  
-					let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+					let url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 					let body = JSON.stringify({'email':this.user.email,'activity_done':'Edited post-'+this.postID+' :'+this.postData.title});
 					let headers = new Headers({'Content-Type': 'application/json'});
 					let options = new RequestOptions({ headers:headers});
@@ -916,7 +916,7 @@ takePicture(sourceType)
 					this.http.post(url,body,options).subscribe(result =>{
 						
 						let memberActivity = result.json();
-						let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
+						let url = 'https://linknpark.pythonanywhere.com/posts/api/notification/user/send/';	
 						let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Update of post on City Savior','message':'We have received update for your post : '+this.issueTitle+ '.Its changed to Review status. We will notify you about its progress.','not_id':memberActivity.activity_id,send_not:false});
 						
 						this.http.post(url,body,options).subscribe(result=>{
@@ -929,7 +929,7 @@ takePicture(sourceType)
 
 					});
 					
-					 url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+					 url = 'https://linknpark.pythonanywhere.com/posts/api/post/'+this.postID+'/';
 					 body = JSON.stringify({'status':'Review'});
 					 this.http.patch(url,body,options).subscribe( statusUpdate=>{
 						this.loading.dismiss();
@@ -997,7 +997,7 @@ takePicture(sourceType)
         {
    
 			this.submitted = false;
-			let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+			let url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 			let body = JSON.stringify({'email':this.user.email,'activity_done':'Edited post-'+this.postID+' :'+this.postData.title});
 			let headers = new Headers({'Content-Type': 'application/json'});
 			let options = new RequestOptions({ headers:headers});
@@ -1005,7 +1005,7 @@ takePicture(sourceType)
 			this.http.post(url,body,options).subscribe(result =>{
 				
 				let memberActivity = result.json();
-				let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
+				let url = 'https://linknpark.pythonanywhere.com/posts/api/notification/user/send/';	
 				let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Update of post on City Savior','message':'We have received update for your post : '+this.issueTitle+ '.Its changed to Review status. We will notify you about its progress.','not_id':memberActivity.activity_id,send_not:false});
 						
 				this.http.post(url,body,options).subscribe(result=>{
@@ -1018,7 +1018,7 @@ takePicture(sourceType)
 
 			});
 	
-			url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+			url = 'https://linknpark.pythonanywhere.com/posts/api/post/'+this.postID+'/';
 			body = JSON.stringify({'status':'Review'});
 			this.http.patch(url,body,options).subscribe( statusUpdate=>{
 				this.loading.dismiss();
@@ -1057,7 +1057,7 @@ takePicture(sourceType)
   
   if(this.deletedImages.length > 0)
   {
-    let url ='https://citysavior.pythonanywhere.com/posts/api/deleteImage/';
+    let url ='https://linknpark.pythonanywhere.com/posts/api/deleteImage/';
 	let body1 ={'no_of_images':this.deletedImages.length};
 	for(var i=0;i<this.deletedImages.length;i++)
 	   {
@@ -1079,14 +1079,14 @@ takePicture(sourceType)
 				if(this.descEdited && this.imageUpload1Edited && this.imageDeleteEdited && this.imageUpload2Edited)
                   {
 					this.submitted = false;  
-                    let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+                    let url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 					let body = JSON.stringify({'email':this.user.email,'activity_done':'Edited post-'+this.postID+' :'+this.postData.title});
 					let headers = new Headers({'Content-Type': 'application/json'});
 					let options = new RequestOptions({ headers:headers});
 					this.http.post(url,body,options).subscribe(result =>{
 						
 						let memberActivity = result.json();
-						let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
+						let url = 'https://linknpark.pythonanywhere.com/posts/api/notification/user/send/';	
 						let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Update of post on City Savior','message':'We have received update for your post : '+this.issueTitle+ '.Its changed to Review status. We will notify you about its progress.','not_id':memberActivity.activity_id,send_not:false});
 						
 						this.http.post(url,body,options).subscribe(result=>{
@@ -1099,7 +1099,7 @@ takePicture(sourceType)
 
 					});
 					
-					url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+					url = 'https://linknpark.pythonanywhere.com/posts/api/post/'+this.postID+'/';
 					body = JSON.stringify({'status':'Review'});
 					 this.http.patch(url,body,options).subscribe( statusUpdate=>{
 						this.loading.dismiss();
@@ -1168,7 +1168,7 @@ takePicture(sourceType)
        {
 	   
 		 this.submitted = false;	
-		 let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+		 let url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 		 let body = JSON.stringify({'email':this.user.email,'activity_done':'Edited post-'+this.postID+' :'+this.postData.title});
 		 let headers = new Headers({'Content-Type': 'application/json'});
 	     let options = new RequestOptions({ headers:headers});
@@ -1176,7 +1176,7 @@ takePicture(sourceType)
 		 this.http.post(url,body,options).subscribe(result =>{
 			 
 			 let memberActivity = result.json();
-			let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
+			let url = 'https://linknpark.pythonanywhere.com/posts/api/notification/user/send/';	
 			let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Update of post on City Savior','message':'We have received update for your post : '+this.issueTitle+ '.Its changed to Review status. We will notify you about its progress.','not_id':memberActivity.activity_id,send_not:false});
 			
 			this.http.post(url,body,options).subscribe(result=>{
@@ -1189,7 +1189,7 @@ takePicture(sourceType)
 
 		});
 
-		url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+		url = 'https://linknpark.pythonanywhere.com/posts/api/post/'+this.postID+'/';
 		 body = JSON.stringify({'status':'Review'});
 		 this.http.patch(url,body,options).subscribe( statusUpdate=>{
 			this.loading.dismiss();

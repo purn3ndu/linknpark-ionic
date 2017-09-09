@@ -27,7 +27,7 @@ export class SupportPage {
 
     if (form.valid) {
 	
-		let url ='https://citysavior.pythonanywhere.com/posts/api/sendSupportMessage/';
+		let url ='https://linknpark.pythonanywhere.com/posts/api/sendSupportMessage/';
 		let body = JSON.stringify({'email':this.user.email,'message':this.supportMessage});
 		let headers = new Headers({'Content-Type': 'application/json'});
 		let options = new RequestOptions({ headers:headers});
@@ -44,7 +44,7 @@ export class SupportPage {
 					this.submitted = false;
 				}
 		},error=>{
-			let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+			let url='https://linknpark.pythonanywhere.com/posts/api/member/';
 			this.http.get(url).subscribe( result =>{
 				
 				Toast.show('Cannot connect to server. Please try again later','3000','center').subscribe(toast=>{

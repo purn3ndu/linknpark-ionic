@@ -56,7 +56,7 @@ export class SettingsPage {
 		SocialSharing.share('City Savior - Facilitating effective solutions for civic issues around you. Download it from ',null,null,'www.citysavior.co').then((success)=>{
 			this.isShareDisabled=false;
 			
-			let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+			let url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 			let body = JSON.stringify({'email':this.user.email,'activity_done':'Shared application link'});
 			let headers = new Headers({'Content-Type': 'application/json'});
 			let options = new RequestOptions({ headers:headers});

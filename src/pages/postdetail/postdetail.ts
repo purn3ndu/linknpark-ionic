@@ -50,6 +50,10 @@ export class PostdetailPage {
   
   imgHeight : string = null;
   
+  
+  // while sharing post back button should be hidden in the nav bar and title should be City Savior
+  isBackHidden : boolean = false;
+  navTitle : string = 'Post Details';
      
   constructor(public navCtrl: NavController, 
   public navParams: NavParams,
@@ -104,7 +108,7 @@ export class PostdetailPage {
   
   getPostDetails()
   {
-   let url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.postID+'/';
+   let url = 'https://linknpark.pythonanywhere.com/posts/api/post/'+this.postID+'/';
    this.http.get(url).subscribe( postResult => {
 
 	if(postResult.status == 200)
@@ -126,7 +130,7 @@ export class PostdetailPage {
 	 }else{
 		 
 		// url changed request type changed to patch and Response changed 
-		let url = 'https://citysavior.pythonanywhere.com/posts/api/post/views/increase/';
+		let url = 'https://linknpark.pythonanywhere.com/posts/api/post/views/increase/';
 		let body = JSON.stringify({'post_id':this.postData.id});
 		let headers = new Headers({'Content-Type': 'application/json'});
 		let options = new RequestOptions({headers:headers});
@@ -152,7 +156,7 @@ export class PostdetailPage {
 	 let year = time.substring(0,time.indexOf('-'));
 	 this.postData.timestamp = day+'-'+mon+'-'+year;
 	 
-	 let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+	 let url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 	 let body = JSON.stringify({'email':this.user.email,'activity_done':'Viewed post-'+this.postID+' :'+this.postData.title});
 	 let headers = new Headers({'Content-Type': 'application/json'});
 	 let options = new RequestOptions({headers:headers});
@@ -167,7 +171,7 @@ export class PostdetailPage {
 	 let userEmail = this.postData.email;
 	 
 	 
-	 url = 'https://citysavior.pythonanywhere.com/posts/api/member/'+this.user.email+'/';
+	 url = 'https://linknpark.pythonanywhere.com/posts/api/member/'+this.user.email+'/';
 	 this.http.get(url).subscribe(userResult=>{
 		 let userData = userResult.json();
 		 if(userData.role == 'authority' || userData.role == 'moderator')
@@ -181,7 +185,7 @@ export class PostdetailPage {
 	 
 	 if(!anonymous)
 	 {
-	  let url = 'https://citysavior.pythonanywhere.com/posts/api/member/'+userEmail+'/';
+	  let url = 'https://linknpark.pythonanywhere.com/posts/api/member/'+userEmail+'/';
 	  this.http.get(url).subscribe( userResult => {
 	 
 	   if(userResult.status == 200)
@@ -199,7 +203,7 @@ export class PostdetailPage {
 	   }	   
 	  }, userError =>{
 	   
-	    let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+	    let url='https://linknpark.pythonanywhere.com/posts/api/member/';
 		this.http.get(url).subscribe( result =>{
 		this.loading.dismiss();
 		
@@ -230,7 +234,7 @@ export class PostdetailPage {
 	   }
 	   
 	// url changed - Response changed   
-	url = 'https://citysavior.pythonanywhere.com/posts/api/upvote/check/';
+	url = 'https://linknpark.pythonanywhere.com/posts/api/upvote/check/';
     body = JSON.stringify({'email': this.user.email,'post_id':this.postID});
     headers = new Headers({'Content-Type': 'application/json'});
     options = new RequestOptions({ headers:headers});
@@ -254,7 +258,7 @@ export class PostdetailPage {
 		 }
 	  }
 	}, upvoteError =>{
-	  let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+	  let url='https://linknpark.pythonanywhere.com/posts/api/member/';
 	  this.http.get(url).subscribe( result =>{
 		this.loading.dismiss();
 		
@@ -279,7 +283,7 @@ export class PostdetailPage {
 	});	
 	 
 	 // url changed - Response changed
-     url='https://citysavior.pythonanywhere.com/posts/api/post/getComment/'+this.postID+'/';
+     url='https://linknpark.pythonanywhere.com/posts/api/post/getComment/'+this.postID+'/';
      this.http.get(url).subscribe( commentsResult => {
 	 
 	  if(commentsResult.status == 200)
@@ -312,7 +316,7 @@ export class PostdetailPage {
 
          let i1 = i;		
 		
-		let url = 'https://citysavior.pythonanywhere.com/posts/api/member/'+dataComments[i].email+'/'; 
+		let url = 'https://linknpark.pythonanywhere.com/posts/api/member/'+dataComments[i].email+'/'; 
 		this.http.get(url).subscribe( commentsEmailResult =>{
 		  
 		  if(commentsEmailResult.status == 200)
@@ -336,7 +340,7 @@ export class PostdetailPage {
 		  }
 		},commentsEmailError =>{
 		  
-		  let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+		  let url='https://linknpark.pythonanywhere.com/posts/api/member/';
 		  this.http.get(url).subscribe( result =>{
 			this.loading.dismiss();
 			
@@ -363,7 +367,7 @@ export class PostdetailPage {
 	   }
 	 }, commentsError =>{
 	   
-	    let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+	    let url='https://linknpark.pythonanywhere.com/posts/api/member/';
 		this.http.get(url).subscribe( result =>{
 			this.loading.dismiss();
 			
@@ -387,7 +391,7 @@ export class PostdetailPage {
 		});	
 	 });
 
-     url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/get/'+this.postID+'/';
+     url = 'https://linknpark.pythonanywhere.com/posts/api/post/image/get/'+this.postID+'/';
 	//body = JSON.stringify({'post_id':this.postID});
 	//headers = new Headers({'Content-Type': 'application/json'});
 	//options = new RequestOptions({ headers:headers});
@@ -412,7 +416,7 @@ export class PostdetailPage {
 		for(var i=0;i<images.length;i++)
 		{
 		 	
-		 let imageURL = 'https://citysavior.pythonanywhere.com'+images[i].image_url;
+		 let imageURL = 'https://linknpark.pythonanywhere.com'+images[i].image_url;
 		 this.postImages[i]= imageURL;
 		 
 		 if(images.length == 1)
@@ -437,7 +441,7 @@ export class PostdetailPage {
 		
 	  }
 	}, imageError =>{
-		let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+		let url='https://linknpark.pythonanywhere.com/posts/api/member/';
 		this.http.get(url).subscribe( result =>{
 			this.loading.dismiss();
 			
@@ -466,7 +470,7 @@ export class PostdetailPage {
    }
    }, postError =>{
      
-		let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+		let url='https://linknpark.pythonanywhere.com/posts/api/member/';
 		this.http.get(url).subscribe( result =>{
 			this.loading.dismiss();
 			
@@ -496,7 +500,7 @@ export class PostdetailPage {
     this.isDisabled = true;
     if(this.isColor == 'black')
 	{
-	  let url='https://citysavior.pythonanywhere.com/posts/api/postUpvote/';
+	  let url='https://linknpark.pythonanywhere.com/posts/api/postUpvote/';
 	  let body=JSON.stringify({'post_id':this.postID,'email':this.user.email});
 	  let headers = new Headers({'Content-Type': 'application/json'});
       let options = new RequestOptions({ headers:headers});
@@ -519,7 +523,7 @@ export class PostdetailPage {
 		
 		
 		//url changed - patch request to MemberDetail to update karma points
-		url= 'https://citysavior.pythonanywhere.com/posts/api/member/'+this.user.email+'/';
+		url= 'https://linknpark.pythonanywhere.com/posts/api/member/'+this.user.email+'/';
 		body = JSON.stringify({'karma_points':this.user.karma_points});
 		this.http.patch(url,body,options).subscribe(result =>{ 
 		
@@ -545,7 +549,7 @@ export class PostdetailPage {
 		});
 		  
 		  // url changed - both increase and decrease combined into one patch request and Response changed
-		  url ='https://citysavior.pythonanywhere.com/posts/api/post/upvote/update/';
+		  url ='https://linknpark.pythonanywhere.com/posts/api/post/upvote/update/';
 		  body=JSON.stringify({'post_id':this.postID,'operate':'increase'});
 		  headers = new Headers({'Content-Type': 'application/json'});
 		  options = new RequestOptions({ headers:headers});
@@ -558,7 +562,7 @@ export class PostdetailPage {
 			  this.isColor = 'primary';
 			  this.isDisabled = false;
 			  
-			  let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+			  let url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 			  let body = JSON.stringify({'email':this.user.email,'activity_done':'Upvoted post-'+this.postID+' :'+this.postData.title});
 	 
 			  this.http.post(url,body,options).subscribe(result =>{
@@ -568,7 +572,7 @@ export class PostdetailPage {
 			  if(this.user.email != this.postData.email)
 			  {
 				
-				let url='https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';
+				let url='https://linknpark.pythonanywhere.com/posts/api/notification/user/send/';
 				let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Your post just earned a helpful upvote','message':'<i style="color:red">'+this.user.name+'</i> upvoted your post : <i style="color:red">'+this.postData.title+'</i> on City Savior.<br/> Total upvotes for the post = <i style="color:red>"'+this.postData.upvotes+'</i>','not_id':memberActivity.activity_id,'send_not':true});
 				this.http.post(url,body,options).subscribe(result=>{
 				  
@@ -584,7 +588,7 @@ export class PostdetailPage {
 			}
 		  }, updateError =>{
 		   
-			let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+			let url='https://linknpark.pythonanywhere.com/posts/api/member/';
 			this.http.get(url).subscribe( result =>{
 			
 				Toast.show('Failed to upvote. Please try again later','3000','center').subscribe(toast=>{
@@ -607,7 +611,7 @@ export class PostdetailPage {
 		});
 	  }, postError =>{
 	    
-			let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+			let url='https://linknpark.pythonanywhere.com/posts/api/member/';
 			this.http.get(url).subscribe( result =>{
 			
 				Toast.show('Failed to upvote. Please try again later','3000','center').subscribe(toast=>{
@@ -633,7 +637,7 @@ export class PostdetailPage {
 	else
 	{
 	  // url changed - delete request to view and Response changed	
-	  let url='https://citysavior.pythonanywhere.com/posts/api/post/upvote/delete/';
+	  let url='https://linknpark.pythonanywhere.com/posts/api/post/upvote/delete/';
 	  let body=JSON.stringify({'post_id':this.postID,'email':this.user.email});
 	  let headers = new Headers({'Content-Type': 'application/json'});
       let options = new RequestOptions({ headers:headers,body:body});
@@ -658,7 +662,7 @@ export class PostdetailPage {
 		
         });
 		
-		url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+		url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 		body = JSON.stringify({'email':this.user.email,'activity_done':'Downvoted post-'+this.postID+' :'+this.postData.title});
 	 
 		this.http.post(url,body,options).subscribe(result =>{
@@ -668,7 +672,7 @@ export class PostdetailPage {
 		});
 		
 		//url changed - patch request to MemberDetail to update karma points
-		url= 'https://citysavior.pythonanywhere.com/posts/api/member/'+this.user.email+'/';
+		url= 'https://linknpark.pythonanywhere.com/posts/api/member/'+this.user.email+'/';
 		body = JSON.stringify({'karma_points':this.user.karma_points});
 		this.http.patch(url,body,options).subscribe(result =>{ 
 		
@@ -676,7 +680,7 @@ export class PostdetailPage {
 		
 		});	
 		  // url changed - both increase and decrease combined into one patch request and Response changed	
-		  url ='https://citysavior.pythonanywhere.com/posts/api/post/upvote/update/';
+		  url ='https://linknpark.pythonanywhere.com/posts/api/post/upvote/update/';
 		  body=JSON.stringify({'post_id':this.postID,'operate':'decrease'});
 		  headers = new Headers({'Content-Type': 'application/json'});
 		  options = new RequestOptions({ headers:headers});
@@ -698,7 +702,7 @@ export class PostdetailPage {
 			  this.isDisabled = false;
 			}
 		  }, updateError =>{
-				let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+				let url='https://linknpark.pythonanywhere.com/posts/api/member/';
 				this.http.get(url).subscribe( result =>{
 			
 					Toast.show('Failed to update upvote. Please try again later','3000','center').subscribe(toast=>{
@@ -722,7 +726,7 @@ export class PostdetailPage {
 		  });
 		}
 	  }, cancelError=>{
-			let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+			let url='https://linknpark.pythonanywhere.com/posts/api/member/';
 			this.http.get(url).subscribe( result =>{
 			
 				Toast.show('Failed to update upvote. Please try again later','3000','center').subscribe(toast=>{
@@ -838,7 +842,7 @@ export class PostdetailPage {
    if(index > -1){
 	   
 	// url changed to patch request to CommentDetail class view	
-   let url='https://citysavior.pythonanywhere.com/posts/api/comment/'+commentID+'/';
+   let url='https://linknpark.pythonanywhere.com/posts/api/comment/'+commentID+'/';
    let body = JSON.stringify({'comment_text':this.commentsText});
    let headers = new Headers({'Content-Type': 'application/json'});
    let options = new RequestOptions({ headers:headers});
@@ -852,7 +856,7 @@ export class PostdetailPage {
 	   this.isCommentDisabled= false;
 	
 	   
-		let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+		let url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 		let body = JSON.stringify({'email':this.user.email,'activity_done':'Edited comment-'+commentID+' for post-'+this.postID+'.Old comment='+oldCommentsText+' New comment='+ this.commentsText});
 	 
 		this.http.post(url,body,options).subscribe(result =>{
@@ -863,7 +867,7 @@ export class PostdetailPage {
 	 }
    }, error =>{
       
-	  let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+	  let url='https://linknpark.pythonanywhere.com/posts/api/member/';
 	  this.http.get(url).subscribe( result =>{
 			
 		Toast.show('Failed to edit comment. Please try again later','3000','center').subscribe(toast=>{
@@ -894,7 +898,7 @@ export class PostdetailPage {
    if(index > -1)
    {
 	 // url changed  to delete request to CommentDetail class view
-	 let url ='https://citysavior.pythonanywhere.com/posts/api/comment/'+commentID+'/';
+	 let url ='https://linknpark.pythonanywhere.com/posts/api/comment/'+commentID+'/';
    let headers = new Headers({'Content-Type': 'application/json'});
    let options = new RequestOptions({ headers:headers});
    this.http.delete(url,options).subscribe(result =>{
@@ -920,7 +924,7 @@ export class PostdetailPage {
 		
         });
 		
-		let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+		let url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 		let body = JSON.stringify({'email':this.user.email,'activity_done':'Deleted comment-'+commentID+' for post-'+this.postID+'.Comments :'+comment.comment_text});
 	 
 		this.http.post(url,body,options).subscribe(result =>{
@@ -930,7 +934,7 @@ export class PostdetailPage {
 		});
 		
 		//url changed - patch request to MemberDetail to update karma points
-		url= 'https://citysavior.pythonanywhere.com/posts/api/member/'+this.user.email+'/';
+		url= 'https://linknpark.pythonanywhere.com/posts/api/member/'+this.user.email+'/';
 		body = JSON.stringify({'karma_points':this.user.karma_points});
 		this.http.patch(url,body,options).subscribe(result =>{ 
 		
@@ -940,7 +944,7 @@ export class PostdetailPage {
 	 }
    }, error =>{
      
-	 let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+	 let url='https://linknpark.pythonanywhere.com/posts/api/member/';
 	  this.http.get(url).subscribe( result =>{
 			
 		Toast.show('Failed to delete comment. Please try again later','3000','center').subscribe(toast=>{
@@ -996,7 +1000,7 @@ export class PostdetailPage {
    let mon = this.months[today.getMonth()];
    let year = today.getFullYear();
    let timestamp = day+'-'+mon+'-'+year;
-   let url = 'https://citysavior.pythonanywhere.com/posts/api/comment/';
+   let url = 'https://linknpark.pythonanywhere.com/posts/api/comment/';
    let body = JSON.stringify({'post_id':this.postID,'email':this.user.email,'comment_text':this.newCommentsText});
    let headers = new Headers({'Content-Type': 'application/json'});
    let options = new RequestOptions({ headers:headers});
@@ -1046,7 +1050,7 @@ export class PostdetailPage {
 		});
 		
 		
-		let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+		let url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 		let body = JSON.stringify({'email':this.user.email,'activity_done':'Submitted comment-'+newCom.comment_id+' for post-'+this.postID+'.Comments :'+newCom.comment_text});
 	 
 		this.http.post(url,body,options).subscribe(result =>{
@@ -1054,7 +1058,7 @@ export class PostdetailPage {
 			let memberActivity = result.json();
 			if(this.user.email != this.postData.email)
 			{
-				let url='https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';
+				let url='https://linknpark.pythonanywhere.com/posts/api/notification/user/send/';
 				let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'You received a comment on your post','message':'<i style="color:red">'+this.user.name+'</i> commented on your post : <i style="color:red">'+this.postData.title+'</i> on City Savior.','not_id':memberActivity.activity_id,'send_not':true});
 				this.http.post(url,body,options).subscribe(result=>{
 				  
@@ -1067,7 +1071,7 @@ export class PostdetailPage {
 		});
 		
 		//url changed - patch request to MemberDetail to update karma points
-		url= 'https://citysavior.pythonanywhere.com/posts/api/member/'+this.user.email+'/';
+		url= 'https://linknpark.pythonanywhere.com/posts/api/member/'+this.user.email+'/';
 		body = JSON.stringify({'karma_points':this.user.karma_points});
 		this.http.patch(url,body,options).subscribe(result =>{ 
 		
@@ -1079,7 +1083,7 @@ export class PostdetailPage {
    }, commentError =>{
      
 	 
-	 let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+	 let url='https://linknpark.pythonanywhere.com/posts/api/member/';
 	 this.http.get(url).subscribe( result =>{
 			
 	 Toast.show('Failed to comment. Please try again later','3000','center').subscribe(toast=>{
@@ -1105,7 +1109,7 @@ export class PostdetailPage {
 
  	this.isReportDisabled = true;
 
-	let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+	let url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 	let body = JSON.stringify({'email':this.user.email,'activity_done':'Reported post-'+this.postID+' as offensive.'});
 	let headers = new Headers({'Content-Type': 'application/json'});
 	let options = new RequestOptions({ headers:headers});
@@ -1113,7 +1117,7 @@ export class PostdetailPage {
 	this.http.post(url,body,options).subscribe(result =>{
 			
 		let memberActivity = result.json();
-		let url='https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';
+		let url='https://linknpark.pythonanywhere.com/posts/api/notification/user/send/';
 		let body = JSON.stringify({'post_id':this.postID,'email':this.postData.email,'title':'Post reported as Offensive','message':'Your post : <i style="color:red">'+this.postData.title+'</i> has been reported as offensive on City Savior. This post will be reviewed within 24 hours and necessary action will be taken.','not_id':memberActivity.activity_id,'send_not':true});
 				
 		this.http.post(url,body,options).subscribe(result=>{
@@ -1126,7 +1130,7 @@ export class PostdetailPage {
 				
 		}, error=>{
 						
-				let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+				let url='https://linknpark.pythonanywhere.com/posts/api/member/';
 				this.http.get(url).subscribe( result =>{
 							
 					Toast.show('Failed to comment. Please try again later','3000','center').subscribe(toast=>{
@@ -1148,7 +1152,7 @@ export class PostdetailPage {
 		});
 			
 	},error=>{
-		let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+		let url='https://linknpark.pythonanywhere.com/posts/api/member/';
 		this.http.get(url).subscribe( result =>{
 					
 			Toast.show('Failed to comment. Please try again later','3000','center').subscribe(toast=>{
@@ -1186,15 +1190,19 @@ export class PostdetailPage {
  
  sharePost()
  {
-	
+	this.content.scrollToTop();
+	this.isBackHidden= true;
+	this.navTitle = 'City Savior';
 	this.isShareDisabled = true;
-	
+
+	setTimeout(()=>{
 	Screenshot.URI(100).then((result) =>{
 		SocialSharing.share('Share your support for this issue in City Savior. Download it from',null,result.URI,'https://www.citysavior.co/').then((success) =>{
-	
+			this.isBackHidden= false;
+			this.navTitle = 'Post Details';
 			this.isShareDisabled=false;
-		  
-			let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+			
+			let url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 			let body = JSON.stringify({'email':this.user.email,'activity_done':'Shared post-'+this.postID+' :'+this.postData.title});
 			let headers = new Headers({'Content-Type': 'application/json'});
 			let options = new RequestOptions({ headers:headers});
@@ -1204,7 +1212,10 @@ export class PostdetailPage {
 			}, error=>{
 
 			});
-		}, error=>{
+		},error=>{
+			
+			this.isBackHidden= false;
+			this.navTitle = 'Post Details';
 			this.isShareDisabled=false;
 			
 			Toast.show('Error in sharing post. Please try again later','3000','center').subscribe(toast=>{
@@ -1214,24 +1225,21 @@ export class PostdetailPage {
 			});
 			
 		});
+	},error=>{
 		
+		this.isBackHidden= false;
+		this.navTitle = 'Post Details';
+		this.isShareDisabled=false;
 		
-		
-	}, error=>{
-	
-		  
-		  
-		  this.isShareDisabled=false;
-		  
-		  Toast.show('Error in sharing post. Please try again later','3000','center').subscribe(toast=>{
+		Toast.show('Error in sharing post. Please try again later','3000','center').subscribe(toast=>{
 						
 			}, error=>{
 						
-			});
-      
+			});	
 	});
+	},500);
+
  }
- 
- 
+	
 }
 

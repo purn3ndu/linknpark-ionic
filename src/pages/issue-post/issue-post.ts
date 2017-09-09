@@ -490,7 +490,7 @@ export class IssuePostPage {
 		 });
 	   this.loading.present();
 	   
-	   let url = 'https://citysavior.pythonanywhere.com/posts/api/post/';
+	   let url = 'https://linknpark.pythonanywhere.com/posts/api/post/';
 	   let body = JSON.stringify({'title': this.title, 'desc': this.desc, 'lat': this.lat, 'lon': this.lon,'email': this.user.email,'category': this.category,'is_otherCategory': is_otherCategory,'is_anonymous': this.userAnonymous,'verified':this.locImageVerified});
 	   let headers = new Headers({'Content-Type': 'application/json'});
 	   let options = new RequestOptions({ headers:headers});
@@ -514,7 +514,7 @@ export class IssuePostPage {
 			});
 		
 		//url changed - patch request to MemberDetail to update karma_points
-		url= 'https://citysavior.pythonanywhere.com/posts/api/member/'+this.user.email+'/';
+		url= 'https://linknpark.pythonanywhere.com/posts/api/member/'+this.user.email+'/';
 		body = JSON.stringify({'karma_points':this.user.karma_points});
 		headers = new Headers({'Content-Type': 'application/json'});
 		options = new RequestOptions({ headers:headers});
@@ -525,7 +525,7 @@ export class IssuePostPage {
 		});
 		
 		
-	   url = 'https://citysavior.pythonanywhere.com/posts/api/imageUpload/';
+	   url = 'https://linknpark.pythonanywhere.com/posts/api/imageUpload/';
 	   let fileOptions = {
 		fileKey:'uploadedfile',
 		chunkedMode:false,
@@ -541,7 +541,7 @@ export class IssuePostPage {
 		   {
 			 if(this.img2_occ)
 			  {
-				let url = 'https://citysavior.pythonanywhere.com/posts/api/imageUpload/';
+				let url = 'https://linknpark.pythonanywhere.com/posts/api/imageUpload/';
 				let fileOptions = {
 					fileKey:'uploadedfile',
 					chunkedMode:false,
@@ -551,7 +551,7 @@ export class IssuePostPage {
 				fileTransfer.upload(this.image2,url ,fileOptions).then(data2 => {
 				  if(data2.responseCode == 200)
 				   {
-					let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
+					let url = 'https://linknpark.pythonanywhere.com/posts/api/notification/user/send/';	
 					let body = JSON.stringify({'post_id':postData.id,'email':this.user.email,'title':'Thank you for posting on City Savior','message':'We have received your post : <i style="color:red">'+this.title+'</i>. It is in <i style="color:red">Review</i> status.<br/> We will notify you about its progress.','not_id':postData.id,send_not:false});
 		
 					this.http.post(url,body,options).subscribe(result=>{
@@ -560,14 +560,14 @@ export class IssuePostPage {
 
 					});
 
-					url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+					url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 					body = JSON.stringify({'email':this.user.email,'activity_done':'Submitted post-'+postData.id+' with title:'+this.title});
 					
 					this.http.post(url,body,options).subscribe(result =>{
 						 
 						let memberActivity = result.json();
 						 
-						let url='https://citysavior.pythonanywhere.com/posts/api/notification/area/send/';
+						let url='https://linknpark.pythonanywhere.com/posts/api/notification/area/send/';
 						let body = JSON.stringify({'lat':postData.lat,'lon':postData.lon,'post_id':postData.id,'email':this.user.email,'title':'New issue posted in your area','message':'New post : <i style="color:red">'+postData.title+'</i> has been posted in your area in <i style="color:red">'+postData.category+'</i> category on City Savior.','not_id':memberActivity.activity_id});
 					
 						this.http.post(url,body,options).subscribe(result=>{
@@ -600,7 +600,7 @@ export class IssuePostPage {
 				   }
 				} , err2 => {
 				 
-				 let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+				 let url='https://linknpark.pythonanywhere.com/posts/api/member/';
 				 this.http.get(url).subscribe( result =>{
 					this.loading.dismiss();
 					
@@ -625,7 +625,7 @@ export class IssuePostPage {
 			  }
 			  else
 			   {
-				let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
+				let url = 'https://linknpark.pythonanywhere.com/posts/api/notification/user/send/';	
 				let body = JSON.stringify({'post_id':postData.id,'email':this.user.email,'title':'Thank you for posting on City Savior','message':'We have received your post : <i style="color:red">'+this.title+'</i>. It is in <i style="color:red">Review</i> status.<br/> We will notify you about its progress.','not_id':postData.id,send_not:false});
 		
 				this.http.post(url,body,options).subscribe(result=>{
@@ -634,14 +634,14 @@ export class IssuePostPage {
 
 				});
 
-				url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+				url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 				body = JSON.stringify({'email':this.user.email,'activity_done':'Submitted post-'+postData.id+' with title:'+this.title});
 					
 				this.http.post(url,body,options).subscribe(result =>{
 						 
 					let memberActivity = result.json();
 						 
-					let url='https://citysavior.pythonanywhere.com/posts/api/notification/area/send/';
+					let url='https://linknpark.pythonanywhere.com/posts/api/notification/area/send/';
 					let body = JSON.stringify({'lat':postData.lat,'lon':postData.lon,'post_id':postData.id,'email':this.user.email,'title':'New issue posted in your area','message':'New post : <i style="color:red">'+postData.title+'</i> has been posted in your area in <i style="color:red">'+postData.category+'</i> category on City Savior.','not_id':memberActivity.activity_id});
 					
 					this.http.post(url,body,options).subscribe(result=>{
@@ -675,7 +675,7 @@ export class IssuePostPage {
 		   }
 	   } , err1 =>{
 		 
-				let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+				let url='https://linknpark.pythonanywhere.com/posts/api/member/';
 				this.http.get(url).subscribe( result =>{
 				this.loading.dismiss();
 				
@@ -699,7 +699,7 @@ export class IssuePostPage {
 	  }
 	 else{
 		
-	    let url = 'https://citysavior.pythonanywhere.com/posts/api/notification/user/send/';	
+	    let url = 'https://linknpark.pythonanywhere.com/posts/api/notification/user/send/';	
 		let body = JSON.stringify({'post_id':postData.id,'email':this.user.email,'title':'Thank you for posting on City Savior','message':'We have received your post : <i style="color:red">'+this.title+'</i>. It is in <i style="color:red">Review</i> status.<br/> We will notify you about its progress.','not_id':postData.id,send_not:false});
 		
 		this.http.post(url,body,options).subscribe(result=>{
@@ -708,14 +708,14 @@ export class IssuePostPage {
 
 		});
 		
-		url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+		url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 		body = JSON.stringify({'email':this.user.email,'activity_done':'Submitted post-'+postData.id+' with title:'+this.title});
 					
 		this.http.post(url,body,options).subscribe(result =>{
 						 
 			let memberActivity = result.json();
 						 
-			let url='https://citysavior.pythonanywhere.com/posts/api/notification/area/send/';
+			let url='https://linknpark.pythonanywhere.com/posts/api/notification/area/send/';
 			let body = JSON.stringify({'lat':postData.lat,'lon':postData.lon,'post_id':postData.id,'email':this.user.email,'title':'New issue posted in your area','message':'New post : <i style="color:red">'+postData.title+'</i> has been posted in your area in <i style="color:red">'+postData.category+'</i> category on City Savior.','not_id':memberActivity.activity_id});
 					
 			this.http.post(url,body,options).subscribe(result=>{
@@ -747,7 +747,7 @@ export class IssuePostPage {
 	  }	
 	 } , err => {
 		 
-		 let url = 'https://citysavior.pythonanywhere.com/posts/api/member/';
+		 let url = 'https://linknpark.pythonanywhere.com/posts/api/member/';
 		 this.http.get(url).subscribe( result =>{
 			this.loading.dismiss();
 			

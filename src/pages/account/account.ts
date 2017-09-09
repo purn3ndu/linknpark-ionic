@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { AlertController, NavController, App,LoadingController  } from 'ionic-angular';
 
 import { SupportPage } from '../support/support';
-import {NotificationAreaPage} from '../notification-area/notification-area';
+import {MapHost} from '../map2/map';
 import {AboutPage} from '../about/about';
 
 import { Facebook, NativeStorage, GooglePlus, Toast, SocialSharing, AppVersion } from 'ionic-native';
@@ -52,7 +52,7 @@ export class AccountPage {
   httpUpdateMember(name: string , phone: string)
   {
 	// url changed - patch request to MemberDetail for updating name or phone number  
-    let url ='https://citysavior.pythonanywhere.com/posts/api/member/'+this.user.email+'/';
+    let url ='https://linknpark.pythonanywhere.com/posts/api/member/'+this.user.email+'/';
 	let body = null;
 	if(phone!=null)
 	{
@@ -81,7 +81,7 @@ export class AccountPage {
 		this.user.name = result.json().name;
 		this.isUsernameEdit = false;
 	   }
-		url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+		url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 		body = JSON.stringify({'email':this.user.email,'activity_done':'Updated Profile details'});
 		
 			this.http.post(url,body,options).subscribe(result =>{
@@ -105,7 +105,7 @@ export class AccountPage {
 	 }
 	}, error=>{
 		
-			url='https://citysavior.pythonanywhere.com/posts/api/member/'
+			url='https://linknpark.pythonanywhere.com/posts/api/member/'
 			this.http.get(url).subscribe( result =>{
 				Toast.show('Cannot connect to server. Please try again later','3000','center').subscribe(toast=>{
 						
@@ -160,7 +160,7 @@ export class AccountPage {
 	 });
 	loading.present(); 
 	//url changed - patch request to MemberDetail to update karma points
-	let url ='https://citysavior.pythonanywhere.com/posts/api/member/'+this.user.email+'/';
+	let url ='https://linknpark.pythonanywhere.com/posts/api/member/'+this.user.email+'/';
 	let body = JSON.stringify({'karma_points':this.user.karma_points});
 	let headers = new Headers({'Content-Type': 'application/json'});
 	let options = new RequestOptions({ headers:headers});
@@ -219,11 +219,12 @@ export class AccountPage {
 	
  }
  
- setNotificationArea()
+ hostSpace()
  {
-	this.app.getRootNav().push(NotificationAreaPage, {animate: true, direction: 'forward'});
+	this.app.getRootNav().push(MapHost, {animate: true, direction: 'forward'});
  }
  
+
  addPhoneNumber()
  {
 	
@@ -348,7 +349,7 @@ export class AccountPage {
 		SocialSharing.share('City Savior - Facilitating effective solutions for civic issues around you. Download it from ',null,null,'https://www.citysavior.co/').then((success)=>{
 			this.isShareDisabled=false;
 			
-			let url = 'https://citysavior.pythonanywhere.com/posts/api/postMemberActivity/';
+			let url = 'https://linknpark.pythonanywhere.com/posts/api/postMemberActivity/';
 			let body = JSON.stringify({'email':this.user.email,'activity_done':'Shared application link'});
 			let headers = new Headers({'Content-Type': 'application/json'});
 			let options = new RequestOptions({ headers:headers});

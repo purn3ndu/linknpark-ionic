@@ -1,7 +1,7 @@
 import { Component} from '@angular/core';
 
 import { NavController, Platform, NavParams, App, Events,AlertController } from 'ionic-angular';
-import { GoogleMap, GoogleMapsEvent, GoogleMapsLatLng, GoogleMapsMarkerOptions, GoogleMapsMarker,GoogleMapsAnimation, NativeStorage,Diagnostic, LocationAccuracy,Toast } from 'ionic-native';
+import { GoogleMap, GoogleMapsEvent, GoogleMapsLatLng, GoogleMapsMarkerOptions, GoogleMapsMarker, NativeStorage,Diagnostic, LocationAccuracy,Toast } from 'ionic-native';
 
 import { Http, Headers, RequestOptions } from '@angular/http';
 import { PostdetailPage } from '../postdetail/postdetail';
@@ -100,7 +100,7 @@ export class MapPage {
 		'tilt':40,
         'bearing': 0
        }).then(() => {
-	    this.getVisibleRegion();
+	    this.getVisibleRegion('event_call');
 		});
 	 });
    	 
@@ -147,7 +147,7 @@ export class MapPage {
 		from_device = 'ios';
 	}
 	
-	let url='https://citysavior.pythonanywhere.com/posts/api/checkOrCreateFCMDevice/';
+	let url='https://linknpark.pythonanywhere.com/posts/api/checkOrCreateFCMDevice/';
 	let body = JSON.stringify({'email':this.user.email,'reg_id':this.reg_id,'device':from_device});
 	let headers = new Headers({'Content-Type': 'application/json'});
 	let options = new RequestOptions({ headers:headers});
@@ -172,10 +172,11 @@ export class MapPage {
         'zoom': true
       }
     });
-	
-	this.map.on(GoogleMapsEvent.MY_LOCATION_BUTTON_CLICK).subscribe(() => {				
-	  this.getMyLocation();				
+
+    this.map.on(GoogleMapsEvent.MY_LOCATION_BUTTON_CLICK).subscribe(() => {						
+	  this.getMyLocation();						
 	});
+	
 
 	let elem = <HTMLInputElement>document.getElementsByClassName('searchbar-input')[0];
 	this.autocomplete = new google.maps.places.Autocomplete(elem);
@@ -190,19 +191,69 @@ export class MapPage {
 	   }
 	   if(place.geometry)
 	   { 
-	    let userLocation = new GoogleMapsLatLng(place.geometry.location.lat(),place.geometry.location.lng());
-		
-		
-		this.map.animateCamera({
-		'target': userLocation,
-        'zoom': 17,
-		'duration' : 2000,
-		'tilt':40,
-		'bearing': 0
-       });
-	
-	   }
-	  });
+			let userLocation = new GoogleMapsLatLng(place.geometry.location.lat(),place.geometry.location.lng());
+			
+			// using geometry library of google maps javascript api to calculate the distance(in m) between the last location and current location
+			let distance : number = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(this.lastLocation.lat,this.lastLocation.lng),place.geometry.location);
+
+			distance = distance/1000; // converting the distance to km
+			
+			let zoom_level =1;
+			if((distance/200) < 17)
+			{
+				zoom_level = 17 - (distance/200);
+			}
+			
+			// if zoom level is greater than 1, then 1st zoom to zoom_level and then move to target as the center and then change the zoom level else directly zoom to the target	
+			if(this.lastZoom > 1)
+			{
+				let lastLoc = this.lastLocation;
+				let zoom = this.lastZoom;
+				this.lastLocation = null;
+				this.lastZoom =null;
+			
+				this.map.animateCamera({
+					'target': lastLoc,
+					'zoom': zoom_level,
+					'duration' : 1500,
+					'tilt':40,
+					'bearing': 0
+				}).then(()=>{
+				   this.map.animateCamera({
+						'target': userLocation,
+						'zoom': zoom_level,
+						'duration' : 1000,
+						'tilt':40,
+						'bearing': 0
+					   
+				   }).then(()=>{
+					   this.map.animateCamera({
+						'target': userLocation,
+						'zoom': 17,
+						'duration' : 2000,
+						'tilt':40,
+						'bearing': 0
+					   
+						}).then(()=>{
+								this.lastLocation = lastLoc;
+								this.lastZoom = zoom;
+						});
+					});
+				});
+			}else{
+				
+				this.map.animateCamera({
+					'target': userLocation,
+					'zoom': 17,
+					'duration' : 2000,
+					'tilt':40,
+					'bearing': 0
+				});
+				
+			}
+
+		}
+	});
 	
     
      this.map.one(GoogleMapsEvent.MAP_READY).then(() => {
@@ -213,7 +264,7 @@ export class MapPage {
 			  
 				this.checkPermissionCalled = true;
 					
-				let url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.newMarker.post_id+'/';
+				let url = 'https://linknpark.pythonanywhere.com/posts/api/post/'+this.newMarker.post_id+'/';
 				this.http.get(url).subscribe( result => {
 					if(result.status == 200)
 						{
@@ -233,7 +284,7 @@ export class MapPage {
 								'tilt':40,
 						        'bearing': 0
 					       }).then(() => {
-							    this.getVisibleRegion();
+							    this.getVisibleRegion('loadMap');
 						   });
 						   
 						}
@@ -249,29 +300,29 @@ export class MapPage {
 		  
 		  }else{
 
-		  	// For first time enter. Should also be extended to detect later changes in location permission by user.				
-		  		Diagnostic.registerLocationStateChangeHandler((state) =>{				
-		  			console.log("Location state changed to : " + state);				
-				    let from_device=null;				
-		  			if(this.platform.is('android'))				
-					{				
-						from_device='Android';				
-					}				
-					else if(this.platform.is('ios'))				
-					{				
-						from_device = 'iOS';				
-					}				
-				    if((from_device === "Android" && state !== Diagnostic.locationMode.LOCATION_OFF)				
-				        || (from_device === "iOS") && ( state === 'authorized_when_in_use'				
-				            || state === Diagnostic.permissionStatus.GRANTED_WHEN_IN_USE				
-				    )){				
-				        console.log("Location is available now!");				
-				    	console.log('Calling user location method');				
-				    	this.checkPermission('loadMap');				
-				    }else{				
-				    	console.log("Location is still not available now!");				
-				    }				
-		  							
+		  	// For first time enter. Should also be extended to detect later changes in location permission by user.						
+		  		Diagnostic.registerLocationStateChangeHandler((state) =>{						
+		  			console.log("Location state changed to : " + state);						
+				    let from_device=null;						
+		  			if(this.platform.is('android'))						
+					{						
+						from_device='Android';						
+					}						
+					else if(this.platform.is('ios'))						
+					{						
+						from_device = 'iOS';						
+					}						
+				    if((from_device === "Android" && state !== Diagnostic.locationMode.LOCATION_OFF)						
+				        || (from_device === "iOS") && ( state === 'authorized_when_in_use'						
+				            || state === Diagnostic.permissionStatus.GRANTED_WHEN_IN_USE						
+				    )){						
+				        console.log("Location is available now!");						
+				    	console.log('Calling user location method');						
+				    	this.checkPermission('loadMap');						
+				    }else{						
+				    	console.log("Location is still not available now!");						
+				    }						
+		  									
 			});
 			  
 			  this.checkPermissionCalled = true;
@@ -288,7 +339,7 @@ export class MapPage {
 			this.lastZoom = 1;
 			
 			// url changed - Response changed
-			let url = 'https://citysavior.pythonanywhere.com/posts/api/notificationarea/'+this.user.email+'/';
+			let url = 'https://linknpark.pythonanywhere.com/posts/api/notificationarea/'+this.user.email+'/';
 			this.http.get(url).subscribe( result => {
 			if(result.status == 200)
 			{
@@ -297,7 +348,7 @@ export class MapPage {
 				if(resultData.length == 0 )
 				{
 					// url changed - post request to Notification List class view to create a new area
-					let url = 'https://citysavior.pythonanywhere.com/posts/api/notificationarea/';
+					let url = 'https://linknpark.pythonanywhere.com/posts/api/notificationarea/';
 					let body = JSON.stringify({'email':this.user.email,'cen_lat':loc.lat,'cen_lon':loc.lng,'radius':2,'user_set':false});
 					let headers = new Headers({'Content-Type': 'application/json'});
 					let options = new RequestOptions({ headers:headers});
@@ -314,7 +365,7 @@ export class MapPage {
 			});
 			
 			
-			this.getVisibleRegion();
+			this.getVisibleRegion('loadMap');
 
 		}).catch((error) => {
 
@@ -383,7 +434,7 @@ export class MapPage {
 	  }else{
 	  
 	  // url changed - Reponse changed
-	  let url = 'https://citysavior.pythonanywhere.com/posts/api/notificationarea/'+this.user.email+'/';
+	  let url = 'https://linknpark.pythonanywhere.com/posts/api/notificationarea/'+this.user.email+'/';
 		this.http.get(url).subscribe( result => {
 			if(result.status == 200)
 			{
@@ -392,7 +443,7 @@ export class MapPage {
 				if(!(resultData[0].user_set))
 				{
 					// url changed - patch request to NotificationDetail class view to update the area
-					let url = 'https://citysavior.pythonanywhere.com/posts/api/notificationarea/'+resultData[0].notification_id+'/';
+					let url = 'https://linknpark.pythonanywhere.com/posts/api/notificationarea/'+resultData[0].notification_id+'/';
 					let body = JSON.stringify({'cen_lat':this.currLocation.lat,'cen_lon':this.currLocation.lng,'radius':2});
 					let headers = new Headers({'Content-Type': 'application/json'});
 					let options = new RequestOptions({ headers:headers});
@@ -408,9 +459,10 @@ export class MapPage {
 			
 		});
 	  
-	  this.getVisibleRegion();
+	  this.getVisibleRegion(called);
+	  
 	  }
-	  });
+	 });
 
     }).catch((error) => {	
 		
@@ -450,7 +502,7 @@ export class MapPage {
 	        let newLat  = Number(newLatStr);
 	        let newLng = Number(newLngStr);
 			this.lastLocation = new GoogleMapsLatLng(newLat,newLng);
-			this.getVisibleRegion();
+			this.getVisibleRegion('cameraChange');
 		  });
 		}
 	  }
@@ -499,7 +551,7 @@ export class MapPage {
 				lng_max = swLng + (lng_diff/4);
 				lng_min = neLng - (lng_diff/4);
 			  }
-			  this.searchNearby(lat_min,lat_max,lng_min,lng_max);
+			  this.searchNearby(lat_min,lat_max,lng_min,lng_max,'cameraChange');
 		  }
 		});
 	  }
@@ -527,7 +579,7 @@ export class MapPage {
 		'tilt':40,
         'bearing': 0
        }).then(() => {
-	    this.getVisibleRegion(); 
+	    this.getVisibleRegion('ionViewEnter'); 
 	});
 	 }
 	}
@@ -588,20 +640,28 @@ export class MapPage {
    });
   }
   
-  searchNearby(lat_min : number, lat_max : number, lng_min : number, lng_max : number)
+  searchNearby(lat_min : number, lat_max : number, lng_min : number, lng_max : number, called:string)
   { 
 	// url changed - Response changed
-    let url = 'https://citysavior.pythonanywhere.com/posts/api/post_nearby/';
+	let markerVisible:boolean = false;
+    let url = 'https://linknpark.pythonanywhere.com/posts/api/post_nearby/';
 	let body = JSON.stringify({'min_lat': lat_min, 'min_lon': lng_min, 'max_lat': lat_max, 'max_lon': lng_max});
+
+	console.log('Parameters are: '+body);
+	console.log('Parameters are: ',lat_min,' ',lng_min,' ',lat_max,' ',lng_max);
 	
+	console.log('In here 1');
+
 	let headers = new Headers({'Content-Type': 'application/json'});
 	let options = new RequestOptions({ headers:headers});
 	this.http.post(url,body,options).subscribe( result => {
 
 	
+		console.log('In here 2');
+
 	let i_previous = this.data.length;
 	
-	console.log('working 1');
+	
 	if(this.data.length == 0)
 	{
 		this.data = result.json();
@@ -609,12 +669,15 @@ export class MapPage {
 		{
 			this.sorted_index.push(index);
 		}
+
+		console.log('In here 3');
 	}
 	else
 	{
+		console.log('In here 4');
 		let resultData = result.json();
 		
-		console.log('working 2');
+		
 		for(var n1=0;n1<resultData.length;n1++)
 		{
 			
@@ -646,14 +709,14 @@ export class MapPage {
 								if(this.data[this.sorted_index[mid]].status != resultData[n1].status)
 								{
 									this.data[this.sorted_index[mid]].status = resultData[n1].status;
-									let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/thumbnail/';
+									let url = 'https://linknpark.pythonanywhere.com/posts/api/post/image/thumbnail/';
 									let body = JSON.stringify({'post_id':this.data[this.sorted_index[mid]].id,'status':this.data[this.sorted_index[mid]].status});
 									let headers = new Headers({'Content-Type': 'application/json'});
 									let options = new RequestOptions({ headers:headers});
 												
 									let i1 = this.sorted_index[mid];
 									let icon_img = null;
-												console.log('working 3');
+												
 									this.http.post(url,body,options).subscribe(thumbnailResult=>{
 										
 										
@@ -662,7 +725,7 @@ export class MapPage {
 										if(thumbnail.length != 0)
 											{
 														
-												icon_img ='https://citysavior.pythonanywhere.com'+thumbnail[0].thumbnail_url;
+												icon_img ='https://linknpark.pythonanywhere.com'+thumbnail[0].thumbnail_url;
 
 											}else{
 												switch(this.data[i1].category){
@@ -686,14 +749,15 @@ export class MapPage {
 													}		  
 														  
 											}
-											console.log('working 4');
+											
 											let icon={
 												
 												url : icon_img
 											};
 											this.markers[i1].setIcon(icon);
 											this.markers[i1].setVisible(true);
-											//this.markers[i1].setAnimation(GoogleMapsAnimation.DROP);
+											markerVisible = true;
+											
 											
 											let normalJSON = {userEnter:'normal'};
 											this.params.params=normalJSON;	  
@@ -701,12 +765,12 @@ export class MapPage {
 											this.app.getRootNav().push(PostdetailPage, {postID:this.data[i1].id}, {animate: true, direction: 'forward'});
 											
 									},error=>{
-										console.log('working 5');
+		
 									});
 								}else{
-									console.log('working 6');
 									this.markers[this.sorted_index[mid]].setVisible(true);
-									//this.markers[this.sorted_index[mid]].setAnimation(GoogleMapsAnimation.DROP);
+									markerVisible = true;
+									
 									let normalJSON = {userEnter:'normal'};
 									this.params.params=normalJSON;	  
 									this.newMarker= this.params.params;
@@ -715,7 +779,7 @@ export class MapPage {
 							}	
 								
 					}else{
-						console.log('working 7');
+						
 						if(resultData[n1].status.toLowerCase() == 'archived')
 						{
 							this.data[this.sorted_index[mid]].status = resultData[n1].status;
@@ -723,16 +787,18 @@ export class MapPage {
 						}else{
 						
 						if(this.data[this.sorted_index[mid]].status != resultData[n1].status){
+							
+							markerVisible = true;
 						
 							this.data[this.sorted_index[mid]].status = resultData[n1].status;	
-							let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/thumbnail/';
+							let url = 'https://linknpark.pythonanywhere.com/posts/api/post/image/thumbnail/';
 							let body = JSON.stringify({'post_id':this.data[this.sorted_index[mid]].id,'status':this.data[this.sorted_index[mid]].status});
 							let headers = new Headers({'Content-Type': 'application/json'});
 							let options = new RequestOptions({ headers:headers});
 										
 							let i1 = this.sorted_index[mid];
 							let icon_img = null;
-										console.log('working 8');
+										
 							this.http.post(url,body,options).subscribe(thumbnailResult=>{
 								let thumbnail = thumbnailResult.json();
 								
@@ -740,7 +806,7 @@ export class MapPage {
 								if(thumbnail.length != 0)
 									{
 												
-										icon_img ='https://citysavior.pythonanywhere.com'+thumbnail[0].thumbnail_url;
+										icon_img ='https://linknpark.pythonanywhere.com'+thumbnail[0].thumbnail_url;
 
 									}else{
 										switch(this.data[i1].category){
@@ -764,14 +830,15 @@ export class MapPage {
 											}		  
 												  
 									}
-									console.log('working 9');
+									
 									let icon={
 										
 										url : icon_img
 									};
 									this.markers[i1].setIcon(icon);
 									this.markers[i1].setVisible(true);
-									//this.markers[i1].set('icon',{'url':'https://citysavior.pythonanywhere.com'+thumbnail[0].thumbnail_url});
+									
+									
 										},error=>{
 
 										});
@@ -793,7 +860,7 @@ export class MapPage {
 					high = mid -1;
 				}
 				
-				console.log('working 10');
+				
 			
 			}
 			if(low > high)
@@ -813,7 +880,7 @@ export class MapPage {
 		
 	}
 	
-	console.log('working 11');
+	console.log('In here 5');
 	
 	for(var i=i_previous;i < this.data.length;i++)
 	{
@@ -846,11 +913,13 @@ export class MapPage {
 							break;
 			}
 		}	
-					console.log('working 12');		
+							
 			let icon = {
 				url : icon_img
 				
 			};
+
+			console.log('In here 6');
 		
 		if(this.newMarker!= undefined && this.newMarker.userEnter=='push' && this.data[i].id == this.newMarker.post_id){
 			
@@ -862,7 +931,6 @@ export class MapPage {
 						position : loc,
 						title : this.data[i].title,
 						icon : icon,
-						//animation:GoogleMapsAnimation.DROP,
 						visible: false		
 					};
 				}else{
@@ -870,9 +938,10 @@ export class MapPage {
 							position : loc,
 							title : this.data[i].title,
 							icon : icon
-					};	
+					};
+					markerVisible = true;	
 				}
-				console.log('working 13');
+				
 				let normalJSON = {userEnter:'normal'};
 				this.params.params=normalJSON;	  
 				this.newMarker= this.params.params;
@@ -883,7 +952,7 @@ export class MapPage {
 					let i2 = i1;
 					if(this.data[i1].status.toLowerCase()!='archived')
 					{
-							let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/thumbnail/';
+							let url = 'https://linknpark.pythonanywhere.com/posts/api/post/image/thumbnail/';
 							let body = JSON.stringify({'post_id':this.data[i1].id,'status':this.data[i1].status});
 							let headers = new Headers({'Content-Type': 'application/json'});
 							let options = new RequestOptions({ headers:headers});
@@ -895,20 +964,35 @@ export class MapPage {
 								  {
 									
 									let icon = {
-										url : 'https://citysavior.pythonanywhere.com'+thumbnail[0].thumbnail_url
+										url : 'https://linknpark.pythonanywhere.com'+thumbnail[0].thumbnail_url
 										
 									};
 									
 									this.markers[i2].setIcon(icon);
 									this.app.getRootNav().push(PostdetailPage, {postID:this.data[i2].id}, {animate: true, direction: 'forward'});
-									//this.markers[i2].set('icon',{'url':'https://citysavior.pythonanywhere.com'+thumbnail[0].thumbnail_url});
+									
 								  }
 							},error=>{
 
 							});
 					}		
 					
-					marker.getTitle();	
+					//marker.getTitle();	
+					
+					marker.addEventListener(GoogleMapsEvent.MARKER_CLICK).subscribe(()=>{
+						
+						marker.getTitle();
+						
+						let postID=this.data[i1].id;
+						
+						setTimeout(() =>{ 
+						
+							this.app.getRootNav().push(PostdetailPage, {postID:postID}, {animate: true, direction: 'forward'});
+						 
+					   },500);
+							
+					});
+					
 					marker.addEventListener(GoogleMapsEvent.INFO_CLICK).subscribe(() => {
 						
 						
@@ -917,7 +1001,6 @@ export class MapPage {
 						this.app.getRootNav().push(PostdetailPage, {postID:postID}, {animate: true, direction: 'forward'});
 						
 					});
-					console.log('working 14');
 					this.map.animateCamera({
 
 						'target': loc,
@@ -933,9 +1016,9 @@ export class MapPage {
 						this.app.getRootNav().push(PostdetailPage, {postID:this.data[i1].id}, {animate: true, direction: 'forward'});
 					}
 				});
-			  }else{
+			}else{
 
-					console.log('working 15');
+					console.log('In here 7');
 			  let markerOptions : GoogleMapsMarkerOptions = null;
 			  
 				if(this.data[i].status.toLowerCase() == 'archived')
@@ -952,8 +1035,8 @@ export class MapPage {
 					   title : this.data[i].title,
 					   icon : icon
 					};
+					markerVisible = true;
 				}
-				console.log('working 16');
 			  this.map.addMarker(markerOptions).then((marker: GoogleMapsMarker) =>{
 				  
 				  this.markers[i1]= marker;
@@ -961,7 +1044,7 @@ export class MapPage {
 				  let i2 = i1;
 				  if(this.data[i1].status !='archived')
 				  {	
-					let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/thumbnail/';
+					let url = 'https://linknpark.pythonanywhere.com/posts/api/post/image/thumbnail/';
 					let body = JSON.stringify({'post_id':this.data[i1].id,'status':this.data[i1].status});
 					let headers = new Headers({'Content-Type': 'application/json'});
 					let options = new RequestOptions({ headers:headers});
@@ -972,45 +1055,86 @@ export class MapPage {
 						  {
 							
 							let icon = {
-								url : 'https://citysavior.pythonanywhere.com'+thumbnail[0].thumbnail_url
+								url : 'https://linknpark.pythonanywhere.com'+thumbnail[0].thumbnail_url
 								
 							};
 							
 							this.markers[i2].setIcon(icon);
-							//this.markers[i2].set('icon',{'url':'https://citysavior.pythonanywhere.com'+thumbnail[0].thumbnail_url});
+							
 						  }
 					},error=>{
 						
 					});
 				  }
-				  console.log('working 17');
-				marker.getTitle();
+				//marker.getTitle();
+					marker.addEventListener(GoogleMapsEvent.MARKER_CLICK).subscribe(()=>{
+						
+						marker.getTitle();
+						
+						let postID=this.data[i1].id;
+						
+						setTimeout(() =>{ 
+						
+							this.app.getRootNav().push(PostdetailPage, {postID:postID}, {animate: true, direction: 'forward'});
+						 
+					   },500);
+							
+					});
 					marker.addEventListener(GoogleMapsEvent.INFO_CLICK).subscribe(() => {
 						
 						let postID=this.data[i1].id;
 						
 						this.app.getRootNav().push(PostdetailPage, {postID:postID}, {animate: true, direction: 'forward'});
 						
-				});
+					});
 				
 			  });
 			 }
 	}
-			
-			
+			console.log('In here 8');
+		if(called =='loadMap' && !markerVisible  && this.lastZoom > 1)
+		{
+			let zoom = this.lastZoom;
+			let lastLoc = this.lastLocation;
+			this.lastZoom = null;
+			this.lastLocation = null;
+			this.isHidden = false;
+			zoom = zoom - 3;
+			if(zoom < 1)
+			{
+				zoom =1;
+			}
+			this.map.animateCamera({
+				'target': lastLoc,
+				'zoom': zoom,
+				'duration' : 1000,
+				'tilt':40,
+				'bearing': 0
+			}).then(()=>{
+				this.lastZoom=zoom;
+				this.lastLocation=lastLoc;	
+				this.getVisibleRegion('loadMap');
+						
+			});
+	
+		}else{	
+				
 				this.isHidden = false;
 				this.checkPermissionCalled = false;
-			
+		}		
+			console.log('In here 9');
 	}, err =>
 	{
-		console.log('working 17');
-		let url='https://citysavior.pythonanywhere.com/posts/api/member/';
+
+		let url='https://linknpark.pythonanywhere.com/posts/api/member/';
 		this.http.get(url).subscribe( result =>{
 	
 				this.isHidden = false;
 				this.checkPermissionCalled = false;
 	
 				Toast.show('Cannot connect to server. Please try again.','4000','center').subscribe(toast=>{
+
+					console.log('In here 10');
 						
 				}, error=>{
 				
@@ -1064,7 +1188,7 @@ checkPermission(called : string)
 						this.lastZoom = 1;
 					
 						//url changed - Response changed 
-						let url = 'https://citysavior.pythonanywhere.com/posts/api/notificationarea/'+this.user.email+'/';
+						let url = 'https://linknpark.pythonanywhere.com/posts/api/notificationarea/'+this.user.email+'/';
 						this.http.get(url).subscribe( result => {
 						if(result.status == 200)
 						{
@@ -1073,7 +1197,7 @@ checkPermission(called : string)
 								if(resultData.length == 0 )
 								{
 									// url changed - post request to NotificationList class view to create a area
-									let url = 'https://citysavior.pythonanywhere.com/posts/api/notificationarea/';
+									let url = 'https://linknpark.pythonanywhere.com/posts/api/notificationarea/';
 									let body = JSON.stringify({'email':this.user.email,'cen_lat':loc.lat,'cen_lon':loc.lng,'radius':2,'user_set':false});
 									let headers = new Headers({'Content-Type': 'application/json'});
 									let options = new RequestOptions({ headers:headers});
@@ -1089,7 +1213,7 @@ checkPermission(called : string)
 				
 						});
 				
-							this.getVisibleRegion();
+							this.getVisibleRegion('loadMap');
 
 						}).catch((error) => {
 							
@@ -1140,11 +1264,11 @@ checkPermission(called : string)
 					
 				}else
 				{ // app requests for location authorization if location permission not given before
-					Diagnostic.getLocationAuthorizationStatus().then((result) => {
+					Diagnostic.requestLocationAuthorization().then((result) => {
 		
 					   switch(result){
 						   
-						 case "authorized_when_in_use": console.log("Permission granted previously IOS");
+						 case Diagnostic.permissionStatus.GRANTED: 
 						
 						 LocationAccuracy.request(LocationAccuracy.REQUEST_PRIORITY_HIGH_ACCURACY).then(
 						  () => {
@@ -1243,7 +1367,7 @@ checkPermission(called : string)
 				
 				if(this.newMarker.userEnter=='push'){
 					
-				let url = 'https://citysavior.pythonanywhere.com/posts/api/post/'+this.newMarker.post_id+'/';
+				let url = 'https://linknpark.pythonanywhere.com/posts/api/post/'+this.newMarker.post_id+'/';
 				this.http.get(url).subscribe( result => {
 					if(result.status == 200)
 						{
@@ -1265,7 +1389,7 @@ checkPermission(called : string)
 								'tilt':40,
 						        'bearing': 0
 					       }).then(() => {
-							    this.getVisibleRegion();
+							    this.getVisibleRegion('resumeCalled');
 						   });
 						   
 						}
@@ -1277,13 +1401,13 @@ checkPermission(called : string)
 				}else{
 					if(!this.checkPermissionCalled)
 					{
-						this.getVisibleRegion();
+						this.getVisibleRegion('resumeCalled');
 					}
 				}					
 			},600);
   }
   
-  getVisibleRegion()  // function to get the current visible region of map and then call search nearby function
+  getVisibleRegion(called:string)  // function to get the current visible region of map and then call search nearby function
   {
 	  this.map.getVisibleRegion().then((visibleRegion) => {
 				let neStr = visibleRegion.northeast.toUrlValue();
@@ -1323,7 +1447,7 @@ checkPermission(called : string)
 				}
 	   
 				this.isHidden = true;	
-				this.searchNearby(lat_min,lat_max,lng_min,lng_max);
+				this.searchNearby(lat_min,lat_max,lng_min,lng_max,called);
 		});
   }
   
@@ -1336,12 +1460,12 @@ checkPermission(called : string)
   
   checkStoragePermission()
   {
-	  Diagnostic.getPermissionAuthorizationStatus(Diagnostic.permission.READ_EXTERNAL_STORAGE).then(result=>{
+	  Diagnostic.getLocationAuthorizationStatus().then((result) => {
 		  
 
 		  switch(result){
 			  
-			case Diagnostic.permissionStatus.GRANTED: 	
+			case "authorized_when_in_use": console.log("Permission granted previously IOS");	
 						this.cameraDisabled = true;
 						this.isHidden = true;
 						this.getUserLocation('cameraBtn');

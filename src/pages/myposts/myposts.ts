@@ -60,7 +60,7 @@ export class MypostsPage {
    
    this.spinnerHidden = false;
    //url changed - Response changed
-   let url = 'https://citysavior.pythonanywhere.com/posts/api/user_post/'+this.user.email+'/';
+   let url = 'https://linknpark.pythonanywhere.com/posts/api/user_post/'+this.user.email+'/';
    this.http.get(url).subscribe( result => {
     
 	if(result.status == 200)
@@ -73,91 +73,90 @@ export class MypostsPage {
 		this.spinnerHidden = true;
 	}else
 	{
-	 if(this.posts.length == 0)
-	 {	
+	if(this.posts.length == 0)
+	{	
 	
-	for(var i=0;i<postData.length;i++)
-	{
-	let time = postData[i].timestamp;
-	time = time.substring(0,10);
-	let day = time.substring(time.lastIndexOf('-')+1);
-	let mon_index = Number(time.substring(time.indexOf('-')+1,time.lastIndexOf('-')));
-	let mon = this.months[mon_index - 1];
-	let year = time.substring(0,time.indexOf('-'));
-	let timestamp = day+'-'+mon+'-'+year;
-	
-	
-	let image_src = 'assets/img/other.jpg';
-	switch(postData[i].category){
-	 case 'Trash' : image_src='assets/img/garbage.jpg';
-					break;
-	
-	 case 'Street Light': image_src='assets/img/street_light.jpg';
-						  break;
-	  
-	 case 'Damaged Road': image_src='assets/img/roads.jpg';
-						   break;
-
-	 case 'Traffic Problems': image_src='assets/img/traffic.png';
+		for(var i=0;i<postData.length;i++)
+		{
+		let time = postData[i].timestamp;
+		time = time.substring(0,10);
+		let day = time.substring(time.lastIndexOf('-')+1);
+		let mon_index = Number(time.substring(time.indexOf('-')+1,time.lastIndexOf('-')));
+		let mon = this.months[mon_index - 1];
+		let year = time.substring(0,time.indexOf('-'));
+		let timestamp = day+'-'+mon+'-'+year;
+		
+		
+		let image_src = 'assets/img/other.jpg';
+		switch(postData[i].category){
+		 case 'Trash' : image_src='assets/img/garbage.jpg';
+						break;
+		
+		 case 'Street Light': image_src='assets/img/street_light.jpg';
+							  break;
+		  
+		 case 'Damaged Road': image_src='assets/img/roads.jpg';
 							   break;
-								
-	 case 'Homeless': image_src='assets/img/homeless.jpg';
-					  break;	
-	}
-	
-	this.posts[i] = {'id':postData[i].id,'title':postData[i].title,'category':postData[i].category,'timestamp':timestamp,'address':'','views':postData[i].views,'image':image_src,'upvotes':postData[i].upvotes,'is_otherCategory':postData[i].is_otherCategory,'stats':postData[i].status};
-    
-	let i1 = i;
-	
-	let url='https://maps.googleapis.com/maps/api/geocode/json?latlng='+postData[i].lat+','+postData[i].lon+'&key=AIzaSyAUA6Q7vN-9u7rW4qyKb4i8KYbCo6gzBSE&sensor=true';
-	 this.http.get(url).subscribe( res => {
-	
-	  if(res.status == 200)
-	   {
-	    let address = res.json();
-		let address_returned = null;
-		if(address.status =="OK")
-		{
-			address_returned = address.results[0].formatted_address;
+
+		 case 'Traffic Problems': image_src='assets/img/traffic.png';
+								   break;
+									
+		 case 'Homeless': image_src='assets/img/homeless.jpg';
+						  break;	
 		}
-		this.posts[i1].address = address_returned;
-		if(i1 == postData.length - 1)
-		{
-		  this.userReady = true;
-		  this.spinnerHidden = true;
-		}
-	   }
-	 }, err =>{
-	
-	  this.spinnerHidden = true;
-	  
-	  Toast.show('Error while fetching posts. Please try again later','3000','center').subscribe(toast=>{
-						
-		}, error=>{
-						
-		});
-	  
-	 });
-	 
-	 if(postData[i].is_otherCategory)
-	 {
-		let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/get/'+postData[i].id+'/';	 
-		//let body = JSON.stringify({'post_id':postData[i].id});
-		//let headers = new Headers({'Content-Type': 'application/json'});
-		//let options = new RequestOptions({ headers:headers});
-		this.http.get(url).subscribe(imageResult =>{
-			let img = imageResult.json();
-			if(img.length != 0)
+		
+		this.posts[i] = {'id':postData[i].id,'title':postData[i].title,'category':postData[i].category,'timestamp':timestamp,'address':'','views':postData[i].views,'image':image_src,'upvotes':postData[i].upvotes,'is_otherCategory':postData[i].is_otherCategory,'stats':postData[i].status};
+		
+		let i1 = i;
+		
+		let url='https://maps.googleapis.com/maps/api/geocode/json?latlng='+postData[i].lat+','+postData[i].lon+'&key=AIzaSyAUA6Q7vN-9u7rW4qyKb4i8KYbCo6gzBSE&sensor=true';
+		 this.http.get(url).subscribe( res => {
+		
+		  if(res.status == 200)
+		   {
+			let address = res.json();
+			let address_returned = null;
+			if(address.status =="OK")
 			{
-				this.posts[i1].image='https://citysavior.pythonanywhere.com'+img[0].image_url;
-				
+				address_returned = address.results[0].formatted_address;
 			}
-		},error=>{
+			this.posts[i1].address = address_returned;
 			
-		});
-	 }
-	 
-	}
+			if(i1 == postData.length - 1)
+			{
+			  this.userReady = true;
+			  this.spinnerHidden = true;
+			}
+		   }
+		 }, err =>{
+		
+		  this.spinnerHidden = true;
+		  
+		  Toast.show('Error while fetching posts. Please try again later','3000','center').subscribe(toast=>{
+							
+			}, error=>{
+							
+			});
+		  
+		 });
+		 
+		 //if(postData[i].is_otherCategory)
+		 //{
+			 url = 'https://linknpark.pythonanywhere.com/posts/api/post/image/get/'+postData[i].id+'/';	 
+			
+			this.http.get(url).subscribe(imageResult =>{
+				let img = imageResult.json();
+				if(img.length != 0)
+				{
+					this.posts[i1].image='https://linknpark.pythonanywhere.com'+img[0].image_url;
+					
+				}
+			},error=>{
+				
+			});
+		 //}
+		 
+		}
 	 }else{
 		let temp_posts = [];
 		for(var i=0;i<postData.length ;i++)
@@ -205,24 +204,46 @@ export class MypostsPage {
 			this.posts[i].upvotes = postData[j].upvotes;
 			this.posts[i].stats = postData[j].status;
 			this.posts[i].title = postData[j].title;
-			if(this.posts[i].is_otherCategory)
-				 {
+			//if(this.posts[i].is_otherCategory)
+				 //{
 					let i1=i; 
-					let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/get/'+postData[j].id+'/';
+					let url = 'https://linknpark.pythonanywhere.com/posts/api/post/image/get/'+postData[j].id+'/';
 					
 					this.http.get(url).subscribe(imageResult =>{
 						let img = imageResult.json();
 						if(img.length != 0)
 						{
-							this.posts[i1].image='https://citysavior.pythonanywhere.com'+img[0].image_url;
+							this.posts[i1].image='https://linknpark.pythonanywhere.com'+img[0].image_url;
 							
 						}else{
-							this.posts[i1].image = 'assets/img/other.jpg';
+							
+							switch(this.posts[i1].category){
+								 case 'Trash' : this.posts[i1].image='assets/img/garbage.jpg';
+												break;
+								
+								 case 'Street Light': this.posts[i1].image='assets/img/street_light.jpg';
+													  break;
+								  
+								 case 'Damaged Road': this.posts[i1].image='assets/img/roads.jpg';
+													   break;
+
+								 case 'Traffic Problems': this.posts[i1].image='assets/img/traffic.png';
+														   break;
+															
+								 case 'Homeless': this.posts[i1].image='assets/img/homeless.jpg';
+												  break;	
+								 default : 	this.posts[i1].image = 'assets/img/other.jpg';	
+											break;
+								 
+							}
+							
+							//this.posts[i1].image = 'assets/img/other.jpg';
+							
 						}
 					},error=>{
 						
 					});
-				 }
+				 //}
 		}
 		if(temp_posts.length == 0)
 		{
@@ -247,6 +268,7 @@ export class MypostsPage {
 					address_returned = address.results[0].formatted_address;
 				}
 				this.posts[i1].address = address_returned;
+				
 				if(i1 == temp_posts.length - 1)
 				{
 				  this.userReady = true;
@@ -265,21 +287,21 @@ export class MypostsPage {
 			  
 			 });
 			 
-			if(temp_posts[i].is_otherCategory)
-			 {
-				let url = 'https://citysavior.pythonanywhere.com/posts/api/post/image/get/'+temp_posts[i].id+'/';
+			//if(temp_posts[i].is_otherCategory)
+			 //{
+				url = 'https://linknpark.pythonanywhere.com/posts/api/post/image/get/'+temp_posts[i].id+'/';
 				
 				this.http.get(url).subscribe(imageResult =>{
 					let img = imageResult.json();
 					if(img.length != 0)
 					{
-						this.posts[i1].image='https://citysavior.pythonanywhere.com'+img[0].image_url;
+						this.posts[i1].image='https://linknpark.pythonanywhere.com'+img[0].image_url;
 						
 					}
 				},error=>{
 					
 				});
-			 } 
+			 //} 
 			
 		}
 	 }
@@ -288,7 +310,7 @@ export class MypostsPage {
 	
    }, error =>{
     
-	let url = 'https://citysavior.pythonanywhere.com/posts/api/member/'
+	let url = 'https://linknpark.pythonanywhere.com/posts/api/member/';
 	
 	this.http.get(url).subscribe( result =>{
 	    

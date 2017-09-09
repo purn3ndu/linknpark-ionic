@@ -1,0 +1,100 @@
+ion-app._gmaps_cdv_ .nav-decor{
+  background-color: transparent !important;
+}
+ 
+map-page {
+ 
+    #map {
+        height: 100%;
+    }
+	
+	#searchLocation{
+	 position:relative;
+	 top:2.8%;
+	}
+	
+	
+	#loadClass
+	{
+		top:5%;
+	}
+	
+	ion-spinner  {
+    width: 50px;
+    height: 50px;
+    stroke: #444;
+    fill: #222;
+	}
+	
+	
+	#show{
+	 position:absolute;
+	 top:46%;
+	 right:0;
+	 margin-right: 10px;
+	 background-color: rgba(256,256,256,0.5);
+	 width:42px;  //change width to increase or decrease the size of  pin icon
+	 height:42px; //change height to increase or decrease the size of pin icon
+	}
+	
+	.image-center {
+	  position:absolute;
+	  left: 46%;
+	  top :46%;
+	  transform :translateX( -50% );
+	  transform :translateY( -50% );
+	  font-size:48px;
+	  color:red;
+	}
+	
+	.myLocation{
+	 width:36px;
+	 height:36px;
+	 position: absolute;
+	 bottom : 30%;
+	 right:0;
+	 background-color: rgba(256,256,256,0.5);
+	 margin-right: 10px;
+	}
+	
+	.myLocImage{
+	  font-size:24px;
+	  padding: 5px;
+	  color:black;
+	}
+	
+	.pinImage{
+	  font-size:36px;  //change font-size to increase or decrease the size of pin icon
+	  padding:3px;
+	}
+	
+	.postClass
+	{
+	  position : absolute;
+	  bottom :11%;
+	  right:17%;
+	  left:13%;
+	  width : 70%;
+	}
+	
+	.cancelClass
+	{
+		position:absolute;
+		bottom:3%;
+		right:17%;
+		left:13%;
+		width : 70%;
+	}
+	
+	.cameraShort
+	{
+	  position:absolute;
+	  left: 50%;
+	  transform :translateX( -50% );
+	  bottom:2%;
+	  font-size:80px;
+	  font-weight:bold;
+	  color:black;
+	}
+ 
+}

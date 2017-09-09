@@ -5,8 +5,8 @@
   Ionic pages and navigation.
 -->
 <ion-header>
-  <ion-navbar >
-    <ion-title>Post Details</ion-title>
+  <ion-navbar [hideBackButton]="isBackHidden">
+    <ion-title>{{ navTitle}}</ion-title>
   </ion-navbar>
 </ion-header>
 
@@ -26,23 +26,24 @@
 </ion-col>
 </ion-row>
 </ion-item>
-<ion-item text-wrap> {{ postData.desc}} <br><br>
+<ion-item text-wrap> {{ postData.desc}} <br/>
 <h3> Status : <b>{{postData.stats}}</b></h3>
 </ion-item>
 
+<ion-item [hidden]="isEditHidden">
+ <button ion-button icon-left item-left (click)="updateUpvote()" [color]="isColor" [disabled]="isDisabled"><ion-icon name="person-add"></ion-icon>{{postData.upvotes}}</button>
+ <button ion-button icon-only clear item-right (click)="editPost()" ><ion-icon name="create"></ion-icon></button>
+</ion-item>
 
-<ion-item [hidden]="isEditHidden"><button ion-button item-right icon-only clear (click)="editPost()" ><ion-icon name="create"></ion-icon></button></ion-item>
-
-
-<ion-item [hidden]="!isEditHidden"><button ion-button item-right clear (click)="reportPost()" [disabled]="isReportDisabled">Report as offensive</button></ion-item>
+<ion-item [hidden]="!isEditHidden">
+<button ion-button icon-left item-left (click)="updateUpvote()" [color]="isColor" [disabled]="isDisabled"><ion-icon name="person-add"></ion-icon>{{postData.upvotes}}</button>
+<button ion-button item-right clear (click)="reportPost()" [disabled]="isReportDisabled">Report as offensive</button>
+</ion-item>
 </ion-list>
-
-
 <ion-row id="options">
-<ion-col><button ion-button icon-left small clear><ion-icon name="eye" ></ion-icon>{{postData.views}}</button></ion-col>
-<ion-col> <button ion-button icon-left small clear (click)="updateUpvote()" [color]="isColor" [disabled]="isDisabled"><ion-icon name="person-add"></ion-icon>{{postData.upvotes}}</button></ion-col>
-<ion-col> <button ion-button small clear (click)="showNewComment()" [disabled]="isCommentDisabled">Comment</button></ion-col>
-<ion-col> <button ion-button small icon-only clear (click)="sharePost()" [disabled]="isShareDisabled"><ion-icon name="share" ></ion-icon></button></ion-col>
+<ion-col><button ion-button icon-left item-left small clear><ion-icon name="eye" ></ion-icon>{{postData.views}}</button></ion-col>
+<ion-col><button ion-button small clear text-center (click)="showNewComment()" [disabled]="isCommentDisabled">Comment</button></ion-col>
+<ion-col><button ion-button small style="float:right;" clear (click)="sharePost()" [disabled]="isShareDisabled"><ion-icon name="share" ></ion-icon></button></ion-col>
 </ion-row>
 
 

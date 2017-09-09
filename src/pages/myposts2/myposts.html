@@ -1,0 +1,43 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>
+      My Posts
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+<ion-card *ngFor="let post of posts" text-wrap (click)="getPostDetail(post.id)" [hidden]="(posts.length == 0) || (!userReady)">
+<ion-item>
+<div item-left [hidden]="post.image === null" class="otherCategory">
+<img src="{{post.image}}" />
+<h3 text-center>{{post.category}}</h3><br><br>
+<h3 text-center style="color:red;"><b>{{post.stats}}</b></h3>
+</div>
+<div item-left [hidden]="post.image !=null" class="otherCategory" >
+<h1 text-center text-wrap >{{post.category}}</h1><br>
+<h3 text-center style="color:red;"><b>{{post.stats}} </b></h3>
+</div>
+<h2>{{ post.title}}</h2>
+<p><ion-icon name="pin"></ion-icon> {{ post.address}} </p>
+<ion-row > 
+<ion-col>
+<button ion-button clear small icon-left ><ion-icon name="eye" ></ion-icon>{{ post.views}}</button>
+</ion-col>
+<ion-col > <button ion-button icon-left clear small><ion-icon name="person-add"></ion-icon>{{ post.upvotes}}</button></ion-col>
+</ion-row>
+<ion-row>
+<ion-col center text-right >
+{{ post.timestamp}} 
+</ion-col>
+</ion-row>
+</ion-item>
+</ion-card>
+<h1 [hidden]="(posts.length > 0) || (!userReady)" text-center class="noPosts"> No posts present </h1>
+<ion-row text-center [hidden]="spinnerHidden">
+  <ion-col>
+  <ion-spinner></ion-spinner>
+  </ion-col>
+</ion-row>
+</ion-content>
+

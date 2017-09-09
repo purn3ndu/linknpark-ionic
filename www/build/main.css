@@ -39789,6 +39789,100 @@ map-page .cameraShort {
   color: black;
 }
 
+ion-app._gmaps_cdv_ .nav-decor {
+  background-color: transparent !important;
+}
+
+map-page #map {
+  height: 100%;
+}
+
+map-page #searchLocation {
+  position: relative;
+  top: 2.8%;
+}
+
+map-page #loadClass {
+  top: 5%;
+}
+
+map-page ion-spinner {
+  width: 50px;
+  height: 50px;
+  stroke: #444;
+  fill: #222;
+}
+
+map-page #show {
+  position: absolute;
+  top: 46%;
+  right: 0;
+  margin-right: 10px;
+  background-color: rgba(255, 255, 255, 0.5);
+  width: 42px;
+  height: 42px;
+}
+
+map-page .image-center {
+  position: absolute;
+  left: 46%;
+  top: 46%;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+  -webkit-transform: translateY(-50%);
+  transform: translateY(-50%);
+  font-size: 48px;
+  color: red;
+}
+
+map-page .myLocation {
+  width: 36px;
+  height: 36px;
+  position: absolute;
+  bottom: 30%;
+  right: 0;
+  background-color: rgba(255, 255, 255, 0.5);
+  margin-right: 10px;
+}
+
+map-page .myLocImage {
+  font-size: 24px;
+  padding: 5px;
+  color: black;
+}
+
+map-page .pinImage {
+  font-size: 36px;
+  padding: 3px;
+}
+
+map-page .postClass {
+  position: absolute;
+  bottom: 11%;
+  right: 17%;
+  left: 13%;
+  width: 70%;
+}
+
+map-page .cancelClass {
+  position: absolute;
+  bottom: 3%;
+  right: 17%;
+  left: 13%;
+  width: 70%;
+}
+
+map-page .cameraShort {
+  position: absolute;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+  bottom: 2%;
+  font-size: 80px;
+  font-weight: bold;
+  color: black;
+}
+
 page-myposts .otherCategory {
   width: 30%;
 }
