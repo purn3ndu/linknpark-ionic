@@ -1,6 +1,6 @@
-# City Savior
+# Link 'n Park
 
-Revamp of our project in Ionic. It is still in development.
+Bootstrapping the "AirBnB for Parking" app in Ionic. #PennApps2017
 
 
 ## Getting Started
